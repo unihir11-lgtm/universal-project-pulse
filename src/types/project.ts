@@ -42,6 +42,16 @@ export const CURRENCY_SYMBOLS: Record<Currency, string> = {
 // Organization default currency
 export const ORG_DEFAULT_CURRENCY: Currency = "USD";
 
+// Activity Types - simple categories for time entries (NO RATES - rates are employee-specific)
+export type ActivityType = "dev" | "design" | "admin" | "meeting";
+
+export const ACTIVITY_TYPE_LABELS: Record<ActivityType, string> = {
+  dev: "Development",
+  design: "Design",
+  admin: "Admin",
+  meeting: "Meeting",
+};
+
 // Time Entry - supports logged vs billable hours separation
 export interface TimeEntry {
   id: number;
@@ -49,6 +59,8 @@ export interface TimeEntry {
   employeeId: string;
   employeeName: string;
   date: string;
+  // Activity type - required for all time entries (NO RATES here - rates are employee-specific)
+  activityType: ActivityType;
   // Logged hours = actual time worked (for costing/payroll)
   loggedHours: number;
   // Billable hours = approved hours for invoicing (PM can adjust)
