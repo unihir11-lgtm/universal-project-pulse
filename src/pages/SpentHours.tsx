@@ -349,14 +349,14 @@ const SpentHours = () => {
                   <Label htmlFor="task" className="text-xs">Task/Subtask</Label>
                   <Select 
                     value={selectedTask} 
-                    onValueChange={setSelectedTask}
+                    onValueChange={(val) => setSelectedTask(val === "__none__" ? "" : val)}
                     disabled={!selectedProject}
                   >
                     <SelectTrigger id="task" className="h-9">
                       <SelectValue placeholder="Select task" />
                     </SelectTrigger>
                     <SelectContent className="bg-background">
-                      <SelectItem value="">No specific task</SelectItem>
+                      <SelectItem value="__none__">No specific task</SelectItem>
                       {taskOptions.map((task) => (
                         <SelectItem key={task.id} value={task.id}>
                           <span style={{ paddingLeft: `${task.depth * 12}px` }}>
