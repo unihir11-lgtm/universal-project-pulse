@@ -20,9 +20,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Download, FileBarChart, TrendingUp, Calendar } from "lucide-react";
+import { Download, FileBarChart, TrendingUp, Calendar, DollarSign, Clock, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   BarChart,
   Bar,
@@ -35,6 +35,31 @@ import {
   Pie,
   Cell,
 } from "recharts";
+import { supabase } from "@/integrations/supabase/client";
+import { Tables } from "@/integrations/supabase/types";
+import { useAuth } from "@/contexts/AuthContext";
+import { ACTIVITY_TYPE_LABELS, ActivityType, CURRENCY_SYMBOLS } from "@/types/project";
+
+type Project = Tables<"projects">;
+type Profile = Tables<"profiles">;
+
+// Mock billing data for demo
+interface BillingSummaryEntry {
+  id: string;
+  userId: string;
+  userName: string;
+  projectId: string;
+  projectName: string;
+  activityType: ActivityType;
+  totalHours: number;
+  billableHours: number;
+  billRate: number;
+  costRate: number;
+  billableAmount: number;
+  costAmount: number;
+  margin: number;
+  marginPercent: number;
+}
 
 const projectHoursData = [
   { name: "E-Commerce", hours: 342, percentage: 28 },
@@ -59,7 +84,276 @@ const categoryData = [
 ];
 
 const Reports = () => {
+  const { user, hasPermission } = useAuth();
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  
+  // Billing Summary state
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [filterProject, setFilterProject] = useState("all");
+  const [filterUser, setFilterUser] = useState("all");
+  const [filterStartDate, setFilterStartDate] = useState("");
+  const [filterEndDate, setFilterEndDate] = useState("");
+  const [showCostData, setShowCostData] = useState(false);
+  
+  // Check if user can view cost/margin data (Finance/Admin only)
+  const canViewCostData = hasPermission(["admin", "finance"]);
+
+  // Fetch projects and profiles
+  useEffect(() => {
+    const fetchData = async () => {
+      const [projectsRes, profilesRes] = await Promise.all([
+        supabase.from("projects").select("*").order("name"),
+        supabase.from("profiles").select("*").order("full_name"),
+      ]);
+      
+      if (projectsRes.data) setProjects(projectsRes.data);
+      if (profilesRes.data) setProfiles(profilesRes.data);
+    };
+    fetchData();
+  }, []);
+
+  // Mock billing summary data
+  const mockBillingSummary: BillingSummaryEntry[] = useMemo(() => [
+    {
+      id: "1",
+      userId: "user1",
+      userName: "John Doe",
+      projectId: "11111111-1111-1111-1111-111111111111",
+      projectName: "E-Commerce Platform",
+      activityType: "dev",
+      totalHours: 42,
+      billableHours: 40,
+      billRate: 150,
+      costRate: 75,
+      billableAmount: 6000,
+      costAmount: 3150,
+      margin: 2850,
+      marginPercent: 47.5,
+    },
+    {
+      id: "2",
+      userId: "user1",
+      userName: "John Doe",
+      projectId: "22222222-2222-2222-2222-222222222222",
+      projectName: "Mobile Banking App",
+      activityType: "dev",
+      totalHours: 28,
+      billableHours: 28,
+      billRate: 150,
+      costRate: 75,
+      billableAmount: 4200,
+      costAmount: 2100,
+      margin: 2100,
+      marginPercent: 50,
+    },
+    {
+      id: "3",
+      userId: "user2",
+      userName: "Sarah Smith",
+      projectId: "11111111-1111-1111-1111-111111111111",
+      projectName: "E-Commerce Platform",
+      activityType: "meeting",
+      totalHours: 12,
+      billableHours: 10,
+      billRate: 125,
+      costRate: 65,
+      billableAmount: 1250,
+      costAmount: 780,
+      margin: 470,
+      marginPercent: 37.6,
+    },
+    {
+      id: "4",
+      userId: "user2",
+      userName: "Sarah Smith",
+      projectId: "33333333-3333-3333-3333-333333333333",
+      projectName: "CRM System",
+      activityType: "design",
+      totalHours: 35,
+      billableHours: 35,
+      billRate: 125,
+      costRate: 65,
+      billableAmount: 4375,
+      costAmount: 2275,
+      margin: 2100,
+      marginPercent: 48,
+    },
+    {
+      id: "5",
+      userId: "user3",
+      userName: "Mike Johnson",
+      projectId: "22222222-2222-2222-2222-222222222222",
+      projectName: "Mobile Banking App",
+      activityType: "dev",
+      totalHours: 45,
+      billableHours: 42,
+      billRate: 140,
+      costRate: 70,
+      billableAmount: 5880,
+      costAmount: 3150,
+      margin: 2730,
+      marginPercent: 46.4,
+    },
+    {
+      id: "6",
+      userId: "user3",
+      userName: "Mike Johnson",
+      projectId: "55555555-5555-5555-5555-555555555555",
+      projectName: "Internal Tools",
+      activityType: "admin",
+      totalHours: 8,
+      billableHours: 0,
+      billRate: 0,
+      costRate: 70,
+      billableAmount: 0,
+      costAmount: 560,
+      margin: -560,
+      marginPercent: 0,
+    },
+    {
+      id: "7",
+      userId: "user4",
+      userName: "Emily Brown",
+      projectId: "33333333-3333-3333-3333-333333333333",
+      projectName: "CRM System",
+      activityType: "dev",
+      totalHours: 38,
+      billableHours: 36,
+      billRate: 135,
+      costRate: 68,
+      billableAmount: 4860,
+      costAmount: 2584,
+      margin: 2276,
+      marginPercent: 46.8,
+    },
+    {
+      id: "8",
+      userId: "user4",
+      userName: "Emily Brown",
+      projectId: "11111111-1111-1111-1111-111111111111",
+      projectName: "E-Commerce Platform",
+      activityType: "meeting",
+      totalHours: 6,
+      billableHours: 6,
+      billRate: 135,
+      costRate: 68,
+      billableAmount: 810,
+      costAmount: 408,
+      margin: 402,
+      marginPercent: 49.6,
+    },
+    {
+      id: "9",
+      userId: "user5",
+      userName: "David Lee",
+      projectId: "44444444-4444-4444-4444-444444444444",
+      projectName: "Analytics Dashboard",
+      activityType: "dev",
+      totalHours: 52,
+      billableHours: 48,
+      billRate: 145,
+      costRate: 72,
+      billableAmount: 6960,
+      costAmount: 3744,
+      margin: 3216,
+      marginPercent: 46.2,
+    },
+    {
+      id: "10",
+      userId: "user5",
+      userName: "David Lee",
+      projectId: "66666666-6666-6666-6666-666666666666",
+      projectName: "HR Portal",
+      activityType: "admin",
+      totalHours: 4,
+      billableHours: 0,
+      billRate: 0,
+      costRate: 72,
+      billableAmount: 0,
+      costAmount: 288,
+      margin: -288,
+      marginPercent: 0,
+    },
+  ], []);
+
+  // Filter billing summary
+  const filteredBillingSummary = useMemo(() => {
+    return mockBillingSummary.filter(entry => {
+      const matchesProject = filterProject === "all" || entry.projectId === filterProject;
+      const matchesUser = filterUser === "all" || entry.userId === filterUser;
+      return matchesProject && matchesUser;
+    });
+  }, [mockBillingSummary, filterProject, filterUser]);
+
+  // Calculate totals
+  const billingSummaryTotals = useMemo(() => {
+    return filteredBillingSummary.reduce((acc, entry) => ({
+      totalHours: acc.totalHours + entry.totalHours,
+      billableHours: acc.billableHours + entry.billableHours,
+      billableAmount: acc.billableAmount + entry.billableAmount,
+      costAmount: acc.costAmount + entry.costAmount,
+      margin: acc.margin + entry.margin,
+    }), {
+      totalHours: 0,
+      billableHours: 0,
+      billableAmount: 0,
+      costAmount: 0,
+      margin: 0,
+    });
+  }, [filteredBillingSummary]);
+
+  const overallMarginPercent = billingSummaryTotals.billableAmount > 0 
+    ? ((billingSummaryTotals.margin / billingSummaryTotals.billableAmount) * 100).toFixed(1)
+    : "0";
+
+  // Export to CSV
+  const handleExportBillingCSV = () => {
+    const headers = canViewCostData && showCostData
+      ? ["User", "Project", "Activity", "Total Hours", "Billable Hours", "Bill Rate", "Billable Amount", "Cost Rate", "Cost Amount", "Margin", "Margin %"]
+      : ["User", "Project", "Activity", "Total Hours", "Billable Hours", "Bill Rate", "Billable Amount"];
+    
+    const rows = filteredBillingSummary.map(entry => {
+      const baseRow = [
+        entry.userName,
+        entry.projectName,
+        ACTIVITY_TYPE_LABELS[entry.activityType],
+        entry.totalHours.toString(),
+        entry.billableHours.toString(),
+        `$${entry.billRate}`,
+        `$${entry.billableAmount.toLocaleString()}`,
+      ];
+      
+      if (canViewCostData && showCostData) {
+        baseRow.push(
+          `$${entry.costRate}`,
+          `$${entry.costAmount.toLocaleString()}`,
+          `$${entry.margin.toLocaleString()}`,
+          `${entry.marginPercent}%`
+        );
+      }
+      
+      return baseRow;
+    });
+    
+    // Add totals row
+    const totalsRow = canViewCostData && showCostData
+      ? ["TOTAL", "", "", billingSummaryTotals.totalHours.toString(), billingSummaryTotals.billableHours.toString(), "", `$${billingSummaryTotals.billableAmount.toLocaleString()}`, "", `$${billingSummaryTotals.costAmount.toLocaleString()}`, `$${billingSummaryTotals.margin.toLocaleString()}`, `${overallMarginPercent}%`]
+      : ["TOTAL", "", "", billingSummaryTotals.totalHours.toString(), billingSummaryTotals.billableHours.toString(), "", `$${billingSummaryTotals.billableAmount.toLocaleString()}`];
+    
+    rows.push(totalsRow);
+    
+    const csvContent = [headers.join(","), ...rows.map(row => row.join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `billing-summary-${new Date().toISOString().split("T")[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    toast.success("Billing summary exported to CSV");
+  };
 
   const attendanceData = [
     {
@@ -142,9 +436,29 @@ const Reports = () => {
         return <Badge variant="outline">{status}</Badge>;
     }
   };
+  
   const handleExport = () => {
     toast.success("Exporting report to Excel...");
   };
+
+  const getActivityBadge = (type: ActivityType) => {
+    const variants: Record<ActivityType, "default" | "secondary" | "outline"> = {
+      dev: "default",
+      design: "secondary",
+      admin: "outline",
+      meeting: "outline",
+    };
+    return <Badge variant={variants[type]}>{ACTIVITY_TYPE_LABELS[type]}</Badge>;
+  };
+
+  // Get unique users from billing data for filter
+  const uniqueUsers = useMemo(() => {
+    const users = new Map<string, string>();
+    mockBillingSummary.forEach(entry => {
+      users.set(entry.userId, entry.userName);
+    });
+    return Array.from(users.entries()).map(([id, name]) => ({ id, name }));
+  }, [mockBillingSummary]);
 
   return (
     <DashboardLayout>
@@ -162,12 +476,234 @@ const Reports = () => {
           </Button>
         </div>
 
-        <Tabs defaultValue="projects" className="space-y-6">
-          <TabsList className="grid w-full max-w-2xl grid-cols-3">
-            <TabsTrigger value="projects">Project-wise Reports</TabsTrigger>
-            <TabsTrigger value="employees">Employee-wise Reports</TabsTrigger>
-            <TabsTrigger value="attendance">Attendance Report</TabsTrigger>
+        <Tabs defaultValue="billing" className="space-y-6">
+          <TabsList className="grid w-full max-w-3xl grid-cols-4">
+            <TabsTrigger value="billing">Billing Summary</TabsTrigger>
+            <TabsTrigger value="projects">Project Reports</TabsTrigger>
+            <TabsTrigger value="employees">Employee Reports</TabsTrigger>
+            <TabsTrigger value="attendance">Attendance</TabsTrigger>
           </TabsList>
+
+          {/* Billing Summary Report */}
+          <TabsContent value="billing" className="space-y-6">
+            {/* Filters */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <DollarSign className="h-5 w-5" />
+                  Timesheet Billing Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-4 md:grid-cols-5">
+                  <div className="space-y-2">
+                    <Label>Project</Label>
+                    <Select value={filterProject} onValueChange={setFilterProject}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="All Projects" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-background">
+                        <SelectItem value="all">All Projects</SelectItem>
+                        {projects.map(p => (
+                          <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>User</Label>
+                    <Select value={filterUser} onValueChange={setFilterUser}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="All Users" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-background">
+                        <SelectItem value="all">All Users</SelectItem>
+                        {uniqueUsers.map(u => (
+                          <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Start Date</Label>
+                    <Input
+                      type="date"
+                      value={filterStartDate}
+                      onChange={(e) => setFilterStartDate(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>End Date</Label>
+                    <Input
+                      type="date"
+                      value={filterEndDate}
+                      onChange={(e) => setFilterEndDate(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex items-end">
+                    <Button onClick={handleExportBillingCSV} variant="outline" className="gap-2 w-full">
+                      <Download className="h-4 w-4" />
+                      Export CSV
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Summary Stats */}
+            <div className="grid gap-4 md:grid-cols-4">
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">Total Hours</p>
+                  </div>
+                  <p className="text-3xl font-bold text-foreground mt-2">
+                    {billingSummaryTotals.totalHours.toLocaleString()}h
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">Billable Hours</p>
+                  </div>
+                  <p className="text-3xl font-bold text-foreground mt-2">
+                    {billingSummaryTotals.billableHours.toLocaleString()}h
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {((billingSummaryTotals.billableHours / billingSummaryTotals.totalHours) * 100).toFixed(1)}% utilization
+                  </p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-2">
+                    <DollarSign className="h-4 w-4 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">Billable Amount</p>
+                  </div>
+                  <p className="text-3xl font-bold text-success mt-2">
+                    ${billingSummaryTotals.billableAmount.toLocaleString()}
+                  </p>
+                </CardContent>
+              </Card>
+              {canViewCostData && (
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="h-4 w-4 text-muted-foreground" />
+                        <p className="text-sm text-muted-foreground">Cost / Margin</p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => setShowCostData(!showCostData)}
+                      >
+                        {showCostData ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                    {showCostData ? (
+                      <>
+                        <p className="text-3xl font-bold text-foreground mt-2">
+                          ${billingSummaryTotals.margin.toLocaleString()}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {overallMarginPercent}% margin (Cost: ${billingSummaryTotals.costAmount.toLocaleString()})
+                        </p>
+                      </>
+                    ) : (
+                      <p className="text-xl text-muted-foreground mt-2">Click to reveal</p>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
+            {/* Billing Table */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Detailed Billing Summary</CardTitle>
+                  <Badge variant="secondary">{filteredBillingSummary.length} Records</Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>User</TableHead>
+                      <TableHead>Project</TableHead>
+                      <TableHead>Activity</TableHead>
+                      <TableHead className="text-right">Total Hrs</TableHead>
+                      <TableHead className="text-right">Billable Hrs</TableHead>
+                      <TableHead className="text-right">Bill Rate</TableHead>
+                      <TableHead className="text-right">Billable Amt</TableHead>
+                      {canViewCostData && showCostData && (
+                        <>
+                          <TableHead className="text-right">Cost Rate</TableHead>
+                          <TableHead className="text-right">Cost Amt</TableHead>
+                          <TableHead className="text-right">Margin</TableHead>
+                          <TableHead className="text-right">Margin %</TableHead>
+                        </>
+                      )}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredBillingSummary.map((entry) => (
+                      <TableRow key={entry.id}>
+                        <TableCell className="font-medium">{entry.userName}</TableCell>
+                        <TableCell>{entry.projectName}</TableCell>
+                        <TableCell>{getActivityBadge(entry.activityType)}</TableCell>
+                        <TableCell className="text-right">{entry.totalHours}h</TableCell>
+                        <TableCell className="text-right">{entry.billableHours}h</TableCell>
+                        <TableCell className="text-right">${entry.billRate}</TableCell>
+                        <TableCell className="text-right font-medium">${entry.billableAmount.toLocaleString()}</TableCell>
+                        {canViewCostData && showCostData && (
+                          <>
+                            <TableCell className="text-right">${entry.costRate}</TableCell>
+                            <TableCell className="text-right">${entry.costAmount.toLocaleString()}</TableCell>
+                            <TableCell className={`text-right font-medium ${entry.margin >= 0 ? 'text-success' : 'text-destructive'}`}>
+                              ${entry.margin.toLocaleString()}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <Badge variant={entry.marginPercent >= 40 ? "default" : entry.marginPercent > 0 ? "secondary" : "destructive"}>
+                                {entry.marginPercent}%
+                              </Badge>
+                            </TableCell>
+                          </>
+                        )}
+                      </TableRow>
+                    ))}
+                    {/* Totals Row */}
+                    <TableRow className="bg-muted/50 font-bold">
+                      <TableCell>TOTAL</TableCell>
+                      <TableCell></TableCell>
+                      <TableCell></TableCell>
+                      <TableCell className="text-right">{billingSummaryTotals.totalHours}h</TableCell>
+                      <TableCell className="text-right">{billingSummaryTotals.billableHours}h</TableCell>
+                      <TableCell className="text-right"></TableCell>
+                      <TableCell className="text-right">${billingSummaryTotals.billableAmount.toLocaleString()}</TableCell>
+                      {canViewCostData && showCostData && (
+                        <>
+                          <TableCell className="text-right"></TableCell>
+                          <TableCell className="text-right">${billingSummaryTotals.costAmount.toLocaleString()}</TableCell>
+                          <TableCell className={`text-right ${billingSummaryTotals.margin >= 0 ? 'text-success' : 'text-destructive'}`}>
+                            ${billingSummaryTotals.margin.toLocaleString()}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Badge variant="default">{overallMarginPercent}%</Badge>
+                          </TableCell>
+                        </>
+                      )}
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           {/* Project-wise Reports */}
           <TabsContent value="projects" className="space-y-6">
@@ -187,7 +723,7 @@ const Reports = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Select project" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-background">
                         <SelectItem value="all">All Projects</SelectItem>
                         <SelectItem value="ecommerce">E-Commerce Platform</SelectItem>
                         <SelectItem value="banking">Mobile Banking App</SelectItem>
@@ -202,7 +738,7 @@ const Reports = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Select range" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-background">
                         <SelectItem value="week">This Week</SelectItem>
                         <SelectItem value="month">This Month</SelectItem>
                         <SelectItem value="quarter">This Quarter</SelectItem>
@@ -217,7 +753,7 @@ const Reports = () => {
                       <SelectTrigger>
                         <SelectValue placeholder="Select manager" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-background">
                         <SelectItem value="all">All Managers</SelectItem>
                         <SelectItem value="sarah">Sarah Smith</SelectItem>
                         <SelectItem value="john">John Doe</SelectItem>
@@ -467,31 +1003,6 @@ const Reports = () => {
                 </div>
               </CardContent>
             </Card>
-
-            {/* Employee Stats */}
-            <div className="grid gap-6 md:grid-cols-3">
-              <Card>
-                <CardContent className="pt-6">
-                  <p className="text-sm text-muted-foreground">Average Productivity</p>
-                  <p className="text-3xl font-bold text-foreground mt-2">88.4%</p>
-                  <p className="text-sm text-success mt-1">↑ +5% from last month</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6">
-                  <p className="text-sm text-muted-foreground">Average Attendance</p>
-                  <p className="text-3xl font-bold text-foreground mt-2">95.2%</p>
-                  <p className="text-sm text-success mt-1">↑ +2% from last month</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6">
-                  <p className="text-sm text-muted-foreground">Total Contributions</p>
-                  <p className="text-3xl font-bold text-foreground mt-2">14</p>
-                  <p className="text-sm text-muted-foreground mt-1">Active projects</p>
-                </CardContent>
-              </Card>
-            </div>
           </TabsContent>
         </Tabs>
       </div>
