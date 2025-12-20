@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Plus, ListTodo, ChevronRight } from "lucide-react";
+import { Plus, ListTodo, ChevronRight, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useMemo } from "react";
 import { Label } from "@/components/ui/label";
@@ -102,6 +102,7 @@ const Tasks = () => {
   const [taskCategory, setTaskCategory] = useState<string>("");
   const [parentTaskId, setParentTaskId] = useState<string>("none");
   const [filterSprint, setFilterSprint] = useState<string>("all");
+  const [expandedTasks, setExpandedTasks] = useState<Set<number>>(new Set());
 
   // Get project ID from project name
   const selectedProjectId = useMemo(() => {
@@ -470,26 +471,140 @@ const Tasks = () => {
                 <TableBody>
                   {filteredTasks.map((task) => {
                     const projectName = projectsData.find(p => p.id === task.projectId)?.project ?? "Unknown";
-                    const subtaskCount = allTasks.filter(t => t.parentTaskId === task.id).length;
+                    const subtasks = allTasks.filter(t => t.parentTaskId === task.id);
+                    const subtaskCount = subtasks.length;
+                    const isExpanded = expandedTasks.has(task.id);
+
+                    const toggleExpand = () => {
+                      setExpandedTasks(prev => {
+                        const next = new Set(prev);
+                        if (next.has(task.id)) {
+                          next.delete(task.id);
+                        } else {
+                          next.add(task.id);
+                        }
+                        return next;
+                      });
+                    };
+
                     return (
-                      <TableRow key={task.id}>
-                        <TableCell className="text-sm py-2">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">{task.name}</span>
-                            {subtaskCount > 0 && (
-                              <Badge variant="outline" className="text-[10px]">
-                                {subtaskCount} subtask{subtaskCount > 1 ? "s" : ""}
-                              </Badge>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-sm py-2">{projectName}</TableCell>
-                        <TableCell className="text-sm py-2">{task.category}</TableCell>
-                        <TableCell className="text-sm py-2 text-center">{task.estimatedHours ?? "-"}</TableCell>
-                        <TableCell className="text-sm py-2 text-center">{task.loggedHours}h</TableCell>
-                        <TableCell className="text-sm py-2">{task.primaryAssigneeName}</TableCell>
-                        <TableCell className="text-sm py-2">{getStatusBadge(task.status)}</TableCell>
-                      </TableRow>
+                      <>
+                        <TableRow key={task.id} className={subtaskCount > 0 ? "cursor-pointer hover:bg-muted/50" : ""} onClick={subtaskCount > 0 ? toggleExpand : undefined}>
+                          <TableCell className="text-sm py-2">
+                            <div className="flex items-center gap-2">
+                              {subtaskCount > 0 && (
+                                <button 
+                                  onClick={(e) => { e.stopPropagation(); toggleExpand(); }}
+                                  className="p-0.5 hover:bg-muted rounded"
+                                >
+                                  {isExpanded ? (
+                                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                                  ) : (
+                                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                                  )}
+                                </button>
+                              )}
+                              {subtaskCount === 0 && <div className="w-5" />}
+                              <span className="font-medium">{task.name}</span>
+                              {subtaskCount > 0 && (
+                                <Badge 
+                                  variant="outline" 
+                                  className="text-[10px] cursor-pointer hover:bg-muted"
+                                  onClick={(e) => { e.stopPropagation(); toggleExpand(); }}
+                                >
+                                  {subtaskCount} subtask{subtaskCount > 1 ? "s" : ""}
+                                </Badge>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-sm py-2">{projectName}</TableCell>
+                          <TableCell className="text-sm py-2">{task.category}</TableCell>
+                          <TableCell className="text-sm py-2 text-center">{task.estimatedHours ?? "-"}</TableCell>
+                          <TableCell className="text-sm py-2 text-center">{task.loggedHours}h</TableCell>
+                          <TableCell className="text-sm py-2">{task.primaryAssigneeName}</TableCell>
+                          <TableCell className="text-sm py-2">{getStatusBadge(task.status)}</TableCell>
+                        </TableRow>
+                        
+                        {/* Subtask rows */}
+                        {isExpanded && subtasks.map((subtask) => {
+                          const subSubtasks = allTasks.filter(t => t.parentTaskId === subtask.id);
+                          const subSubtaskCount = subSubtasks.length;
+                          const isSubExpanded = expandedTasks.has(subtask.id);
+
+                          const toggleSubExpand = () => {
+                            setExpandedTasks(prev => {
+                              const next = new Set(prev);
+                              if (next.has(subtask.id)) {
+                                next.delete(subtask.id);
+                              } else {
+                                next.add(subtask.id);
+                              }
+                              return next;
+                            });
+                          };
+
+                          return (
+                            <>
+                              <TableRow 
+                                key={subtask.id} 
+                                className={`bg-muted/30 ${subSubtaskCount > 0 ? "cursor-pointer" : ""}`}
+                                onClick={subSubtaskCount > 0 ? toggleSubExpand : undefined}
+                              >
+                                <TableCell className="text-sm py-2">
+                                  <div className="flex items-center gap-2 pl-6">
+                                    {subSubtaskCount > 0 ? (
+                                      <button 
+                                        onClick={(e) => { e.stopPropagation(); toggleSubExpand(); }}
+                                        className="p-0.5 hover:bg-muted rounded"
+                                      >
+                                        {isSubExpanded ? (
+                                          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                                        ) : (
+                                          <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+                                        )}
+                                      </button>
+                                    ) : (
+                                      <div className="w-4" />
+                                    )}
+                                    <span className="text-muted-foreground">└</span>
+                                    <span>{subtask.name}</span>
+                                    {subSubtaskCount > 0 && (
+                                      <Badge variant="outline" className="text-[10px]">
+                                        {subSubtaskCount}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                </TableCell>
+                                <TableCell className="text-sm py-2 text-muted-foreground">{projectName}</TableCell>
+                                <TableCell className="text-sm py-2">{subtask.category}</TableCell>
+                                <TableCell className="text-sm py-2 text-center">{subtask.estimatedHours ?? "-"}</TableCell>
+                                <TableCell className="text-sm py-2 text-center">{subtask.loggedHours}h</TableCell>
+                                <TableCell className="text-sm py-2">{subtask.primaryAssigneeName}</TableCell>
+                                <TableCell className="text-sm py-2">{getStatusBadge(subtask.status)}</TableCell>
+                              </TableRow>
+
+                              {/* Level 2 subtasks */}
+                              {isSubExpanded && subSubtasks.map((subSubtask) => (
+                                <TableRow key={subSubtask.id} className="bg-muted/50">
+                                  <TableCell className="text-sm py-2">
+                                    <div className="flex items-center gap-2 pl-12">
+                                      <div className="w-4" />
+                                      <span className="text-muted-foreground">└</span>
+                                      <span className="text-sm">{subSubtask.name}</span>
+                                    </div>
+                                  </TableCell>
+                                  <TableCell className="text-sm py-2 text-muted-foreground">{projectName}</TableCell>
+                                  <TableCell className="text-sm py-2">{subSubtask.category}</TableCell>
+                                  <TableCell className="text-sm py-2 text-center">{subSubtask.estimatedHours ?? "-"}</TableCell>
+                                  <TableCell className="text-sm py-2 text-center">{subSubtask.loggedHours}h</TableCell>
+                                  <TableCell className="text-sm py-2">{subSubtask.primaryAssigneeName}</TableCell>
+                                  <TableCell className="text-sm py-2">{getStatusBadge(subSubtask.status)}</TableCell>
+                                </TableRow>
+                              ))}
+                            </>
+                          );
+                        })}
+                      </>
                     );
                   })}
                 </TableBody>
