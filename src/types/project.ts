@@ -117,16 +117,63 @@ export const canApproveMilestone = (role: UserRole): boolean => {
 };
 
 // Task - atomic unit of execution
-export type TaskStatus = "backlog" | "todo" | "in_progress" | "in_review" | "done" | "blocked";
+// Default workflow: New → Assigned → In Progress → In Review → Blocked → Completed
+export type TaskStatus = "new" | "assigned" | "in_progress" | "in_review" | "blocked" | "completed";
 
 export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
-  backlog: "Backlog",
-  todo: "To Do",
+  new: "New",
+  assigned: "Assigned",
   in_progress: "In Progress",
   in_review: "In Review",
-  done: "Done",
   blocked: "Blocked",
+  completed: "Completed",
 };
+
+// Status display order for UI
+export const TASK_STATUS_ORDER: TaskStatus[] = [
+  "new", "assigned", "in_progress", "in_review", "blocked", "completed"
+];
+
+// Roles that can perform transitions
+export type TransitionRole = "assignee" | "lead" | "manager" | "admin" | "finance";
+
+// Transition rule: defines who can move task between states
+export interface TaskTransitionRule {
+  from: TaskStatus;
+  to: TaskStatus;
+  allowedRoles: TransitionRole[];
+  label: string;  // e.g., "Assign", "Start Work", "Submit for Review"
+}
+
+// Default workflow transition rules
+export const DEFAULT_TASK_TRANSITIONS: TaskTransitionRule[] = [
+  // New → Assigned (Team lead assigns task)
+  { from: "new", to: "assigned", allowedRoles: ["lead", "manager", "admin"], label: "Assign" },
+  
+  // Assigned → In Progress (Assignee starts work)
+  { from: "assigned", to: "in_progress", allowedRoles: ["assignee", "lead", "manager", "admin"], label: "Start Work" },
+  
+  // In Progress → In Review (Assignee submits for review)
+  { from: "in_progress", to: "in_review", allowedRoles: ["assignee", "lead", "manager", "admin"], label: "Submit for Review" },
+  
+  // In Progress → Blocked (Anyone can mark blocked)
+  { from: "in_progress", to: "blocked", allowedRoles: ["assignee", "lead", "manager", "admin"], label: "Mark Blocked" },
+  
+  // Blocked → In Progress (Unblock and resume)
+  { from: "blocked", to: "in_progress", allowedRoles: ["assignee", "lead", "manager", "admin"], label: "Unblock" },
+  
+  // In Review → Completed (Reviewer approves)
+  { from: "in_review", to: "completed", allowedRoles: ["lead", "manager", "admin"], label: "Approve & Complete" },
+  
+  // In Review → In Progress (Reviewer requests changes)
+  { from: "in_review", to: "in_progress", allowedRoles: ["lead", "manager", "admin"], label: "Request Changes" },
+  
+  // Completed → In Progress (Reopen task)
+  { from: "completed", to: "in_progress", allowedRoles: ["lead", "manager", "admin"], label: "Reopen" },
+  
+  // Assigned → New (Unassign - rare but needed)
+  { from: "assigned", to: "new", allowedRoles: ["lead", "manager", "admin"], label: "Unassign" },
+];
 
 export type TaskPriority = "low" | "medium" | "high" | "urgent";
 
@@ -193,20 +240,39 @@ export interface Task {
 // Maximum UI depth for task hierarchy (DB can support more)
 export const MAX_TASK_DEPTH = 2;
 
-// Helper to check if task can transition to a status
+// Helper to check if task can transition (simple check - use canUserTransitionTask for role-based)
 export const canTransitionTask = (
   currentStatus: TaskStatus, 
   newStatus: TaskStatus
 ): boolean => {
-  const allowedTransitions: Record<TaskStatus, TaskStatus[]> = {
-    backlog: ["todo"],
-    todo: ["in_progress", "backlog"],
-    in_progress: ["in_review", "blocked", "todo"],
-    in_review: ["done", "in_progress"],
-    done: ["in_progress"], // Reopen
-    blocked: ["in_progress", "todo"],
-  };
-  return allowedTransitions[currentStatus]?.includes(newStatus) ?? false;
+  return DEFAULT_TASK_TRANSITIONS.some(
+    rule => rule.from === currentStatus && rule.to === newStatus
+  );
+};
+
+// Helper to get available transitions for a status
+export const getAvailableTransitions = (currentStatus: TaskStatus): TaskTransitionRule[] => {
+  return DEFAULT_TASK_TRANSITIONS.filter(rule => rule.from === currentStatus);
+};
+
+// Helper to check if user can perform a specific transition
+export const canUserTransitionTask = (
+  currentStatus: TaskStatus,
+  newStatus: TaskStatus,
+  userTransitionRole: TransitionRole
+): boolean => {
+  const rule = DEFAULT_TASK_TRANSITIONS.find(
+    r => r.from === currentStatus && r.to === newStatus
+  );
+  return rule?.allowedRoles.includes(userTransitionRole) ?? false;
+};
+
+// Map UserRole to TransitionRole (basic mapping, can be extended)
+export const getTransitionRoleFromUserRole = (userRole: UserRole, isAssignee: boolean): TransitionRole => {
+  if (isAssignee) return "assignee";
+  if (userRole === "admin") return "admin";
+  if (userRole === "finance") return "finance";
+  return "lead"; // Default for regular users with team lead permissions
 };
 
 // Helper to get subtasks for a parent
@@ -236,9 +302,10 @@ export const getTaskProgress = (task: Task, allTasks: Task[]): number => {
   
   // No subtasks - progress based on own status
   if (subtasks.length === 0) {
-    if (task.status === "done") return 100;
+    if (task.status === "completed") return 100;
     if (task.status === "in_review") return 90;
     if (task.status === "in_progress") return 50;
+    if (task.status === "assigned") return 10;
     return 0;
   }
   
