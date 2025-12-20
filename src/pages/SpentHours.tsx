@@ -47,6 +47,7 @@ const SpentHours = () => {
   // Data state
   const [projects, setProjects] = useState<Project[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [allTasks, setAllTasks] = useState<Task[]>([]); // All tasks for lookups
   const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -56,6 +57,20 @@ const SpentHours = () => {
   const [filterStartDate, setFilterStartDate] = useState("");
   const [filterEndDate, setFilterEndDate] = useState("");
   const [selectedLogs, setSelectedLogs] = useState<string[]>([]);
+
+  // Mock time entries for demo (until auth is set up)
+  const mockTimeEntries = useMemo(() => [
+    { id: "1", project_id: "11111111-1111-1111-1111-111111111111", task_id: "aaaa1111-1111-1111-1111-111111111111", activity_type: "dev", entry_date: "2024-12-20", logged_hours: 6, billable_hours: 6, is_billable: true, description: "Implemented payment gateway integration", status: "approved", is_corrected: false },
+    { id: "2", project_id: "11111111-1111-1111-1111-111111111111", task_id: "aaaa1112-1111-1111-1111-111111111111", activity_type: "dev", entry_date: "2024-12-20", logged_hours: 4, billable_hours: 4, is_billable: true, description: "Configured Stripe webhooks", status: "pending", is_corrected: false },
+    { id: "3", project_id: "22222222-2222-2222-2222-222222222222", task_id: "bbbb2222-2222-2222-2222-222222222222", activity_type: "dev", entry_date: "2024-12-19", logged_hours: 8, billable_hours: 8, is_billable: true, description: "Built authentication flow", status: "approved", is_corrected: false },
+    { id: "4", project_id: "22222222-2222-2222-2222-222222222222", task_id: null, activity_type: "meeting", entry_date: "2024-12-19", logged_hours: 2, billable_hours: 2, is_billable: true, description: "Sprint planning with client", status: "approved", is_corrected: false },
+    { id: "5", project_id: "33333333-3333-3333-3333-333333333333", task_id: "cccc3333-3333-3333-3333-333333333333", activity_type: "design", entry_date: "2024-12-18", logged_hours: 5, billable_hours: 5, is_billable: true, description: "Designed contact management UI", status: "approved", is_corrected: false },
+    { id: "6", project_id: "11111111-1111-1111-1111-111111111111", task_id: "aaaa1113-1111-1111-1111-111111111111", activity_type: "dev", entry_date: "2024-12-18", logged_hours: 7, billable_hours: 7, is_billable: true, description: "Shopping cart state management", status: "pending", is_corrected: false },
+    { id: "7", project_id: "55555555-5555-5555-5555-555555555555", task_id: "dddd5555-5555-5555-5555-555555555555", activity_type: "admin", entry_date: "2024-12-17", logged_hours: 3, billable_hours: 0, is_billable: false, description: "CI/CD pipeline optimization", status: "approved", is_corrected: false },
+    { id: "8", project_id: "33333333-3333-3333-3333-333333333333", task_id: null, activity_type: "meeting", entry_date: "2024-12-17", logged_hours: 1.5, billable_hours: 1.5, is_billable: true, description: "Requirements gathering session", status: "approved", is_corrected: false },
+    { id: "9", project_id: "11111111-1111-1111-1111-111111111111", task_id: "aaaa1114-1111-1111-1111-111111111111", activity_type: "dev", entry_date: "2024-12-16", logged_hours: 6, billable_hours: 6, is_billable: true, description: "Product catalog search feature", status: "approved", is_corrected: false },
+    { id: "10", project_id: "22222222-2222-2222-2222-222222222222", task_id: "bbbb2224-2222-2222-2222-222222222222", activity_type: "dev", entry_date: "2024-12-16", logged_hours: 4.5, billable_hours: 4.5, is_billable: true, description: "Transaction history API integration", status: "pending", is_corrected: false },
+  ] as const, []);
 
   const maxHoursPerDay = 9;
 
@@ -78,7 +93,24 @@ const SpentHours = () => {
     fetchProjects();
   }, []);
 
-  // Fetch tasks when project changes
+  // Fetch ALL tasks for lookups and filters
+  useEffect(() => {
+    const fetchAllTasks = async () => {
+      const { data, error } = await supabase
+        .from("tasks")
+        .select("*")
+        .order("name");
+      
+      if (error) {
+        console.error("Error fetching all tasks:", error);
+      } else {
+        setAllTasks(data || []);
+      }
+    };
+    fetchAllTasks();
+  }, []);
+
+  // Fetch tasks when project changes (for form dropdown)
   useEffect(() => {
     const fetchTasks = async () => {
       if (!selectedProject) {
@@ -101,7 +133,7 @@ const SpentHours = () => {
     fetchTasks();
   }, [selectedProject]);
 
-  // Fetch time entries
+  // Fetch time entries (use mock data if empty)
   useEffect(() => {
     const fetchTimeEntries = async () => {
       setIsLoading(true);
@@ -114,9 +146,13 @@ const SpentHours = () => {
       
       if (error) {
         console.error("Error fetching time entries:", error);
-        toast.error("Failed to load time entries");
+        // Use mock data for demo
+        setTimeEntries([]);
+      } else if (data && data.length > 0) {
+        setTimeEntries(data);
       } else {
-        setTimeEntries(data || []);
+        // No data, will use mock entries
+        setTimeEntries([]);
       }
       setIsLoading(false);
     };
@@ -237,16 +273,25 @@ const SpentHours = () => {
     return <Badge variant={variants[status] || "default"}>{status}</Badge>;
   };
 
+  // Use mock data if no real entries exist
+  const displayEntries = useMemo(() => {
+    if (timeEntries.length > 0) {
+      return timeEntries;
+    }
+    // Return mock entries for demo
+    return mockTimeEntries as unknown as TimeEntry[];
+  }, [timeEntries, mockTimeEntries]);
+
   // Filter entries
   const filteredEntries = useMemo(() => {
-    return timeEntries.filter(entry => {
+    return displayEntries.filter(entry => {
       const matchesProject = filterProject === "all" || entry.project_id === filterProject;
       const matchesTask = filterTask === "all" || entry.task_id === filterTask;
       const matchesStartDate = !filterStartDate || entry.entry_date >= filterStartDate;
       const matchesEndDate = !filterEndDate || entry.entry_date <= filterEndDate;
       return matchesProject && matchesTask && matchesStartDate && matchesEndDate;
     });
-  }, [timeEntries, filterProject, filterTask, filterStartDate, filterEndDate]);
+  }, [displayEntries, filterProject, filterTask, filterStartDate, filterEndDate]);
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -277,10 +322,10 @@ const SpentHours = () => {
     return projects.find(p => p.id === projectId)?.name || "Unknown";
   };
 
-  // Get task name by ID
+  // Get task name by ID (use allTasks for lookups)
   const getTaskName = (taskId: string | null) => {
     if (!taskId) return "-";
-    return tasks.find(t => t.id === taskId)?.name || "Unknown";
+    return allTasks.find(t => t.id === taskId)?.name || "Unknown";
   };
 
   return (
