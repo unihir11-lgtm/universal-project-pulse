@@ -10,6 +10,7 @@ import EmployeeDashboard from "./pages/EmployeeDashboard";
 import Employees from "./pages/Employees";
 import EmployeeRates from "./pages/EmployeeRates";
 import Projects from "./pages/Projects";
+import ProjectTemplates from "./pages/ProjectTemplates";
 import SpentHours from "./pages/SpentHours";
 import TodaysHours from "./pages/TodaysHours";
 import Reports from "./pages/Reports";
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/employees" element={<Employees />} />
             <Route path="/employee-rates" element={<EmployeeRates />} />
             <Route path="/projects" element={<Projects />} />
+            <Route path="/project-templates" element={<ProjectTemplates />} />
             <Route path="/spent-hours" element={<SpentHours />} />
             <Route path="/todays-hours" element={<TodaysHours />} />
             <Route path="/reports" element={<Reports />} />
