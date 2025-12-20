@@ -133,6 +133,7 @@ export const mockTimeEntries: TimeEntry[] = [
     employeeId: "1",
     employeeName: "John Doe",
     date: "2024-01-15",
+    activityType: "dev",
     loggedHours: 10,       // Actual time worked (costing/payroll)
     billableHours: 8,      // PM reduced - employee was slow
     isBillable: true,
@@ -148,6 +149,7 @@ export const mockTimeEntries: TimeEntry[] = [
     employeeId: "2",
     employeeName: "Sarah Smith",
     date: "2024-01-15",
+    activityType: "meeting",
     loggedHours: 6,
     billableHours: 6,
     isBillable: true,
@@ -163,6 +165,7 @@ export const mockTimeEntries: TimeEntry[] = [
     employeeId: "1",
     employeeName: "John Doe",
     date: "2024-01-16",
+    activityType: "dev",
     loggedHours: 8,
     billableHours: 8,
     isBillable: true,
@@ -176,6 +179,7 @@ export const mockTimeEntries: TimeEntry[] = [
     employeeId: "3",
     employeeName: "Mike Johnson",
     date: "2024-01-16",
+    activityType: "admin",
     loggedHours: 4,
     billableHours: 0,
     isBillable: false,     // Non-billable internal time on external project
@@ -191,6 +195,7 @@ export const mockTimeEntries: TimeEntry[] = [
     employeeId: "4",
     employeeName: "Emily Brown",
     date: "2024-01-15",
+    activityType: "design",
     loggedHours: 7,
     billableHours: 7,
     isBillable: true,
