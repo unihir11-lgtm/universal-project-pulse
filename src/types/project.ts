@@ -116,6 +116,93 @@ export const canApproveMilestone = (role: UserRole): boolean => {
   return role === "admin" || role === "finance";
 };
 
+// Task - atomic unit of execution
+export type TaskStatus = "backlog" | "todo" | "in_progress" | "in_review" | "done" | "blocked";
+
+export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
+  backlog: "Backlog",
+  todo: "To Do",
+  in_progress: "In Progress",
+  in_review: "In Review",
+  done: "Done",
+  blocked: "Blocked",
+};
+
+export type TaskPriority = "low" | "medium" | "high" | "urgent";
+
+export const TASK_PRIORITY_LABELS: Record<TaskPriority, string> = {
+  low: "Low",
+  medium: "Medium",
+  high: "High",
+  urgent: "Urgent",
+};
+
+// Task categories for reporting
+export type TaskCategory = 
+  | "development"
+  | "design"
+  | "testing"
+  | "documentation"
+  | "meeting"
+  | "planning"
+  | "support"
+  | "other";
+
+export const TASK_CATEGORY_LABELS: Record<TaskCategory, string> = {
+  development: "Development",
+  design: "Design",
+  testing: "Testing",
+  documentation: "Documentation",
+  meeting: "Meeting",
+  planning: "Planning",
+  support: "Support",
+  other: "Other",
+};
+
+export interface Task {
+  id: number;
+  projectId: number;         // Required - tasks must belong to a project
+  name: string;
+  description?: string;
+  status: TaskStatus;
+  priority: TaskPriority;
+  // Assignees: single primary + optional collaborators
+  primaryAssigneeId: string;
+  primaryAssigneeName: string;
+  collaboratorIds?: string[];
+  collaboratorNames?: string[];
+  // Billing
+  isBillable: boolean;       // Can be non-billable even on external projects
+  estimatedHours?: number;
+  loggedHours: number;
+  // Optional linkages
+  milestoneId?: number;
+  sprintId?: number;
+  // Tags/categories for reporting
+  category: TaskCategory;
+  tags?: string[];
+  // Dates
+  createdAt: string;
+  dueDate?: string;
+  completedAt?: string;
+}
+
+// Helper to check if task can transition to a status
+export const canTransitionTask = (
+  currentStatus: TaskStatus, 
+  newStatus: TaskStatus
+): boolean => {
+  const allowedTransitions: Record<TaskStatus, TaskStatus[]> = {
+    backlog: ["todo"],
+    todo: ["in_progress", "backlog"],
+    in_progress: ["in_review", "blocked", "todo"],
+    in_review: ["done", "in_progress"],
+    done: ["in_progress"], // Reopen
+    blocked: ["in_progress", "todo"],
+  };
+  return allowedTransitions[currentStatus]?.includes(newStatus) ?? false;
+};
+
 export interface Project {
   id: number;
   name: string;
