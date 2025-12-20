@@ -1,7 +1,7 @@
 import { Project } from "@/types/project";
 
 export const mockProjects: Project[] = [
-  // External (Billable) Projects
+  // External (Billable) Projects - currency is required
   {
     id: 1,
     name: "E-Commerce Platform",
@@ -14,6 +14,8 @@ export const mockProjects: Project[] = [
     billableRate: 150,
     estimatedBudget: 75000,
     invoiced: 45000,
+    currency: "USD",
+    currencyLocked: true, // Has invoices, currency locked
   },
   {
     id: 2,
@@ -27,6 +29,8 @@ export const mockProjects: Project[] = [
     billableRate: 175,
     estimatedBudget: 120000,
     invoiced: 38400,
+    currency: "USD",
+    currencyLocked: true,
   },
   {
     id: 3,
@@ -40,6 +44,8 @@ export const mockProjects: Project[] = [
     billableRate: 140,
     estimatedBudget: 55000,
     invoiced: 26460,
+    currency: "EUR",
+    currencyLocked: true,
   },
   {
     id: 4,
@@ -53,6 +59,8 @@ export const mockProjects: Project[] = [
     billableRate: 160,
     estimatedBudget: 80000,
     invoiced: 47680,
+    currency: "GBP",
+    currencyLocked: true,
   },
   {
     id: 5,
@@ -66,8 +74,10 @@ export const mockProjects: Project[] = [
     billableRate: 145,
     estimatedBudget: 65000,
     invoiced: 64525,
+    currency: "USD",
+    currencyLocked: true,
   },
-  // Internal (Non-Billable) Projects
+  // Internal (Non-Billable) Projects - no currency needed
   {
     id: 6,
     name: "Internal HR Portal",

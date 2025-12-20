@@ -63,7 +63,18 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { mockProjects } from "@/data/mockProjects";
-import { Project, ProjectType, canConvertProjectType, isBillable } from "@/types/project";
+import { 
+  Project, 
+  ProjectType, 
+  Currency,
+  canConvertProjectType, 
+  isBillable,
+  canChangeCurrency,
+  formatCurrency,
+  getProjectCurrency,
+  CURRENCY_SYMBOLS,
+  ORG_DEFAULT_CURRENCY,
+} from "@/types/project";
 
 const Projects = () => {
   const { user, hasPermission } = useAuth();
@@ -86,6 +97,7 @@ const Projects = () => {
     description: "",
     status: "Active",
     billableRate: "",
+    currency: ORG_DEFAULT_CURRENCY as Currency,
   });
   
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
@@ -152,6 +164,8 @@ const Projects = () => {
         billableRate: parseFloat(formData.billableRate) || 0,
         estimatedBudget: 0,
         invoiced: 0,
+        currency: formData.currency,
+        currencyLocked: false, // Not locked until first invoice
       }),
     };
 
@@ -174,6 +188,7 @@ const Projects = () => {
       description: "",
       status: "Active",
       billableRate: "",
+      currency: ORG_DEFAULT_CURRENCY,
     });
     setSelectedEmployees([]);
   };
@@ -373,10 +388,31 @@ const Projects = () => {
                     </div>
                   </div>
 
-                  {formData.projectType === "external" && (
+                {formData.projectType === "external" && (
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-2">
-                        <Label htmlFor="billableRate">Billable Rate ($/hr)</Label>
+                        <Label htmlFor="currency">Currency *</Label>
+                        <Select
+                          value={formData.currency}
+                          onValueChange={(value) => handleInputChange("currency", value)}
+                        >
+                          <SelectTrigger id="currency">
+                            <SelectValue placeholder="Select currency" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {(Object.keys(CURRENCY_SYMBOLS) as Currency[]).map((curr) => (
+                              <SelectItem key={curr} value={curr}>
+                                {CURRENCY_SYMBOLS[curr]} {curr}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <p className="text-xs text-muted-foreground">
+                          Currency will be locked after first invoice
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="billableRate">Billable Rate ({CURRENCY_SYMBOLS[formData.currency]}/hr)</Label>
                         <Input
                           id="billableRate"
                           type="number"
@@ -563,6 +599,7 @@ const Projects = () => {
                   <TableHead>Status</TableHead>
                   <TableHead>Assigned</TableHead>
                   <TableHead>Hours</TableHead>
+                  {filterType !== "internal" && <TableHead>Currency</TableHead>}
                   {filterType !== "internal" && <TableHead>Invoiced</TableHead>}
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
@@ -592,7 +629,21 @@ const Projects = () => {
                     <TableCell>{project.hoursLogged}h</TableCell>
                     {filterType !== "internal" && (
                       <TableCell>
-                        {isBillable(project) ? `$${(project.invoiced ?? 0).toLocaleString()}` : "—"}
+                        {isBillable(project) ? (
+                          <div className="flex items-center gap-1">
+                            <span className="font-medium">{getProjectCurrency(project)}</span>
+                            {project.currencyLocked && (
+                              <span className="text-xs text-muted-foreground">(locked)</span>
+                            )}
+                          </div>
+                        ) : "—"}
+                      </TableCell>
+                    )}
+                    {filterType !== "internal" && (
+                      <TableCell>
+                        {isBillable(project) 
+                          ? formatCurrency(project.invoiced ?? 0, getProjectCurrency(project))
+                          : "—"}
                       </TableCell>
                     )}
                     <TableCell className="text-right">
