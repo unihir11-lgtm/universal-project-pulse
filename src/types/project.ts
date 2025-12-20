@@ -6,6 +6,26 @@ export type ProjectStatus = "Active" | "On Hold" | "Completed" | "Archived";
 
 export type UserRole = "admin" | "finance" | "user";
 
+// Billing model drives UI + computations
+export type BillingModel = "hourly" | "milestone" | "fixed" | "hybrid";
+
+export const BILLING_MODEL_LABELS: Record<BillingModel, string> = {
+  hourly: "Hourly",
+  milestone: "Milestone",
+  fixed: "Fixed Price",
+  hybrid: "Hybrid (Milestone + Hourly)",
+};
+
+export const BILLING_MODEL_DESCRIPTIONS: Record<BillingModel, string> = {
+  hourly: "Invoices derived from approved time entries",
+  milestone: "Invoices derived from milestone completion",
+  fixed: "Manual invoice schedule or template",
+  hybrid: "Milestones + hourly overages",
+};
+
+// Invoice status tracking: Billed vs Billable vs Unbilled
+export type InvoiceStatus = "unbilled" | "billable" | "billed";
+
 // Supported currencies - single currency per project, no FX in v1
 export type Currency = "USD" | "EUR" | "GBP" | "CAD" | "AUD" | "INR" | "JPY";
 
@@ -22,6 +42,35 @@ export const CURRENCY_SYMBOLS: Record<Currency, string> = {
 // Organization default currency
 export const ORG_DEFAULT_CURRENCY: Currency = "USD";
 
+// Time Entry - supports logged vs billable hours separation
+export interface TimeEntry {
+  id: number;
+  projectId: number;
+  employeeId: string;
+  employeeName: string;
+  date: string;
+  // Logged hours = actual time worked (for costing/payroll)
+  loggedHours: number;
+  // Billable hours = approved hours for invoicing (PM can adjust)
+  billableHours: number;
+  // Whether this entry is billable at all (even on external projects, some time may be non-billable)
+  isBillable: boolean;
+  description: string;
+  task?: string;
+  // Status for approval workflow
+  status: "pending" | "approved" | "rejected";
+  approvedBy?: string;
+  approvedAt?: string;
+}
+
+// Time entry hours summary
+export interface TimeEntrySummary {
+  totalLogged: number;    // All logged hours (for payroll)
+  totalBillable: number;  // Approved billable hours (for invoicing)
+  totalUnbilled: number;  // Billable but not yet invoiced
+  totalBilled: number;    // Already invoiced
+}
+
 export interface Project {
   id: number;
   name: string;
@@ -31,10 +80,15 @@ export interface Project {
   status: ProjectStatus;
   assignedEmployees: number;
   hoursLogged: number;
+  // Billing model - required for external projects
+  billingModel?: BillingModel;
   // Billing fields - only applicable for external projects
   billableRate?: number;
   estimatedBudget?: number;
-  invoiced?: number;
+  // Invoice tracking: separate billed vs billable vs unbilled
+  invoiced?: number;        // Total billed amount
+  billableAmount?: number;  // Ready to invoice
+  unbilledAmount?: number;  // Time logged but not yet billable
   // Currency - required for external projects, belongs to project (not user)
   currency?: Currency;
   // Lock currency after first invoice

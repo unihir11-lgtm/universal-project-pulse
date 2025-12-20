@@ -1,7 +1,7 @@
-import { Project } from "@/types/project";
+import { Project, TimeEntry } from "@/types/project";
 
 export const mockProjects: Project[] = [
-  // External (Billable) Projects - currency is required
+  // External (Billable) Projects - currency and billing model required
   {
     id: 1,
     name: "E-Commerce Platform",
@@ -11,11 +11,14 @@ export const mockProjects: Project[] = [
     status: "Active",
     assignedEmployees: 8,
     hoursLogged: 342,
+    billingModel: "hourly",
     billableRate: 150,
     estimatedBudget: 75000,
-    invoiced: 45000,
+    invoiced: 45000,        // Billed
+    billableAmount: 6300,   // Billable (ready to invoice)
+    unbilledAmount: 0,      // Unbilled (pending approval)
     currency: "USD",
-    currencyLocked: true, // Has invoices, currency locked
+    currencyLocked: true,
   },
   {
     id: 2,
@@ -26,9 +29,12 @@ export const mockProjects: Project[] = [
     status: "Active",
     assignedEmployees: 6,
     hoursLogged: 256,
+    billingModel: "milestone",
     billableRate: 175,
     estimatedBudget: 120000,
     invoiced: 38400,
+    billableAmount: 17500,
+    unbilledAmount: 8750,
     currency: "USD",
     currencyLocked: true,
   },
@@ -41,9 +47,12 @@ export const mockProjects: Project[] = [
     status: "On Hold",
     assignedEmployees: 5,
     hoursLogged: 189,
+    billingModel: "fixed",
     billableRate: 140,
     estimatedBudget: 55000,
     invoiced: 26460,
+    billableAmount: 0,
+    unbilledAmount: 0,
     currency: "EUR",
     currencyLocked: true,
   },
@@ -56,9 +65,12 @@ export const mockProjects: Project[] = [
     status: "Active",
     assignedEmployees: 4,
     hoursLogged: 298,
+    billingModel: "hybrid",
     billableRate: 160,
     estimatedBudget: 80000,
     invoiced: 47680,
+    billableAmount: 12800,
+    unbilledAmount: 4800,
     currency: "GBP",
     currencyLocked: true,
   },
@@ -71,13 +83,16 @@ export const mockProjects: Project[] = [
     status: "Completed",
     assignedEmployees: 7,
     hoursLogged: 445,
+    billingModel: "hourly",
     billableRate: 145,
     estimatedBudget: 65000,
     invoiced: 64525,
+    billableAmount: 0,
+    unbilledAmount: 0,
     currency: "USD",
     currencyLocked: true,
   },
-  // Internal (Non-Billable) Projects - no currency needed
+  // Internal (Non-Billable) Projects - no billing fields needed
   {
     id: 6,
     name: "Internal HR Portal",
@@ -107,5 +122,82 @@ export const mockProjects: Project[] = [
     status: "On Hold",
     assignedEmployees: 4,
     hoursLogged: 67,
+  },
+];
+
+// Mock time entries demonstrating logged vs billable hours
+export const mockTimeEntries: TimeEntry[] = [
+  {
+    id: 1,
+    projectId: 1,
+    employeeId: "1",
+    employeeName: "John Doe",
+    date: "2024-01-15",
+    loggedHours: 10,       // Actual time worked (costing/payroll)
+    billableHours: 8,      // PM reduced - employee was slow
+    isBillable: true,
+    description: "API integration setup",
+    task: "Backend Development",
+    status: "approved",
+    approvedBy: "Sarah Smith",
+    approvedAt: "2024-01-16",
+  },
+  {
+    id: 2,
+    projectId: 1,
+    employeeId: "2",
+    employeeName: "Sarah Smith",
+    date: "2024-01-15",
+    loggedHours: 6,
+    billableHours: 6,
+    isBillable: true,
+    description: "Project planning and client meeting",
+    task: "Project Management",
+    status: "approved",
+    approvedBy: "Sarah Smith",
+    approvedAt: "2024-01-15",
+  },
+  {
+    id: 3,
+    projectId: 1,
+    employeeId: "1",
+    employeeName: "John Doe",
+    date: "2024-01-16",
+    loggedHours: 8,
+    billableHours: 8,
+    isBillable: true,
+    description: "Database schema implementation",
+    task: "Backend Development",
+    status: "pending",
+  },
+  {
+    id: 4,
+    projectId: 1,
+    employeeId: "3",
+    employeeName: "Mike Johnson",
+    date: "2024-01-16",
+    loggedHours: 4,
+    billableHours: 0,
+    isBillable: false,     // Non-billable internal time on external project
+    description: "Team training session",
+    task: "Internal",
+    status: "approved",
+    approvedBy: "Sarah Smith",
+    approvedAt: "2024-01-16",
+  },
+  {
+    id: 5,
+    projectId: 2,
+    employeeId: "4",
+    employeeName: "Emily Brown",
+    date: "2024-01-15",
+    loggedHours: 7,
+    billableHours: 7,
+    isBillable: true,
+    description: "UI component development",
+    task: "Frontend Development",
+    status: "approved",
+    approvedBy: "John Doe",
+    approvedAt: "2024-01-16",
   },
 ];
