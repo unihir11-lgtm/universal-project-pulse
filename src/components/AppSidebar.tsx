@@ -13,6 +13,7 @@ import {
   DollarSign,
   Timer,
   BadgeDollarSign,
+  AlertTriangle,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 
@@ -36,6 +37,7 @@ const menuItems = [
   { title: "Projects", url: "/projects", icon: FolderKanban },
   { title: "Sprints", url: "/sprints", icon: Target },
   { title: "Tasks", url: "/tasks", icon: ClipboardList },
+  { title: "Delayed Tasks", url: "/delayed-tasks", icon: AlertTriangle },
   { title: "Spent Hours", url: "/spent-hours", icon: Clock },
   { title: "Today's Hours", url: "/todays-hours", icon: Calendar },
   { title: "Billing Summary", url: "/reports?tab=billing", icon: DollarSign },

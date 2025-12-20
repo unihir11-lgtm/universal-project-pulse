@@ -20,6 +20,7 @@ import ProjectSummary from "./pages/ProjectSummary";
 import Tasks from "./pages/Tasks";
 import Sprints from "./pages/Sprints";
 import TaskTimeReport from "./pages/TaskTimeReport";
+import DelayedTasks from "./pages/DelayedTasks";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/tasks" element={<Tasks />} />
             <Route path="/sprints" element={<Sprints />} />
             <Route path="/task-time-report" element={<TaskTimeReport />} />
+            <Route path="/delayed-tasks" element={<DelayedTasks />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
