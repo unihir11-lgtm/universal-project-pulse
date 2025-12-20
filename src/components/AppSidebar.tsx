@@ -14,6 +14,7 @@ import {
   Timer,
   BadgeDollarSign,
   AlertTriangle,
+  FileText,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 
@@ -35,6 +36,7 @@ const menuItems = [
   { title: "Employees", url: "/employees", icon: Users },
   { title: "Employee Rates", url: "/employee-rates", icon: BadgeDollarSign },
   { title: "Projects", url: "/projects", icon: FolderKanban },
+  { title: "Project Templates", url: "/project-templates", icon: FileText },
   { title: "Sprints", url: "/sprints", icon: Target },
   { title: "Tasks", url: "/tasks", icon: ClipboardList },
   { title: "Delayed Tasks", url: "/delayed-tasks", icon: AlertTriangle },
