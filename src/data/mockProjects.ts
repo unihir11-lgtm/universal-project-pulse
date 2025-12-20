@@ -1,4 +1,4 @@
-import { Project, TimeEntry } from "@/types/project";
+import { Project, TimeEntry, Milestone } from "@/types/project";
 
 export const mockProjects: Project[] = [
   // External (Billable) Projects - currency and billing model required
@@ -199,5 +199,114 @@ export const mockTimeEntries: TimeEntry[] = [
     status: "approved",
     approvedBy: "John Doe",
     approvedAt: "2024-01-16",
+  },
+];
+
+// Mock milestones - checkpoints with billing triggers
+export const mockMilestones: Milestone[] = [
+  // E-Commerce Platform (Project 1) - Hourly billing, milestones for tracking
+  {
+    id: 1,
+    projectId: 1,
+    name: "Requirements Complete",
+    description: "All requirements documented and signed off",
+    targetDate: "2024-01-15",
+    completedDate: "2024-01-14",
+    status: "completed",
+    billingTrigger: false,
+    approvalRequired: false,
+    order: 1,
+  },
+  {
+    id: 2,
+    projectId: 1,
+    name: "MVP Launch",
+    description: "Core features deployed to staging",
+    targetDate: "2024-02-28",
+    status: "in_progress",
+    billingTrigger: false,
+    approvalRequired: true,
+    order: 2,
+  },
+  // Mobile Banking App (Project 2) - Milestone billing
+  {
+    id: 3,
+    projectId: 2,
+    name: "Design Phase",
+    description: "UI/UX design completed and approved",
+    targetDate: "2024-01-20",
+    completedDate: "2024-01-18",
+    status: "completed",
+    billingTrigger: true,
+    billingAmount: 15000,
+    approvalRequired: true,
+    approvedBy: "Finance Team",
+    approvedAt: "2024-01-19",
+    order: 1,
+  },
+  {
+    id: 4,
+    projectId: 2,
+    name: "Core Banking Integration",
+    description: "Integration with banking APIs complete",
+    targetDate: "2024-02-15",
+    status: "pending_approval",
+    billingTrigger: true,
+    billingAmount: 25000,
+    approvalRequired: true,
+    order: 2,
+  },
+  {
+    id: 5,
+    projectId: 2,
+    name: "Security Audit",
+    description: "Third-party security audit passed",
+    targetDate: "2024-03-01",
+    status: "not_started",
+    billingTrigger: true,
+    billingAmount: 20000,
+    approvalRequired: true,
+    order: 3,
+  },
+  {
+    id: 6,
+    projectId: 2,
+    name: "Production Launch",
+    description: "App live in app stores",
+    targetDate: "2024-03-15",
+    status: "not_started",
+    billingTrigger: true,
+    billingAmount: 30000,
+    approvalRequired: true,
+    order: 4,
+  },
+  // Analytics Dashboard (Project 4) - Hybrid billing
+  {
+    id: 7,
+    projectId: 4,
+    name: "Data Pipeline Setup",
+    description: "ETL processes configured and running",
+    targetDate: "2024-01-25",
+    completedDate: "2024-01-24",
+    status: "completed",
+    billingTrigger: true,
+    billingAmount: 12000,
+    approvalRequired: true,
+    approvedBy: "Mike Johnson",
+    approvedAt: "2024-01-25",
+    order: 1,
+  },
+  {
+    id: 8,
+    projectId: 4,
+    name: "Dashboard Beta",
+    description: "Beta version with core visualizations",
+    targetDate: "2024-02-20",
+    status: "in_progress",
+    billingTrigger: true,
+    billingAmount: 18000,
+    approvalRequired: true,
+    linkedTaskIds: [101, 102, 103], // Can complete even if tasks aren't done
+    order: 2,
   },
 ];

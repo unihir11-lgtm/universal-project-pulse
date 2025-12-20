@@ -71,6 +71,51 @@ export interface TimeEntrySummary {
   totalBilled: number;    // Already invoiced
 }
 
+// Milestone - checkpoints, not tasks
+export type MilestoneStatus = "not_started" | "in_progress" | "pending_approval" | "completed";
+
+export const MILESTONE_STATUS_LABELS: Record<MilestoneStatus, string> = {
+  not_started: "Not Started",
+  in_progress: "In Progress",
+  pending_approval: "Pending Approval",
+  completed: "Completed",
+};
+
+export interface Milestone {
+  id: number;
+  projectId: number;
+  name: string;
+  description?: string;
+  targetDate: string;
+  completedDate?: string;
+  status: MilestoneStatus;
+  // Billing trigger - when completed, triggers invoice for this amount
+  billingTrigger: boolean;
+  billingAmount?: number;
+  // Approval workflow
+  approvalRequired: boolean;  // Finance/PM must approve completion
+  approvedBy?: string;
+  approvedAt?: string;
+  // Task linkage (optional) - milestone can complete even if tasks aren't done
+  linkedTaskIds?: number[];
+  // Order for display
+  order: number;
+}
+
+// Helper to check if milestone can be completed
+export const canCompleteMilestone = (milestone: Milestone, userRole: UserRole): boolean => {
+  if (milestone.status === "completed") return false;
+  if (milestone.approvalRequired) {
+    return userRole === "admin" || userRole === "finance";
+  }
+  return true;
+};
+
+// Helper to check if user can approve milestone
+export const canApproveMilestone = (role: UserRole): boolean => {
+  return role === "admin" || role === "finance";
+};
+
 export interface Project {
   id: number;
   name: string;
