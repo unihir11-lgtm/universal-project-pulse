@@ -86,6 +86,196 @@ export type Database = {
         }
         Relationships: []
       }
+      projects: {
+        Row: {
+          billing_model: string | null
+          client: string | null
+          created_at: string
+          currency: string
+          id: string
+          manager_id: string | null
+          name: string
+          project_type: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          billing_model?: string | null
+          client?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          manager_id?: string | null
+          name: string
+          project_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          billing_model?: string | null
+          client?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          manager_id?: string | null
+          name?: string
+          project_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tasks: {
+        Row: {
+          created_at: string
+          depth: number
+          description: string | null
+          estimated_hours: number | null
+          id: string
+          is_billable: boolean
+          name: string
+          parent_task_id: string | null
+          primary_assignee_id: string | null
+          priority: string
+          project_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          depth?: number
+          description?: string | null
+          estimated_hours?: number | null
+          id?: string
+          is_billable?: boolean
+          name: string
+          parent_task_id?: string | null
+          primary_assignee_id?: string | null
+          priority?: string
+          project_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          depth?: number
+          description?: string | null
+          estimated_hours?: number | null
+          id?: string
+          is_billable?: boolean
+          name?: string
+          parent_task_id?: string | null
+          primary_assignee_id?: string | null
+          priority?: string
+          project_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_parent_task_id_fkey"
+            columns: ["parent_task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      time_entries: {
+        Row: {
+          activity_type: string
+          approved_at: string | null
+          approved_by: string | null
+          billable_hours: number
+          correction_reason: string | null
+          corrects_entry_id: string | null
+          created_at: string
+          created_by: string
+          description: string
+          entry_date: string
+          id: string
+          is_billable: boolean
+          is_corrected: boolean
+          logged_hours: number
+          project_id: string
+          rejection_reason: string | null
+          status: string
+          task_id: string | null
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          approved_at?: string | null
+          approved_by?: string | null
+          billable_hours?: number
+          correction_reason?: string | null
+          corrects_entry_id?: string | null
+          created_at?: string
+          created_by: string
+          description: string
+          entry_date: string
+          id?: string
+          is_billable?: boolean
+          is_corrected?: boolean
+          logged_hours: number
+          project_id: string
+          rejection_reason?: string | null
+          status?: string
+          task_id?: string | null
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          billable_hours?: number
+          correction_reason?: string | null
+          corrects_entry_id?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string
+          entry_date?: string
+          id?: string
+          is_billable?: boolean
+          is_corrected?: boolean
+          logged_hours?: number
+          project_id?: string
+          rejection_reason?: string | null
+          status?: string
+          task_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "time_entries_corrects_entry_id_fkey"
+            columns: ["corrects_entry_id"]
+            isOneToOne: false
+            referencedRelation: "time_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "time_entries_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "time_entries_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -137,6 +327,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_project_active: { Args: { _project_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "finance" | "manager" | "contributor"
