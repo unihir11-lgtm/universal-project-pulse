@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Download, FileBarChart, TrendingUp, Calendar, DollarSign, Clock, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useEffect, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   BarChart,
   Bar,
@@ -85,6 +86,8 @@ const categoryData = [
 
 const Reports = () => {
   const { user, hasPermission } = useAuth();
+  const [searchParams] = useSearchParams();
+  const defaultTab = searchParams.get("tab") || "billing";
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   
   // Billing Summary state
@@ -476,7 +479,7 @@ const Reports = () => {
           </Button>
         </div>
 
-        <Tabs defaultValue="billing" className="space-y-6">
+        <Tabs defaultValue={defaultTab} className="space-y-6">
           <TabsList className="grid w-full max-w-3xl grid-cols-4">
             <TabsTrigger value="billing">Billing Summary</TabsTrigger>
             <TabsTrigger value="projects">Project Reports</TabsTrigger>
