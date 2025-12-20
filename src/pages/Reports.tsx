@@ -463,6 +463,252 @@ const Reports = () => {
     return Array.from(users.entries()).map(([id, name]) => ({ id, name }));
   }, [mockBillingSummary]);
 
+  // Render billing summary content (reusable)
+  const renderBillingSummaryContent = () => (
+    <div className="space-y-6">
+      {/* Filters */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <DollarSign className="h-5 w-5" />
+            Timesheet Billing Summary
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-5">
+            <div className="space-y-2">
+              <Label>Project</Label>
+              <Select value={filterProject} onValueChange={setFilterProject}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Projects" />
+                </SelectTrigger>
+                <SelectContent className="bg-background">
+                  <SelectItem value="all">All Projects</SelectItem>
+                  {projects.map(p => (
+                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>User</Label>
+              <Select value={filterUser} onValueChange={setFilterUser}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Users" />
+                </SelectTrigger>
+                <SelectContent className="bg-background">
+                  <SelectItem value="all">All Users</SelectItem>
+                  {uniqueUsers.map(u => (
+                    <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Start Date</Label>
+              <Input
+                type="date"
+                value={filterStartDate}
+                onChange={(e) => setFilterStartDate(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>End Date</Label>
+              <Input
+                type="date"
+                value={filterEndDate}
+                onChange={(e) => setFilterEndDate(e.target.value)}
+              />
+            </div>
+            <div className="flex items-end">
+              <Button onClick={handleExportBillingCSV} variant="outline" className="gap-2 w-full">
+                <Download className="h-4 w-4" />
+                Export CSV
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Summary Stats */}
+      <div className="grid gap-4 md:grid-cols-4">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">Total Hours</p>
+            </div>
+            <p className="text-3xl font-bold text-foreground mt-2">
+              {billingSummaryTotals.totalHours.toLocaleString()}h
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">Billable Hours</p>
+            </div>
+            <p className="text-3xl font-bold text-foreground mt-2">
+              {billingSummaryTotals.billableHours.toLocaleString()}h
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {((billingSummaryTotals.billableHours / billingSummaryTotals.totalHours) * 100).toFixed(1)}% utilization
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">Billable Amount</p>
+            </div>
+            <p className="text-3xl font-bold text-success mt-2">
+              ${billingSummaryTotals.billableAmount.toLocaleString()}
+            </p>
+          </CardContent>
+        </Card>
+        {canViewCostData && (
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">Cost / Margin</p>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6"
+                  onClick={() => setShowCostData(!showCostData)}
+                >
+                  {showCostData ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
+              {showCostData ? (
+                <>
+                  <p className="text-3xl font-bold text-foreground mt-2">
+                    ${billingSummaryTotals.margin.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {overallMarginPercent}% margin (Cost: ${billingSummaryTotals.costAmount.toLocaleString()})
+                  </p>
+                </>
+              ) : (
+                <p className="text-xl text-muted-foreground mt-2">Click to reveal</p>
+              )}
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {/* Billing Table */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Detailed Billing Summary</CardTitle>
+            <Badge variant="secondary">{filteredBillingSummary.length} Records</Badge>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>User</TableHead>
+                <TableHead>Project</TableHead>
+                <TableHead>Activity</TableHead>
+                <TableHead className="text-right">Total Hrs</TableHead>
+                <TableHead className="text-right">Billable Hrs</TableHead>
+                <TableHead className="text-right">Bill Rate</TableHead>
+                <TableHead className="text-right">Billable Amt</TableHead>
+                {canViewCostData && showCostData && (
+                  <>
+                    <TableHead className="text-right">Cost Rate</TableHead>
+                    <TableHead className="text-right">Cost Amt</TableHead>
+                    <TableHead className="text-right">Margin</TableHead>
+                    <TableHead className="text-right">Margin %</TableHead>
+                  </>
+                )}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredBillingSummary.map((entry) => (
+                <TableRow key={entry.id}>
+                  <TableCell className="font-medium">{entry.userName}</TableCell>
+                  <TableCell>{entry.projectName}</TableCell>
+                  <TableCell>{getActivityBadge(entry.activityType)}</TableCell>
+                  <TableCell className="text-right">{entry.totalHours}h</TableCell>
+                  <TableCell className="text-right">{entry.billableHours}h</TableCell>
+                  <TableCell className="text-right">${entry.billRate}</TableCell>
+                  <TableCell className="text-right font-medium">${entry.billableAmount.toLocaleString()}</TableCell>
+                  {canViewCostData && showCostData && (
+                    <>
+                      <TableCell className="text-right">${entry.costRate}</TableCell>
+                      <TableCell className="text-right">${entry.costAmount.toLocaleString()}</TableCell>
+                      <TableCell className={`text-right font-medium ${entry.margin >= 0 ? 'text-success' : 'text-destructive'}`}>
+                        ${entry.margin.toLocaleString()}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Badge variant={entry.marginPercent >= 40 ? "default" : entry.marginPercent > 0 ? "secondary" : "destructive"}>
+                          {entry.marginPercent}%
+                        </Badge>
+                      </TableCell>
+                    </>
+                  )}
+                </TableRow>
+              ))}
+              {/* Totals Row */}
+              <TableRow className="bg-muted/50 font-bold">
+                <TableCell>TOTAL</TableCell>
+                <TableCell></TableCell>
+                <TableCell></TableCell>
+                <TableCell className="text-right">{billingSummaryTotals.totalHours}h</TableCell>
+                <TableCell className="text-right">{billingSummaryTotals.billableHours}h</TableCell>
+                <TableCell className="text-right"></TableCell>
+                <TableCell className="text-right">${billingSummaryTotals.billableAmount.toLocaleString()}</TableCell>
+                {canViewCostData && showCostData && (
+                  <>
+                    <TableCell className="text-right"></TableCell>
+                    <TableCell className="text-right">${billingSummaryTotals.costAmount.toLocaleString()}</TableCell>
+                    <TableCell className={`text-right ${billingSummaryTotals.margin >= 0 ? 'text-success' : 'text-destructive'}`}>
+                      ${billingSummaryTotals.margin.toLocaleString()}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Badge variant="default">{overallMarginPercent}%</Badge>
+                    </TableCell>
+                  </>
+                )}
+              </TableRow>
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+
+  // If accessed via billing tab URL, show only billing summary
+  if (defaultTab === "billing") {
+    return (
+      <DashboardLayout>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">Billing Summary</h1>
+              <p className="text-muted-foreground mt-1">
+                Timesheet billing summary with hours and amounts
+              </p>
+            </div>
+            <Button onClick={handleExportBillingCSV} className="gap-2">
+              <Download className="h-4 w-4" />
+              Export CSV
+            </Button>
+          </div>
+          {renderBillingSummaryContent()}
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -479,234 +725,12 @@ const Reports = () => {
           </Button>
         </div>
 
-        <Tabs defaultValue={defaultTab} className="space-y-6">
-          <TabsList className="grid w-full max-w-3xl grid-cols-4">
-            <TabsTrigger value="billing">Billing Summary</TabsTrigger>
+        <Tabs defaultValue="projects" className="space-y-6">
+          <TabsList className="grid w-full max-w-2xl grid-cols-3">
             <TabsTrigger value="projects">Project Reports</TabsTrigger>
             <TabsTrigger value="employees">Employee Reports</TabsTrigger>
             <TabsTrigger value="attendance">Attendance</TabsTrigger>
           </TabsList>
-
-          {/* Billing Summary Report */}
-          <TabsContent value="billing" className="space-y-6">
-            {/* Filters */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="h-5 w-5" />
-                  Timesheet Billing Summary
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-4 md:grid-cols-5">
-                  <div className="space-y-2">
-                    <Label>Project</Label>
-                    <Select value={filterProject} onValueChange={setFilterProject}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="All Projects" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-background">
-                        <SelectItem value="all">All Projects</SelectItem>
-                        {projects.map(p => (
-                          <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>User</Label>
-                    <Select value={filterUser} onValueChange={setFilterUser}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="All Users" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-background">
-                        <SelectItem value="all">All Users</SelectItem>
-                        {uniqueUsers.map(u => (
-                          <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Start Date</Label>
-                    <Input
-                      type="date"
-                      value={filterStartDate}
-                      onChange={(e) => setFilterStartDate(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>End Date</Label>
-                    <Input
-                      type="date"
-                      value={filterEndDate}
-                      onChange={(e) => setFilterEndDate(e.target.value)}
-                    />
-                  </div>
-                  <div className="flex items-end">
-                    <Button onClick={handleExportBillingCSV} variant="outline" className="gap-2 w-full">
-                      <Download className="h-4 w-4" />
-                      Export CSV
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Summary Stats */}
-            <div className="grid gap-4 md:grid-cols-4">
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">Total Hours</p>
-                  </div>
-                  <p className="text-3xl font-bold text-foreground mt-2">
-                    {billingSummaryTotals.totalHours.toLocaleString()}h
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">Billable Hours</p>
-                  </div>
-                  <p className="text-3xl font-bold text-foreground mt-2">
-                    {billingSummaryTotals.billableHours.toLocaleString()}h
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {((billingSummaryTotals.billableHours / billingSummaryTotals.totalHours) * 100).toFixed(1)}% utilization
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">Billable Amount</p>
-                  </div>
-                  <p className="text-3xl font-bold text-success mt-2">
-                    ${billingSummaryTotals.billableAmount.toLocaleString()}
-                  </p>
-                </CardContent>
-              </Card>
-              {canViewCostData && (
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <DollarSign className="h-4 w-4 text-muted-foreground" />
-                        <p className="text-sm text-muted-foreground">Cost / Margin</p>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6"
-                        onClick={() => setShowCostData(!showCostData)}
-                      >
-                        {showCostData ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </Button>
-                    </div>
-                    {showCostData ? (
-                      <>
-                        <p className="text-3xl font-bold text-foreground mt-2">
-                          ${billingSummaryTotals.margin.toLocaleString()}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {overallMarginPercent}% margin (Cost: ${billingSummaryTotals.costAmount.toLocaleString()})
-                        </p>
-                      </>
-                    ) : (
-                      <p className="text-xl text-muted-foreground mt-2">Click to reveal</p>
-                    )}
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-
-            {/* Billing Table */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>Detailed Billing Summary</CardTitle>
-                  <Badge variant="secondary">{filteredBillingSummary.length} Records</Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>User</TableHead>
-                      <TableHead>Project</TableHead>
-                      <TableHead>Activity</TableHead>
-                      <TableHead className="text-right">Total Hrs</TableHead>
-                      <TableHead className="text-right">Billable Hrs</TableHead>
-                      <TableHead className="text-right">Bill Rate</TableHead>
-                      <TableHead className="text-right">Billable Amt</TableHead>
-                      {canViewCostData && showCostData && (
-                        <>
-                          <TableHead className="text-right">Cost Rate</TableHead>
-                          <TableHead className="text-right">Cost Amt</TableHead>
-                          <TableHead className="text-right">Margin</TableHead>
-                          <TableHead className="text-right">Margin %</TableHead>
-                        </>
-                      )}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredBillingSummary.map((entry) => (
-                      <TableRow key={entry.id}>
-                        <TableCell className="font-medium">{entry.userName}</TableCell>
-                        <TableCell>{entry.projectName}</TableCell>
-                        <TableCell>{getActivityBadge(entry.activityType)}</TableCell>
-                        <TableCell className="text-right">{entry.totalHours}h</TableCell>
-                        <TableCell className="text-right">{entry.billableHours}h</TableCell>
-                        <TableCell className="text-right">${entry.billRate}</TableCell>
-                        <TableCell className="text-right font-medium">${entry.billableAmount.toLocaleString()}</TableCell>
-                        {canViewCostData && showCostData && (
-                          <>
-                            <TableCell className="text-right">${entry.costRate}</TableCell>
-                            <TableCell className="text-right">${entry.costAmount.toLocaleString()}</TableCell>
-                            <TableCell className={`text-right font-medium ${entry.margin >= 0 ? 'text-success' : 'text-destructive'}`}>
-                              ${entry.margin.toLocaleString()}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <Badge variant={entry.marginPercent >= 40 ? "default" : entry.marginPercent > 0 ? "secondary" : "destructive"}>
-                                {entry.marginPercent}%
-                              </Badge>
-                            </TableCell>
-                          </>
-                        )}
-                      </TableRow>
-                    ))}
-                    {/* Totals Row */}
-                    <TableRow className="bg-muted/50 font-bold">
-                      <TableCell>TOTAL</TableCell>
-                      <TableCell></TableCell>
-                      <TableCell></TableCell>
-                      <TableCell className="text-right">{billingSummaryTotals.totalHours}h</TableCell>
-                      <TableCell className="text-right">{billingSummaryTotals.billableHours}h</TableCell>
-                      <TableCell className="text-right"></TableCell>
-                      <TableCell className="text-right">${billingSummaryTotals.billableAmount.toLocaleString()}</TableCell>
-                      {canViewCostData && showCostData && (
-                        <>
-                          <TableCell className="text-right"></TableCell>
-                          <TableCell className="text-right">${billingSummaryTotals.costAmount.toLocaleString()}</TableCell>
-                          <TableCell className={`text-right ${billingSummaryTotals.margin >= 0 ? 'text-success' : 'text-destructive'}`}>
-                            ${billingSummaryTotals.margin.toLocaleString()}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Badge variant="default">{overallMarginPercent}%</Badge>
-                          </TableCell>
-                        </>
-                      )}
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </TabsContent>
 
           {/* Project-wise Reports */}
           <TabsContent value="projects" className="space-y-6">
