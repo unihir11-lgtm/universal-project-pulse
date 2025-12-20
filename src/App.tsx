@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
@@ -23,29 +24,31 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
-          <Route path="/employees" element={<Employees />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/spent-hours" element={<SpentHours />} />
-          <Route path="/todays-hours" element={<TodaysHours />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/attendance" element={<Attendance />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/roles" element={<Roles />} />
-          <Route path="/project-summary" element={<ProjectSummary />} />
-          <Route path="/tasks" element={<Tasks />} />
-          <Route path="/sprints" element={<Sprints />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
+            <Route path="/employees" element={<Employees />} />
+            <Route path="/projects" element={<Projects />} />
+            <Route path="/spent-hours" element={<SpentHours />} />
+            <Route path="/todays-hours" element={<TodaysHours />} />
+            <Route path="/reports" element={<Reports />} />
+            <Route path="/attendance" element={<Attendance />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/roles" element={<Roles />} />
+            <Route path="/project-summary" element={<ProjectSummary />} />
+            <Route path="/tasks" element={<Tasks />} />
+            <Route path="/sprints" element={<Sprints />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
