@@ -67,6 +67,7 @@ import {
   Project, 
   ProjectType, 
   Currency,
+  BillingModel,
   canConvertProjectType, 
   isBillable,
   canChangeCurrency,
@@ -74,6 +75,8 @@ import {
   getProjectCurrency,
   CURRENCY_SYMBOLS,
   ORG_DEFAULT_CURRENCY,
+  BILLING_MODEL_LABELS,
+  BILLING_MODEL_DESCRIPTIONS,
 } from "@/types/project";
 
 const Projects = () => {
@@ -96,6 +99,7 @@ const Projects = () => {
     priority: "",
     description: "",
     status: "Active",
+    billingModel: "hourly" as BillingModel,
     billableRate: "",
     currency: ORG_DEFAULT_CURRENCY as Currency,
   });
@@ -161,11 +165,14 @@ const Projects = () => {
       assignedEmployees: selectedEmployees.length,
       hoursLogged: 0,
       ...(formData.projectType === "external" && {
+        billingModel: formData.billingModel,
         billableRate: parseFloat(formData.billableRate) || 0,
         estimatedBudget: 0,
         invoiced: 0,
+        billableAmount: 0,
+        unbilledAmount: 0,
         currency: formData.currency,
-        currencyLocked: false, // Not locked until first invoice
+        currencyLocked: false,
       }),
     };
 
@@ -187,6 +194,7 @@ const Projects = () => {
       priority: "",
       description: "",
       status: "Active",
+      billingModel: "hourly",
       billableRate: "",
       currency: ORG_DEFAULT_CURRENCY,
     });
@@ -251,9 +259,15 @@ const Projects = () => {
   // Stats
   const externalCount = projects.filter(p => p.projectType === "external").length;
   const internalCount = projects.filter(p => p.projectType === "internal").length;
-  const totalBillable = projects
+  const totalBilled = projects
     .filter(p => p.projectType === "external")
     .reduce((sum, p) => sum + (p.invoiced ?? 0), 0);
+  const totalBillable = projects
+    .filter(p => p.projectType === "external")
+    .reduce((sum, p) => sum + (p.billableAmount ?? 0), 0);
+  const totalUnbilled = projects
+    .filter(p => p.projectType === "external")
+    .reduce((sum, p) => sum + (p.unbilledAmount ?? 0), 0);
 
   return (
     <DashboardLayout>
@@ -389,39 +403,71 @@ const Projects = () => {
                   </div>
 
                 {formData.projectType === "external" && (
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="currency">Currency *</Label>
-                        <Select
-                          value={formData.currency}
-                          onValueChange={(value) => handleInputChange("currency", value)}
-                        >
-                          <SelectTrigger id="currency">
-                            <SelectValue placeholder="Select currency" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {(Object.keys(CURRENCY_SYMBOLS) as Currency[]).map((curr) => (
-                              <SelectItem key={curr} value={curr}>
-                                {CURRENCY_SYMBOLS[curr]} {curr}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <p className="text-xs text-muted-foreground">
-                          Currency will be locked after first invoice
-                        </p>
+                    <>
+                      {/* Billing Model Selection */}
+                      <div className="space-y-3">
+                        <Label>Billing Model *</Label>
+                        <div className="grid gap-3 md:grid-cols-2">
+                          {(Object.keys(BILLING_MODEL_LABELS) as BillingModel[]).map((model) => (
+                            <div
+                              key={model}
+                              onClick={() => handleInputChange("billingModel", model)}
+                              className={`p-3 border rounded-lg cursor-pointer transition-all ${
+                                formData.billingModel === model
+                                  ? "border-primary bg-primary/5"
+                                  : "border-border hover:border-muted-foreground"
+                              }`}
+                            >
+                              <p className="font-medium text-sm">{BILLING_MODEL_LABELS[model]}</p>
+                              <p className="text-xs text-muted-foreground">{BILLING_MODEL_DESCRIPTIONS[model]}</p>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="billableRate">Billable Rate ({CURRENCY_SYMBOLS[formData.currency]}/hr)</Label>
-                        <Input
-                          id="billableRate"
-                          type="number"
-                          value={formData.billableRate}
-                          onChange={(e) => handleInputChange("billableRate", e.target.value)}
-                          placeholder="150"
-                        />
+
+                      <div className="grid gap-4 md:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="currency">Currency *</Label>
+                          <Select
+                            value={formData.currency}
+                            onValueChange={(value) => handleInputChange("currency", value)}
+                          >
+                            <SelectTrigger id="currency">
+                              <SelectValue placeholder="Select currency" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {(Object.keys(CURRENCY_SYMBOLS) as Currency[]).map((curr) => (
+                                <SelectItem key={curr} value={curr}>
+                                  {CURRENCY_SYMBOLS[curr]} {curr}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <p className="text-xs text-muted-foreground">
+                            Currency will be locked after first invoice
+                          </p>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="billableRate">
+                            Billable Rate ({CURRENCY_SYMBOLS[formData.currency]}/hr)
+                            {formData.billingModel !== "fixed" && " *"}
+                          </Label>
+                          <Input
+                            id="billableRate"
+                            type="number"
+                            value={formData.billableRate}
+                            onChange={(e) => handleInputChange("billableRate", e.target.value)}
+                            placeholder="150"
+                            disabled={formData.billingModel === "fixed"}
+                          />
+                          {formData.billingModel === "fixed" && (
+                            <p className="text-xs text-muted-foreground">
+                              Not applicable for fixed price projects
+                            </p>
+                          )}
+                        </div>
                       </div>
-                    </div>
+                    </>
                   )}
 
                   <div className="space-y-2">
@@ -517,7 +563,7 @@ const Projects = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-5">
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
@@ -525,7 +571,7 @@ const Projects = () => {
                   <Briefcase className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">External Projects</p>
+                  <p className="text-sm text-muted-foreground">External</p>
                   <p className="text-2xl font-bold">{externalCount}</p>
                 </div>
               </div>
@@ -538,7 +584,7 @@ const Projects = () => {
                   <Building2 className="h-5 w-5 text-muted-foreground" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Internal Projects</p>
+                  <p className="text-sm text-muted-foreground">Internal</p>
                   <p className="text-2xl font-bold">{internalCount}</p>
                 </div>
               </div>
@@ -551,8 +597,34 @@ const Projects = () => {
                   <DollarSign className="h-5 w-5 text-green-600" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Total Invoiced</p>
+                  <p className="text-sm text-muted-foreground">Billed</p>
+                  <p className="text-2xl font-bold">${totalBilled.toLocaleString()}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-amber-500/10">
+                  <DollarSign className="h-5 w-5 text-amber-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Billable</p>
                   <p className="text-2xl font-bold">${totalBillable.toLocaleString()}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-muted">
+                  <DollarSign className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Unbilled</p>
+                  <p className="text-2xl font-bold">${totalUnbilled.toLocaleString()}</p>
                 </div>
               </div>
             </CardContent>
@@ -597,10 +669,11 @@ const Projects = () => {
                   <TableHead>Client</TableHead>
                   <TableHead>Manager</TableHead>
                   <TableHead>Status</TableHead>
-                  <TableHead>Assigned</TableHead>
+                  {filterType !== "internal" && <TableHead>Billing</TableHead>}
                   <TableHead>Hours</TableHead>
-                  {filterType !== "internal" && <TableHead>Currency</TableHead>}
-                  {filterType !== "internal" && <TableHead>Invoiced</TableHead>}
+                  {filterType !== "internal" && <TableHead>Billed</TableHead>}
+                  {filterType !== "internal" && <TableHead>Billable</TableHead>}
+                  {filterType !== "internal" && <TableHead>Unbilled</TableHead>}
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -620,30 +693,47 @@ const Projects = () => {
                         {project.status}
                       </Badge>
                     </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Users className="h-4 w-4 text-muted-foreground" />
-                        <span>{project.assignedEmployees}</span>
-                      </div>
-                    </TableCell>
+                    {filterType !== "internal" && (
+                      <TableCell>
+                        {isBillable(project) && project.billingModel ? (
+                          <div className="flex flex-col">
+                            <span className="text-sm font-medium">
+                              {BILLING_MODEL_LABELS[project.billingModel]}
+                            </span>
+                            <span className="text-xs text-muted-foreground">
+                              {getProjectCurrency(project)}
+                              {project.currencyLocked && " (locked)"}
+                            </span>
+                          </div>
+                        ) : "—"}
+                      </TableCell>
+                    )}
                     <TableCell>{project.hoursLogged}h</TableCell>
                     {filterType !== "internal" && (
                       <TableCell>
                         {isBillable(project) ? (
-                          <div className="flex items-center gap-1">
-                            <span className="font-medium">{getProjectCurrency(project)}</span>
-                            {project.currencyLocked && (
-                              <span className="text-xs text-muted-foreground">(locked)</span>
-                            )}
-                          </div>
+                          <span className="text-green-600 font-medium">
+                            {formatCurrency(project.invoiced ?? 0, getProjectCurrency(project))}
+                          </span>
                         ) : "—"}
                       </TableCell>
                     )}
                     {filterType !== "internal" && (
                       <TableCell>
-                        {isBillable(project) 
-                          ? formatCurrency(project.invoiced ?? 0, getProjectCurrency(project))
-                          : "—"}
+                        {isBillable(project) ? (
+                          <span className="text-amber-600 font-medium">
+                            {formatCurrency(project.billableAmount ?? 0, getProjectCurrency(project))}
+                          </span>
+                        ) : "—"}
+                      </TableCell>
+                    )}
+                    {filterType !== "internal" && (
+                      <TableCell>
+                        {isBillable(project) ? (
+                          <span className="text-muted-foreground">
+                            {formatCurrency(project.unbilledAmount ?? 0, getProjectCurrency(project))}
+                          </span>
+                        ) : "—"}
                       </TableCell>
                     )}
                     <TableCell className="text-right">
