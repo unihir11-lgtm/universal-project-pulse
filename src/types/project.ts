@@ -166,6 +166,9 @@ export interface Task {
   description?: string;
   status: TaskStatus;
   priority: TaskPriority;
+  // Hierarchy - supports subtasks (WBS)
+  parentTaskId?: number;     // null for top-level tasks
+  depth: number;             // 0 = root, 1 = subtask, 2 = sub-subtask (UI caps at 2)
   // Assignees: single primary + optional collaborators
   primaryAssigneeId: string;
   primaryAssigneeName: string;
@@ -174,7 +177,7 @@ export interface Task {
   // Billing
   isBillable: boolean;       // Can be non-billable even on external projects
   estimatedHours?: number;
-  loggedHours: number;
+  loggedHours: number;       // Own logged hours (not including children)
   // Optional linkages
   milestoneId?: number;
   sprintId?: number;
@@ -186,6 +189,9 @@ export interface Task {
   dueDate?: string;
   completedAt?: string;
 }
+
+// Maximum UI depth for task hierarchy (DB can support more)
+export const MAX_TASK_DEPTH = 2;
 
 // Helper to check if task can transition to a status
 export const canTransitionTask = (
@@ -201,6 +207,74 @@ export const canTransitionTask = (
     blocked: ["in_progress", "todo"],
   };
   return allowedTransitions[currentStatus]?.includes(newStatus) ?? false;
+};
+
+// Helper to get subtasks for a parent
+export const getSubtasks = (parentId: number, tasks: Task[]): Task[] => {
+  return tasks.filter(t => t.parentTaskId === parentId);
+};
+
+// Helper to calculate rolled-up hours (own + all descendants)
+export const getRolledUpHours = (task: Task, allTasks: Task[]): { logged: number; estimated: number } => {
+  const subtasks = getSubtasks(task.id, allTasks);
+  
+  let totalLogged = task.loggedHours;
+  let totalEstimated = task.estimatedHours ?? 0;
+  
+  for (const subtask of subtasks) {
+    const childRollup = getRolledUpHours(subtask, allTasks);
+    totalLogged += childRollup.logged;
+    totalEstimated += childRollup.estimated;
+  }
+  
+  return { logged: totalLogged, estimated: totalEstimated };
+};
+
+// Helper to calculate progress percentage based on subtasks
+export const getTaskProgress = (task: Task, allTasks: Task[]): number => {
+  const subtasks = getSubtasks(task.id, allTasks);
+  
+  // No subtasks - progress based on own status
+  if (subtasks.length === 0) {
+    if (task.status === "done") return 100;
+    if (task.status === "in_review") return 90;
+    if (task.status === "in_progress") return 50;
+    return 0;
+  }
+  
+  // With subtasks - average progress of children
+  const childProgresses = subtasks.map(s => getTaskProgress(s, allTasks));
+  return Math.round(childProgresses.reduce((a, b) => a + b, 0) / childProgresses.length);
+};
+
+// Helper to check if setting parentId would create circular reference
+export const wouldCreateCircularReference = (
+  taskId: number,
+  newParentId: number,
+  allTasks: Task[]
+): boolean => {
+  // Can't be own parent
+  if (taskId === newParentId) return true;
+  
+  // Walk up the parent chain from newParentId
+  let currentId: number | undefined = newParentId;
+  const visited = new Set<number>();
+  
+  while (currentId !== undefined) {
+    if (visited.has(currentId)) return true; // Already circular
+    if (currentId === taskId) return true;   // Found the task in ancestry
+    
+    visited.add(currentId);
+    const current = allTasks.find(t => t.id === currentId);
+    currentId = current?.parentTaskId;
+  }
+  
+  return false;
+};
+
+// Helper to check if task can have children
+export const canHaveChildren = (task: Task): boolean => {
+  return task.depth < MAX_TASK_DEPTH;
 };
 
 export interface Project {
