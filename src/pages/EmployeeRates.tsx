@@ -565,7 +565,7 @@ const EmployeeRates = () => {
                         <SelectValue placeholder="Select employee" />
                       </SelectTrigger>
                       <SelectContent className="bg-background">
-                        {profiles.map(p => (
+                        {(profiles.length > 0 ? profiles : mockEmployeesWithRates).map(p => (
                           <SelectItem key={p.id} value={p.id}>
                             {p.full_name} - {p.designation || "No designation"}
                           </SelectItem>
