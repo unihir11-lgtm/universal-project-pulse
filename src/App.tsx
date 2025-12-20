@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
 import Employees from "./pages/Employees";
+import EmployeeRates from "./pages/EmployeeRates";
 import Projects from "./pages/Projects";
 import SpentHours from "./pages/SpentHours";
 import TodaysHours from "./pages/TodaysHours";
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
             <Route path="/employees" element={<Employees />} />
+            <Route path="/employee-rates" element={<EmployeeRates />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/spent-hours" element={<SpentHours />} />
             <Route path="/todays-hours" element={<TodaysHours />} />
