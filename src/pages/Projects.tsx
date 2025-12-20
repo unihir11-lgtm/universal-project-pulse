@@ -24,8 +24,24 @@ import {
   Building2, 
   Briefcase,
   AlertTriangle,
-  DollarSign
+  DollarSign,
+  FileText,
+  Sparkles
 } from "lucide-react";
+
+// Mock project templates data
+const projectTemplates = [
+  { id: "1", name: "Implementation Project", category: "starter-pack", billingModel: "fixed", estimatedDuration: "3 months", defaultTasks: 12 },
+  { id: "2", name: "Audit & Compliance Review", category: "starter-pack", billingModel: "hourly", estimatedDuration: "2 months", defaultTasks: 8 },
+  { id: "3", name: "Case Review Template", category: "starter-pack", billingModel: "hourly", estimatedDuration: "1 month", defaultTasks: 6 },
+  { id: "4", name: "Software Development Sprint", category: "org-library", billingModel: "hourly", estimatedDuration: "2 weeks", defaultTasks: 10 },
+  { id: "5", name: "Marketing Campaign", category: "org-library", billingModel: "fixed", estimatedDuration: "6 weeks", defaultTasks: 15 },
+  { id: "6", name: "Website Redesign", category: "org-library", billingModel: "milestone", estimatedDuration: "2 months", defaultTasks: 18 },
+  { id: "7", name: "Product Launch", category: "custom", billingModel: "fixed", estimatedDuration: "3 months", defaultTasks: 20 },
+  { id: "8", name: "Data Migration", category: "starter-pack", billingModel: "hourly", estimatedDuration: "1 month", defaultTasks: 8 },
+  { id: "9", name: "Training Program", category: "org-library", billingModel: "fixed", estimatedDuration: "4 weeks", defaultTasks: 10 },
+  { id: "10", name: "Consulting Engagement", category: "custom", billingModel: "retainer", estimatedDuration: "6 months", defaultTasks: 5 },
+];
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -102,7 +118,26 @@ const Projects = () => {
     billingModel: "hourly" as BillingModel,
     billableRate: "",
     currency: ORG_DEFAULT_CURRENCY as Currency,
+    templateId: "" as string,
   });
+
+  const handleTemplateSelect = (templateId: string) => {
+    if (templateId === "none") {
+      handleInputChange("templateId", "");
+      return;
+    }
+    
+    const template = projectTemplates.find(t => t.id === templateId);
+    if (template) {
+      setFormData(prev => ({
+        ...prev,
+        templateId,
+        projectName: prev.projectName || template.name,
+        billingModel: template.billingModel as BillingModel,
+      }));
+      toast.success(`Template "${template.name}" applied with ${template.defaultTasks} default tasks`);
+    }
+  };
   
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
 
@@ -197,6 +232,7 @@ const Projects = () => {
       billingModel: "hourly",
       billableRate: "",
       currency: ORG_DEFAULT_CURRENCY,
+      templateId: "",
     });
     setSelectedEmployees([]);
   };
@@ -295,6 +331,83 @@ const Projects = () => {
               </DialogHeader>
 
               <form onSubmit={handleSubmit} className="space-y-6 py-4">
+                {/* Project Template Selection */}
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-lg flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-primary" />
+                    Start from Template
+                  </h3>
+                  <div className="space-y-2">
+                    <Label htmlFor="template">Project Template (Optional)</Label>
+                    <Select
+                      value={formData.templateId || "none"}
+                      onValueChange={handleTemplateSelect}
+                    >
+                      <SelectTrigger id="template" className="w-full">
+                        <SelectValue placeholder="Select a template to get started quickly" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">
+                          <div className="flex items-center gap-2">
+                            <FileText className="h-4 w-4 text-muted-foreground" />
+                            <span>Start from scratch</span>
+                          </div>
+                        </SelectItem>
+                        <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
+                          Starter Packs
+                        </div>
+                        {projectTemplates.filter(t => t.category === "starter-pack").map((template) => (
+                          <SelectItem key={template.id} value={template.id}>
+                            <div className="flex items-center gap-2">
+                              <FileText className="h-4 w-4 text-primary" />
+                              <span>{template.name}</span>
+                              <Badge variant="outline" className="ml-2 text-xs">
+                                {template.defaultTasks} tasks
+                              </Badge>
+                            </div>
+                          </SelectItem>
+                        ))}
+                        <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
+                          Organization Library
+                        </div>
+                        {projectTemplates.filter(t => t.category === "org-library").map((template) => (
+                          <SelectItem key={template.id} value={template.id}>
+                            <div className="flex items-center gap-2">
+                              <FileText className="h-4 w-4 text-blue-500" />
+                              <span>{template.name}</span>
+                              <Badge variant="outline" className="ml-2 text-xs">
+                                {template.defaultTasks} tasks
+                              </Badge>
+                            </div>
+                          </SelectItem>
+                        ))}
+                        <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground bg-muted/50">
+                          Custom Templates
+                        </div>
+                        {projectTemplates.filter(t => t.category === "custom").map((template) => (
+                          <SelectItem key={template.id} value={template.id}>
+                            <div className="flex items-center gap-2">
+                              <FileText className="h-4 w-4 text-amber-500" />
+                              <span>{template.name}</span>
+                              <Badge variant="outline" className="ml-2 text-xs">
+                                {template.defaultTasks} tasks
+                              </Badge>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {formData.templateId && (
+                      <div className="flex items-center gap-2 p-2 bg-primary/5 rounded-lg border border-primary/20">
+                        <Sparkles className="h-4 w-4 text-primary" />
+                        <span className="text-sm text-primary">
+                          Template selected: {projectTemplates.find(t => t.id === formData.templateId)?.name}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 {/* Project Type Selection */}
                 <div className="space-y-4">
                   <h3 className="font-semibold text-lg">Project Type</h3>
