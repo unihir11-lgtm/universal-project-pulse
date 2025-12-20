@@ -52,6 +52,21 @@ const TaskTimeReport = () => {
   const [filterEndDate, setFilterEndDate] = useState("");
   const [expandedTasks, setExpandedTasks] = useState<Set<string>>(new Set());
 
+  // Mock time entries for demo (task_id -> hours)
+  const mockTaskHours: Record<string, number> = {
+    'aaaa1111-1111-1111-1111-111111111111': 28, // Payment Integration - over budget
+    'aaaa1112-1111-1111-1111-111111111111': 18, // Stripe Setup - over budget  
+    'aaaa1113-1111-1111-1111-111111111111': 16, // Shopping Cart - under budget
+    'aaaa1114-1111-1111-1111-111111111111': 30, // Product Catalog - under budget
+    'bbbb2222-2222-2222-2222-222222222222': 45, // User Authentication - over budget
+    'bbbb2223-2222-2222-2222-222222222222': 10, // Biometric Login - under budget
+    'bbbb2224-2222-2222-2222-222222222222': 22, // Transaction History - under budget
+    'cccc3333-3333-3333-3333-333333333333': 42, // Contact Management - over budget
+    'cccc3334-3333-3333-3333-333333333333': 12, // Lead Scoring - under budget
+    'dddd5555-5555-5555-5555-555555555555': 18, // Build Pipeline - over budget
+    'dddd5556-5555-5555-5555-555555555555': 8,  // Documentation - under budget
+  };
+
   // Fetch data
   useEffect(() => {
     const fetchData = async () => {
@@ -62,22 +77,55 @@ const TaskTimeReport = () => {
       ]);
 
       if (projectsRes.data) setProjects(projectsRes.data);
-      if (tasksRes.data) setTasks(tasksRes.data);
+      if (tasksRes.data) {
+        // Add estimated hours to tasks if not present
+        const tasksWithEstimates = tasksRes.data.map(task => ({
+          ...task,
+          estimated_hours: task.estimated_hours || getDefaultEstimate(task.id),
+        }));
+        setTasks(tasksWithEstimates);
+      }
       if (timeEntriesRes.data) setTimeEntries(timeEntriesRes.data);
     };
     fetchData();
   }, []);
 
-  // Calculate actual hours per task from time entries
+  // Default estimates for demo
+  const getDefaultEstimate = (taskId: string): number => {
+    const estimates: Record<string, number> = {
+      'aaaa1111-1111-1111-1111-111111111111': 24,
+      'aaaa1112-1111-1111-1111-111111111111': 16,
+      'aaaa1113-1111-1111-1111-111111111111': 20,
+      'aaaa1114-1111-1111-1111-111111111111': 32,
+      'bbbb2222-2222-2222-2222-222222222222': 40,
+      'bbbb2223-2222-2222-2222-222222222222': 12,
+      'bbbb2224-2222-2222-2222-222222222222': 28,
+      'cccc3333-3333-3333-3333-333333333333': 36,
+      'cccc3334-3333-3333-3333-333333333333': 18,
+      'dddd5555-5555-5555-5555-555555555555': 16,
+      'dddd5556-5555-5555-5555-555555555555': 10,
+    };
+    return estimates[taskId] || 0;
+  };
+
+  // Calculate actual hours per task from time entries or use mock data
   const taskActualHours = useMemo(() => {
     const hoursMap = new Map<string, number>();
     
+    // First try real time entries
     timeEntries.forEach(entry => {
       if (entry.task_id) {
         const current = hoursMap.get(entry.task_id) || 0;
         hoursMap.set(entry.task_id, current + Number(entry.logged_hours));
       }
     });
+    
+    // If no real data, use mock data
+    if (hoursMap.size === 0) {
+      Object.entries(mockTaskHours).forEach(([taskId, hours]) => {
+        hoursMap.set(taskId, hours);
+      });
+    }
     
     return hoursMap;
   }, [timeEntries]);
