@@ -11,6 +11,7 @@ import {
   ClipboardList,
   Target,
   DollarSign,
+  Timer,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 
@@ -36,6 +37,7 @@ const menuItems = [
   { title: "Spent Hours", url: "/spent-hours", icon: Clock },
   { title: "Today's Hours", url: "/todays-hours", icon: Calendar },
   { title: "Billing Summary", url: "/reports?tab=billing", icon: DollarSign },
+  { title: "Task Time Report", url: "/task-time-report", icon: Timer },
   { title: "Reports", url: "/reports", icon: BarChart3 },
   { title: "Project Summary", url: "/project-summary", icon: ListChecks },
   { title: "Attendance", url: "/attendance", icon: UserCheck },
