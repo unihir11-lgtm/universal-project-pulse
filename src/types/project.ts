@@ -4,7 +4,7 @@ export type ProjectType = "internal" | "external";
 
 export type ProjectStatus = "Active" | "On Hold" | "Completed" | "Archived";
 
-export type UserRole = "admin" | "finance" | "user";
+export type UserRole = "admin" | "finance" | "manager" | "user";
 
 // Billing model drives UI + computations
 export type BillingModel = "hourly" | "milestone" | "fixed" | "hybrid";

@@ -12,6 +12,7 @@ import {
   Target,
   DollarSign,
   Timer,
+  BadgeDollarSign,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 
@@ -31,6 +32,7 @@ const menuItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Employee Dashboard", url: "/employee-dashboard", icon: User },
   { title: "Employees", url: "/employees", icon: Users },
+  { title: "Employee Rates", url: "/employee-rates", icon: BadgeDollarSign },
   { title: "Projects", url: "/projects", icon: FolderKanban },
   { title: "Sprints", url: "/sprints", icon: Target },
   { title: "Tasks", url: "/tasks", icon: ClipboardList },
