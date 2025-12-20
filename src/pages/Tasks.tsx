@@ -16,33 +16,42 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Plus, ListTodo, Calendar, Target } from "lucide-react";
+import { Plus, ListTodo, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import { mockTasks } from "@/data/mockProjects";
+import { 
+  Task, 
+  MAX_TASK_DEPTH, 
+  canHaveChildren,
+  wouldCreateCircularReference,
+} from "@/types/project";
 
 // Mock data for projects
 const projectsData = [
-  { id: 1, project: "Go Live" },
-  { id: 2, project: "Human Resource" },
-  { id: 3, project: "Jain Connection Marketing" },
-  { id: 4, project: "Jain Marketplace" },
-  { id: 5, project: "Product Support" },
-  { id: 6, project: "Super App" },
-  { id: 7, project: "Universal Software" },
+  { id: 1, project: "E-Commerce Platform" },
+  { id: 2, project: "Mobile Banking App" },
+  { id: 3, project: "CRM System" },
+  { id: 4, project: "Analytics Dashboard" },
+  { id: 5, project: "Inventory Management" },
+  { id: 6, project: "Internal HR Portal" },
+  { id: 7, project: "DevOps Infrastructure" },
 ];
 
 // Mock employees data
 const employeesData = [
-  { id: 1, name: "Rahul Sharma" },
-  { id: 2, name: "Priya Patel" },
-  { id: 3, name: "Amit Kumar" },
-  { id: 4, name: "Sneha Gupta" },
-  { id: 5, name: "Vikram Singh" },
-  { id: 6, name: "Neha Verma" },
+  { id: "1", name: "John Doe" },
+  { id: "2", name: "Sarah Smith" },
+  { id: "3", name: "Mike Johnson" },
+  { id: "4", name: "Emily Brown" },
+  { id: "5", name: "David Lee" },
+  { id: "6", name: "Lisa Wang" },
+  { id: "7", name: "James Wilson" },
+  { id: "8", name: "Anna Martinez" },
 ];
 
 // Task categories
@@ -65,32 +74,91 @@ const sprintsData = [
   { id: 4, name: "Sprint 4", startDate: "16-01-2025", endDate: "31-01-2025", status: "Planned" },
 ];
 
-// Mock tasks data with sprint assignment
-const tasksData = [
-  { id: 1, name: "Login UI Design", project: "Universal Software", sprint: "Sprint 2", category: "Designing", hours: 8, assignee: "Priya Patel", status: "In Progress" },
-  { id: 2, name: "API Integration", project: "Universal Software", sprint: "Sprint 2", category: "Development", hours: 16, assignee: "Amit Kumar", status: "To Do" },
-  { id: 3, name: "Database Schema", project: "Super App", sprint: "Sprint 2", category: "Development", hours: 12, assignee: "Rahul Sharma", status: "Completed" },
-  { id: 4, name: "User Authentication", project: "Go Live", sprint: "Sprint 1", category: "Development", hours: 20, assignee: "Vikram Singh", status: "Completed" },
-  { id: 5, name: "Unit Testing", project: "Universal Software", sprint: "Sprint 3", category: "Testing", hours: 10, assignee: "Sneha Gupta", status: "To Do" },
-  { id: 6, name: "Code Review", project: "Super App", sprint: "Sprint 2", category: "Code Review", hours: 6, assignee: "Neha Verma", status: "In Progress" },
-];
+// Get task path for display
+const getTaskPath = (task: Task, allTasks: Task[]): string[] => {
+  const path: string[] = [];
+  let current: Task | undefined = task;
+  
+  while (current) {
+    path.unshift(current.name);
+    current = current.parentTaskId 
+      ? allTasks.find(t => t.id === current?.parentTaskId)
+      : undefined;
+  }
+  
+  return path;
+};
 
 const Tasks = () => {
+  // All tasks state (using mock data)
+  const [allTasks] = useState<Task[]>(mockTasks);
+
   // Task form state
   const [taskProject, setTaskProject] = useState<string>("");
   const [taskSprint, setTaskSprint] = useState<string>("");
   const [taskName, setTaskName] = useState("");
   const [estimatedHours, setEstimatedHours] = useState("");
-  const [selectedEmployees, setSelectedEmployees] = useState<number[]>([]);
+  const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
   const [taskCategory, setTaskCategory] = useState<string>("");
+  const [parentTaskId, setParentTaskId] = useState<string>("none");
   const [filterSprint, setFilterSprint] = useState<string>("all");
 
-  const handleEmployeeToggle = (employeeId: number) => {
+  // Get project ID from project name
+  const selectedProjectId = useMemo(() => {
+    const project = projectsData.find(p => p.project === taskProject);
+    return project?.id;
+  }, [taskProject]);
+
+  // Filter valid parent tasks for selected project
+  const validParentTasks = useMemo(() => {
+    if (!selectedProjectId) return [];
+    
+    return allTasks.filter(task => {
+      // Must be same project
+      if (task.projectId !== selectedProjectId) return false;
+      // Must be able to have children (depth check)
+      if (!canHaveChildren(task)) return false;
+      return true;
+    });
+  }, [allTasks, selectedProjectId]);
+
+  // Group parent tasks by hierarchy for display
+  const groupedParentTasks = useMemo(() => {
+    const rootTasks = validParentTasks.filter(t => !t.parentTaskId);
+    const result: { task: Task; path: string[] }[] = [];
+    
+    rootTasks.forEach(root => {
+      result.push({ task: root, path: [root.name] });
+      
+      // Add direct children (depth 1) that can still have children
+      const children = validParentTasks.filter(t => t.parentTaskId === root.id);
+      children.forEach(child => {
+        result.push({ task: child, path: [root.name, child.name] });
+      });
+    });
+    
+    return result;
+  }, [validParentTasks]);
+
+  // Calculate new task depth
+  const newTaskDepth = useMemo(() => {
+    if (parentTaskId === "none") return 0;
+    const parent = allTasks.find(t => t.id === parseInt(parentTaskId));
+    return parent ? parent.depth + 1 : 0;
+  }, [parentTaskId, allTasks]);
+
+  const handleEmployeeToggle = (employeeId: string) => {
     setSelectedEmployees((prev) =>
       prev.includes(employeeId)
         ? prev.filter((id) => id !== employeeId)
         : [...prev, employeeId]
     );
+  };
+
+  const handleProjectChange = (value: string) => {
+    setTaskProject(value);
+    // Reset parent task when project changes
+    setParentTaskId("none");
   };
 
   const handleTaskSubmit = (e: React.FormEvent) => {
@@ -126,7 +194,11 @@ const Tasks = () => {
       .map((emp) => emp.name)
       .join(", ");
 
-    toast.success(`Task "${taskName}" created in ${taskSprint}! Assigned to: ${assignedNames}`);
+    const parentInfo = parentTaskId !== "none" 
+      ? ` (subtask of "${allTasks.find(t => t.id === parseInt(parentTaskId))?.name}")`
+      : "";
+
+    toast.success(`Task "${taskName}"${parentInfo} created in ${taskSprint}! Assigned to: ${assignedNames}`);
     
     // Reset form
     setTaskProject("");
@@ -135,21 +207,29 @@ const Tasks = () => {
     setEstimatedHours("");
     setSelectedEmployees([]);
     setTaskCategory("");
+    setParentTaskId("none");
   };
 
-  const filteredTasks =
-    filterSprint === "all"
-      ? tasksData
-      : tasksData.filter((t) => t.sprint === filterSprint);
+  const filteredTasks = useMemo(() => {
+    // Filter root tasks only for list view, then we'll show hierarchy
+    const rootTasks = allTasks.filter(t => !t.parentTaskId);
+    return rootTasks;
+  }, [allTasks]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "Completed":
-        return <Badge className="bg-green-500/20 text-green-700 text-xs">{status}</Badge>;
-      case "In Progress":
-        return <Badge className="bg-blue-500/20 text-blue-700 text-xs">{status}</Badge>;
-      case "To Do":
-        return <Badge className="bg-gray-500/20 text-gray-700 text-xs">{status}</Badge>;
+      case "completed":
+        return <Badge className="bg-green-500/20 text-green-700 text-xs">Completed</Badge>;
+      case "in_progress":
+        return <Badge className="bg-blue-500/20 text-blue-700 text-xs">In Progress</Badge>;
+      case "in_review":
+        return <Badge className="bg-purple-500/20 text-purple-700 text-xs">In Review</Badge>;
+      case "assigned":
+        return <Badge className="bg-amber-500/20 text-amber-700 text-xs">Assigned</Badge>;
+      case "new":
+        return <Badge className="bg-gray-500/20 text-gray-700 text-xs">New</Badge>;
+      case "blocked":
+        return <Badge className="bg-red-500/20 text-red-700 text-xs">Blocked</Badge>;
       default:
         return <Badge className="text-xs">{status}</Badge>;
     }
@@ -189,11 +269,11 @@ const Tasks = () => {
           </CardHeader>
           <CardContent className="pt-0">
             <form onSubmit={handleTaskSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {/* Project Selection */}
                 <div className="space-y-1">
                   <Label htmlFor="task-project" className="text-xs">Project *</Label>
-                  <Select value={taskProject} onValueChange={setTaskProject}>
+                  <Select value={taskProject} onValueChange={handleProjectChange}>
                     <SelectTrigger id="task-project" className="h-8 text-xs bg-background">
                       <SelectValue placeholder="Select project" />
                     </SelectTrigger>
@@ -205,6 +285,49 @@ const Tasks = () => {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+
+                {/* Parent Task Selection */}
+                <div className="space-y-1">
+                  <Label htmlFor="parent-task" className="text-xs">Parent Task</Label>
+                  <Select 
+                    value={parentTaskId} 
+                    onValueChange={setParentTaskId}
+                    disabled={!taskProject}
+                  >
+                    <SelectTrigger id="parent-task" className="h-8 text-xs bg-background">
+                      <SelectValue placeholder={taskProject ? "Select parent (optional)" : "Select project first"} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background z-50">
+                      <SelectItem value="none">
+                        <span className="text-muted-foreground">No parent (root task)</span>
+                      </SelectItem>
+                      {groupedParentTasks.map(({ task, path }) => (
+                        <SelectItem key={task.id} value={task.id.toString()}>
+                          <div className="flex items-center gap-1">
+                            {path.map((segment, idx) => (
+                              <span key={idx} className="flex items-center">
+                                {idx > 0 && (
+                                  <ChevronRight className="h-3 w-3 text-muted-foreground mx-0.5" />
+                                )}
+                                <span className={idx === path.length - 1 ? "font-medium" : "text-muted-foreground"}>
+                                  {segment.length > 20 ? segment.substring(0, 20) + "..." : segment}
+                                </span>
+                              </span>
+                            ))}
+                            <Badge variant="outline" className="ml-1 text-[10px] px-1">
+                              L{task.depth}
+                            </Badge>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {parentTaskId !== "none" && (
+                    <p className="text-[10px] text-muted-foreground">
+                      Depth: {newTaskDepth}{newTaskDepth === MAX_TASK_DEPTH && " (max)"}
+                    </p>
+                  )}
                 </div>
 
                 {/* Sprint Selection */}
@@ -224,8 +347,27 @@ const Tasks = () => {
                   </Select>
                 </div>
 
-                {/* Task Name */}
+                {/* Task Category */}
                 <div className="space-y-1">
+                  <Label htmlFor="task-category" className="text-xs">Category *</Label>
+                  <Select value={taskCategory} onValueChange={setTaskCategory}>
+                    <SelectTrigger id="task-category" className="h-8 text-xs bg-background">
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background">
+                      {taskCategories.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {/* Task Name */}
+                <div className="space-y-1 md:col-span-2">
                   <Label htmlFor="task-name" className="text-xs">Task Name *</Label>
                   <Input
                     id="task-name"
@@ -249,23 +391,6 @@ const Tasks = () => {
                     onChange={(e) => setEstimatedHours(e.target.value)}
                     className="h-8 text-xs"
                   />
-                </div>
-
-                {/* Task Category */}
-                <div className="space-y-1">
-                  <Label htmlFor="task-category" className="text-xs">Category *</Label>
-                  <Select value={taskCategory} onValueChange={setTaskCategory}>
-                    <SelectTrigger id="task-category" className="h-8 text-xs bg-background">
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-background">
-                      {taskCategories.map((category) => (
-                        <SelectItem key={category} value={category}>
-                          {category}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                 </div>
               </div>
 
@@ -335,25 +460,38 @@ const Tasks = () => {
                   <TableRow>
                     <TableHead className="text-xs py-2">Task Name</TableHead>
                     <TableHead className="text-xs py-2">Project</TableHead>
-                    <TableHead className="text-xs py-2">Sprint</TableHead>
                     <TableHead className="text-xs py-2">Category</TableHead>
-                    <TableHead className="text-xs py-2 text-center">Hours</TableHead>
+                    <TableHead className="text-xs py-2 text-center">Est. Hours</TableHead>
+                    <TableHead className="text-xs py-2 text-center">Logged</TableHead>
                     <TableHead className="text-xs py-2">Assignee</TableHead>
                     <TableHead className="text-xs py-2">Status</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredTasks.map((task) => (
-                    <TableRow key={task.id}>
-                      <TableCell className="text-sm py-2 font-medium">{task.name}</TableCell>
-                      <TableCell className="text-sm py-2">{task.project}</TableCell>
-                      <TableCell className="text-sm py-2">{task.sprint}</TableCell>
-                      <TableCell className="text-sm py-2">{task.category}</TableCell>
-                      <TableCell className="text-sm py-2 text-center">{task.hours}</TableCell>
-                      <TableCell className="text-sm py-2">{task.assignee}</TableCell>
-                      <TableCell className="text-sm py-2">{getStatusBadge(task.status)}</TableCell>
-                    </TableRow>
-                  ))}
+                  {filteredTasks.map((task) => {
+                    const projectName = projectsData.find(p => p.id === task.projectId)?.project ?? "Unknown";
+                    const subtaskCount = allTasks.filter(t => t.parentTaskId === task.id).length;
+                    return (
+                      <TableRow key={task.id}>
+                        <TableCell className="text-sm py-2">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{task.name}</span>
+                            {subtaskCount > 0 && (
+                              <Badge variant="outline" className="text-[10px]">
+                                {subtaskCount} subtask{subtaskCount > 1 ? "s" : ""}
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-sm py-2">{projectName}</TableCell>
+                        <TableCell className="text-sm py-2">{task.category}</TableCell>
+                        <TableCell className="text-sm py-2 text-center">{task.estimatedHours ?? "-"}</TableCell>
+                        <TableCell className="text-sm py-2 text-center">{task.loggedHours}h</TableCell>
+                        <TableCell className="text-sm py-2">{task.primaryAssigneeName}</TableCell>
+                        <TableCell className="text-sm py-2">{getStatusBadge(task.status)}</TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
