@@ -151,6 +151,12 @@ const TodaysHours = () => {
                     <p className="text-[9px] text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">Productive</p>
                     <p className="text-lg font-bold text-emerald-700 dark:text-emerald-400">{attendanceData.productiveHours}h</p>
                   </div>
+                  <div className={`text-center px-4 py-2 rounded-full ${monthlyData.difference >= 0 ? 'bg-success/20' : 'bg-destructive/20'}`}>
+                    <p className={`text-[9px] uppercase tracking-wide ${monthlyData.difference >= 0 ? 'text-success/80' : 'text-destructive/80'}`}>Monthly Diff</p>
+                    <p className={`text-lg font-bold ${monthlyData.difference >= 0 ? 'text-success' : 'text-destructive'}`}>
+                      {monthlyData.difference >= 0 ? '+' : ''}{monthlyData.difference}h
+                    </p>
+                  </div>
                 </div>
               </div>
 
