@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+
 import { Download, Clock, Filter, AlertCircle } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
@@ -41,7 +42,7 @@ const SpentHours = () => {
   const [description, setDescription] = useState("");
   const [hours, setHours] = useState("");
   const [entryDate, setEntryDate] = useState(new Date().toISOString().split("T")[0]);
-  const [isBillable, setIsBillable] = useState(true);
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Data state
@@ -226,8 +227,8 @@ const SpentHours = () => {
       activity_type: activityType,
       entry_date: entryDate,
       logged_hours: parseFloat(hours),
-      billable_hours: isBillable ? parseFloat(hours) : 0,
-      is_billable: isBillable,
+      billable_hours: parseFloat(hours),
+      is_billable: true,
       description: description,
     });
 
@@ -454,14 +455,6 @@ const SpentHours = () => {
                     className="h-9"
                     required
                   />
-                </div>
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="isBillable"
-                    checked={isBillable}
-                    onCheckedChange={(checked) => setIsBillable(checked as boolean)}
-                  />
-                  <Label htmlFor="isBillable" className="text-xs">Billable</Label>
                 </div>
                 <Button type="submit" size="sm" className="bg-primary" disabled={isSubmitting}>
                   {isSubmitting ? "Submitting..." : "Submit"}
