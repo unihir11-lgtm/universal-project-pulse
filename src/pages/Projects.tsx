@@ -871,10 +871,19 @@ const Projects = () => {
                             <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
+                        <DropdownMenuContent align="end" className="bg-popover">
                           <DropdownMenuItem>View Details</DropdownMenuItem>
                           <DropdownMenuItem>Edit</DropdownMenuItem>
                           <DropdownMenuItem>Assign Employees</DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem 
+                            onClick={() => {
+                              toast.success(`Template created from "${project.name}"`);
+                            }}
+                          >
+                            <Save className="h-4 w-4 mr-2" />
+                            Save as Template
+                          </DropdownMenuItem>
                           {hasPermission(["admin", "finance"]) && (
                             <>
                               <DropdownMenuSeparator />
