@@ -294,37 +294,6 @@ const TodaysHours = () => {
           </CardContent>
         </Card>
 
-        {/* Monthly Summary - Compact */}
-        <Card>
-          <CardHeader className="py-2">
-            <CardTitle className="flex items-center gap-2 text-xs">
-              <Calendar className="h-3.5 w-3.5 text-primary" />
-              Monthly Summary
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0 pb-3">
-            <div className="grid gap-2 grid-cols-4">
-              <div className="p-2 bg-secondary/50 rounded-md text-center">
-                <p className="text-[9px] text-muted-foreground uppercase">Days</p>
-                <p className="text-base font-bold text-foreground">{monthlyData.workingDays}</p>
-              </div>
-              <div className="p-2 bg-primary/5 rounded-md text-center">
-                <p className="text-[9px] text-muted-foreground uppercase">Expected</p>
-                <p className="text-base font-bold text-primary">{monthlyData.expectedHours}h</p>
-              </div>
-              <div className="p-2 bg-accent/10 rounded-md text-center">
-                <p className="text-[9px] text-muted-foreground uppercase">Actual</p>
-                <p className="text-base font-bold text-accent">{monthlyData.actualHours}h</p>
-              </div>
-              <div className={`p-2 rounded-md text-center ${monthlyData.difference >= 0 ? 'bg-success/10' : 'bg-destructive/10'}`}>
-                <p className="text-[9px] text-muted-foreground uppercase">Diff</p>
-                <p className={`text-base font-bold ${monthlyData.difference >= 0 ? 'text-success' : 'text-destructive'}`}>
-                  {monthlyData.difference >= 0 ? '+' : ''}{monthlyData.difference}h
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </DashboardLayout>
   );
