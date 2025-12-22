@@ -26,7 +26,8 @@ import {
   AlertTriangle,
   DollarSign,
   FileText,
-  Sparkles
+  Sparkles,
+  Save
 } from "lucide-react";
 
 // Mock project templates data
@@ -665,6 +666,20 @@ const Projects = () => {
                 <DialogFooter className="pt-4 border-t">
                   <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                     Cancel
+                  </Button>
+                  <Button 
+                    type="button" 
+                    variant="secondary"
+                    onClick={() => {
+                      if (!formData.projectName) {
+                        toast.error("Please enter a project name to save as template");
+                        return;
+                      }
+                      toast.success(`Template "${formData.projectName}" saved successfully!`);
+                    }}
+                  >
+                    <Save className="mr-2 h-4 w-4" />
+                    Save as Template
                   </Button>
                   <Button type="submit">
                     Create Project
