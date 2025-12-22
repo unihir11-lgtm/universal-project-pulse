@@ -164,19 +164,43 @@ const mockResourceData = [
   },
 ];
 
+type TimeWindow = "today" | "week" | "month";
+
+const getTimeWindowLabel = (window: TimeWindow) => {
+  switch (window) {
+    case "today": return "Today";
+    case "week": return "This Week";
+    case "month": return "This Month";
+  }
+};
+
+const getCapacityMultiplier = (window: TimeWindow) => {
+  switch (window) {
+    case "today": return 1 / 5; // 8h per day from 40h week
+    case "week": return 1;
+    case "month": return 4; // ~4 weeks
+  }
+};
+
 const ResourceAllocation = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [activeTab, setActiveTab] = useState("heatmap");
+  const [timeWindow, setTimeWindow] = useState<TimeWindow>("week");
 
   // Get unique departments
   const departments = [...new Set(mockResourceData.map(r => r.department))];
 
+  // Calculate capacity and allocation based on time window
+  const multiplier = getCapacityMultiplier(timeWindow);
+  
   // Calculate availability for each resource
   const resourcesWithAvailability = mockResourceData.map(resource => {
-    const availability = resource.weeklyCapacity - resource.allocatedHours;
-    const utilizationPercent = (resource.allocatedHours / resource.weeklyCapacity) * 100;
+    const adjustedCapacity = Math.round(resource.weeklyCapacity * multiplier);
+    const adjustedAllocated = Math.round(resource.allocatedHours * multiplier);
+    const availability = adjustedCapacity - adjustedAllocated;
+    const utilizationPercent = (adjustedAllocated / adjustedCapacity) * 100;
     let status: "overloaded" | "optimal" | "available" | "free";
     
     if (utilizationPercent > 100) {
@@ -191,6 +215,8 @@ const ResourceAllocation = () => {
 
     return {
       ...resource,
+      weeklyCapacity: adjustedCapacity,
+      allocatedHours: adjustedAllocated,
       availability,
       utilizationPercent,
       status,
@@ -297,10 +323,23 @@ const ResourceAllocation = () => {
               Track capacity and see who is available for new work
             </p>
           </div>
-          <Button onClick={handleExport} variant="outline">
-            <Download className="mr-2 h-4 w-4" />
-            Export CSV
-          </Button>
+          <div className="flex items-center gap-3">
+            <Select value={timeWindow} onValueChange={(v) => setTimeWindow(v as TimeWindow)}>
+              <SelectTrigger className="w-[140px]">
+                <Calendar className="mr-2 h-4 w-4" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="today">Today</SelectItem>
+                <SelectItem value="week">This Week</SelectItem>
+                <SelectItem value="month">This Month</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button onClick={handleExport} variant="outline">
+              <Download className="mr-2 h-4 w-4" />
+              Export CSV
+            </Button>
+          </div>
         </div>
 
         {/* Summary Cards */}
@@ -313,7 +352,7 @@ const ResourceAllocation = () => {
             <CardContent>
               <div className="text-2xl font-bold">{totalCapacity}h</div>
               <p className="text-xs text-muted-foreground">
-                Weekly hours available
+                {getTimeWindowLabel(timeWindow)} hours available
               </p>
             </CardContent>
           </Card>
