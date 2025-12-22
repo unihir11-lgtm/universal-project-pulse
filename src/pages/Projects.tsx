@@ -27,7 +27,8 @@ import {
   DollarSign,
   FileText,
   Sparkles,
-  Save
+  Save,
+  Calendar
 } from "lucide-react";
 
 // Mock project templates data
@@ -104,6 +105,8 @@ const Projects = () => {
   const [projectToConvert, setProjectToConvert] = useState<Project | null>(null);
   const [filterType, setFilterType] = useState<"all" | ProjectType>("external");
   const [searchQuery, setSearchQuery] = useState("");
+  
+  const [billingPeriod, setBillingPeriod] = useState<"today" | "week" | "month" | "quarter" | "year" | "all">("month");
   
   const [formData, setFormData] = useState({
     projectName: "",
@@ -690,73 +693,93 @@ const Projects = () => {
           </Dialog>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-5">
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <Briefcase className="h-5 w-5 text-primary" />
+        {/* Billing Summary with Date Filter */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold">Billing Summary</h2>
+            <Select value={billingPeriod} onValueChange={(v) => setBillingPeriod(v as typeof billingPeriod)}>
+              <SelectTrigger className="w-[160px]">
+                <Calendar className="mr-2 h-4 w-4" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-popover">
+                <SelectItem value="today">Today</SelectItem>
+                <SelectItem value="week">This Week</SelectItem>
+                <SelectItem value="month">This Month</SelectItem>
+                <SelectItem value="quarter">This Quarter</SelectItem>
+                <SelectItem value="year">This Year</SelectItem>
+                <SelectItem value="all">All Time</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="grid gap-4 md:grid-cols-5">
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Briefcase className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">External</p>
+                    <p className="text-2xl font-bold">{externalCount}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">External</p>
-                  <p className="text-2xl font-bold">{externalCount}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-secondary">
+                    <Building2 className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Internal</p>
+                    <p className="text-2xl font-bold">{internalCount}</p>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-secondary">
-                  <Building2 className="h-5 w-5 text-muted-foreground" />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-green-500/10">
+                    <DollarSign className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Billed</p>
+                    <p className="text-2xl font-bold">${totalBilled.toLocaleString()}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Internal</p>
-                  <p className="text-2xl font-bold">{internalCount}</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-amber-500/10">
+                    <DollarSign className="h-5 w-5 text-amber-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Billable</p>
+                    <p className="text-2xl font-bold">${totalBillable.toLocaleString()}</p>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-green-500/10">
-                  <DollarSign className="h-5 w-5 text-green-600" />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-muted">
+                    <DollarSign className="h-5 w-5 text-muted-foreground" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Unbilled</p>
+                    <p className="text-2xl font-bold">${totalUnbilled.toLocaleString()}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Billed</p>
-                  <p className="text-2xl font-bold">${totalBilled.toLocaleString()}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-amber-500/10">
-                  <DollarSign className="h-5 w-5 text-amber-600" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Billable</p>
-                  <p className="text-2xl font-bold">${totalBillable.toLocaleString()}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-muted">
-                  <DollarSign className="h-5 w-5 text-muted-foreground" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Unbilled</p>
-                  <p className="text-2xl font-bold">${totalUnbilled.toLocaleString()}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         <Card>
