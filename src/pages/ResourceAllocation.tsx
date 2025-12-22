@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
 import { 
   Search, 
   Download, 
@@ -344,7 +346,10 @@ const ResourceAllocation = () => {
 
         {/* Summary Cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-          <Card>
+          <Card 
+            className="cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
+            onClick={() => toast.info("Viewing total capacity details")}
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Capacity</CardTitle>
               <Clock className="h-4 w-4 text-muted-foreground" />
@@ -357,7 +362,10 @@ const ResourceAllocation = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card 
+            className="cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
+            onClick={() => toast.info("Viewing allocated hours details")}
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Allocated Hours</CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
@@ -370,7 +378,13 @@ const ResourceAllocation = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card 
+            className="cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
+            onClick={() => {
+              setStatusFilter("available");
+              toast.success("Filtered to show available resources");
+            }}
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Available Hours</CardTitle>
               <CheckCircle className="h-4 w-4 text-green-500" />
@@ -383,7 +397,13 @@ const ResourceAllocation = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card 
+            className="cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
+            onClick={() => {
+              setStatusFilter("overloaded");
+              toast.success("Filtered to show overloaded resources");
+            }}
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Overloaded</CardTitle>
               <AlertTriangle className="h-4 w-4 text-destructive" />
@@ -396,7 +416,10 @@ const ResourceAllocation = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card 
+            className="cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
+            onClick={() => toast.info(`Average utilization: ${avgUtilization.toFixed(1)}%`)}
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Avg Utilization</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
@@ -473,11 +496,14 @@ const ResourceAllocation = () => {
                   {filteredResources.map(resource => (
                     <Card 
                       key={resource.id} 
-                      className={`relative overflow-hidden border-2 ${
+                      className={`relative overflow-hidden border-2 cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all ${
                         resource.status === "overloaded" ? "border-destructive" :
                         resource.status === "free" ? "border-green-500" :
                         "border-border"
                       }`}
+                      onClick={() => {
+                        toast.info(`${resource.employeeName}: ${resource.allocatedHours}h allocated, ${resource.availability}h available`);
+                      }}
                     >
                       <div 
                         className={`absolute inset-0 opacity-10 ${getHeatmapColor(resource.utilizationPercent)}`}

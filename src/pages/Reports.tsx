@@ -847,25 +847,37 @@ const Reports = () => {
 
             {/* Summary Stats */}
             <div className="grid gap-6 md:grid-cols-4">
-              <Card>
+              <Card 
+                className="cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
+                onClick={() => toast.info("Viewing total hours breakdown")}
+              >
                 <CardContent className="pt-6">
                   <p className="text-sm text-muted-foreground">Total Hours</p>
                   <p className="text-3xl font-bold text-foreground mt-2">1,230h</p>
                 </CardContent>
               </Card>
-              <Card>
+              <Card 
+                className="cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
+                onClick={() => toast.info("Viewing active projects")}
+              >
                 <CardContent className="pt-6">
                   <p className="text-sm text-muted-foreground">Active Projects</p>
                   <p className="text-3xl font-bold text-foreground mt-2">32</p>
                 </CardContent>
               </Card>
-              <Card>
+              <Card 
+                className="cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
+                onClick={() => toast.info("Viewing completed projects")}
+              >
                 <CardContent className="pt-6">
                   <p className="text-sm text-muted-foreground">Completed</p>
                   <p className="text-3xl font-bold text-success mt-2">16</p>
                 </CardContent>
               </Card>
-              <Card>
+              <Card 
+                className="cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
+                onClick={() => toast.info("Viewing average hours per project")}
+              >
                 <CardContent className="pt-6">
                   <p className="text-sm text-muted-foreground">Avg Hours/Project</p>
                   <p className="text-3xl font-bold text-accent mt-2">38.4h</p>
@@ -957,7 +969,11 @@ const Reports = () => {
                   </TableHeader>
                   <TableBody>
                     {attendanceData.map((record) => (
-                      <TableRow key={record.id}>
+                      <TableRow 
+                        key={record.id}
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => toast.info(`Viewing ${record.name}'s attendance details`)}
+                      >
                         <TableCell className="font-medium">{record.employeeId}</TableCell>
                         <TableCell>{record.name}</TableCell>
                         <TableCell>{record.inTime}</TableCell>
@@ -988,7 +1004,11 @@ const Reports = () => {
               <CardContent>
                 <div className="space-y-4">
                   {employeeProductivityData.map((employee, index) => (
-                    <div key={index} className="p-4 border rounded-lg space-y-3">
+                    <div 
+                      key={index} 
+                      className="p-4 border rounded-lg space-y-3 cursor-pointer hover:shadow-lg hover:bg-muted/30 transition-all"
+                      onClick={() => toast.info(`Viewing ${employee.name}'s productivity details`)}
+                    >
                       <div className="flex items-center justify-between">
                         <h4 className="font-semibold text-foreground">{employee.name}</h4>
                         <div className="flex gap-2">
