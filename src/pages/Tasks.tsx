@@ -489,7 +489,17 @@ const Tasks = () => {
 
                     return (
                       <>
-                        <TableRow key={task.id} className={subtaskCount > 0 ? "cursor-pointer hover:bg-muted/50" : ""} onClick={subtaskCount > 0 ? toggleExpand : undefined}>
+                        <TableRow 
+                          key={task.id} 
+                          className="cursor-pointer hover:bg-muted/50" 
+                          onClick={() => {
+                            if (subtaskCount > 0) {
+                              toggleExpand();
+                            } else {
+                              toast.info(`Viewing task: ${task.name}`);
+                            }
+                          }}
+                        >
                           <TableCell className="text-sm py-2">
                             <div className="flex items-center gap-2">
                               {subtaskCount > 0 && (

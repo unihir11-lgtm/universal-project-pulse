@@ -714,7 +714,10 @@ const Projects = () => {
           </div>
           
           <div className="grid gap-4 md:grid-cols-5">
-            <Card>
+            <Card 
+              className="cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
+              onClick={() => setFilterType("external")}
+            >
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-lg bg-primary/10">
@@ -727,7 +730,10 @@ const Projects = () => {
                 </div>
               </CardContent>
             </Card>
-            <Card>
+            <Card 
+              className="cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
+              onClick={() => setFilterType("internal")}
+            >
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-lg bg-secondary">
@@ -740,7 +746,10 @@ const Projects = () => {
                 </div>
               </CardContent>
             </Card>
-            <Card>
+            <Card 
+              className="cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
+              onClick={() => toast.info(`Total billed: $${totalBilled.toLocaleString()}`)}
+            >
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-lg bg-green-500/10">
@@ -753,7 +762,10 @@ const Projects = () => {
                 </div>
               </CardContent>
             </Card>
-            <Card>
+            <Card 
+              className="cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
+              onClick={() => toast.info(`Total billable: $${totalBillable.toLocaleString()}`)}
+            >
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-lg bg-amber-500/10">
@@ -766,7 +778,10 @@ const Projects = () => {
                 </div>
               </CardContent>
             </Card>
-            <Card>
+            <Card 
+              className="cursor-pointer hover:shadow-lg hover:scale-[1.02] transition-all"
+              onClick={() => toast.info(`Total unbilled: $${totalUnbilled.toLocaleString()}`)}
+            >
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-lg bg-muted">

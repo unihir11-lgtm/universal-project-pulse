@@ -389,7 +389,11 @@ const Employees = () => {
               </TableHeader>
               <TableBody>
                 {employees.map((employee) => (
-                  <TableRow key={employee.id}>
+                  <TableRow 
+                    key={employee.id} 
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => toast.info(`Viewing ${employee.name}'s profile`)}
+                  >
                     <TableCell className="font-medium">{employee.name}</TableCell>
                     <TableCell>{employee.designation}</TableCell>
                     <TableCell>{employee.department}</TableCell>
@@ -407,14 +411,21 @@ const Employees = () => {
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
+                          <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
                             <MoreVertical className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>View Details</DropdownMenuItem>
-                          <DropdownMenuItem>Edit</DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive">
+                        <DropdownMenuContent align="end" className="bg-popover">
+                          <DropdownMenuItem onClick={() => toast.info(`Viewing ${employee.name}'s details`)}>
+                            View Details
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => toast.info(`Editing ${employee.name}`)}>
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            className="text-destructive"
+                            onClick={() => toast.warning(`Deactivating ${employee.name}`)}
+                          >
                             Deactivate
                           </DropdownMenuItem>
                         </DropdownMenuContent>

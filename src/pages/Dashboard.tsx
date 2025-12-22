@@ -62,6 +62,7 @@ const Dashboard = () => {
             icon={FolderKanban}
             trend={{ value: "+12%", isPositive: true }}
             iconBgClass="bg-gradient-primary"
+            href="/projects"
           />
           <StatCard
             title="Total Employees"
@@ -69,6 +70,7 @@ const Dashboard = () => {
             icon={Users}
             trend={{ value: "+8%", isPositive: true }}
             iconBgClass="bg-gradient-accent"
+            href="/employees"
           />
           <StatCard
             title="Active Projects"
@@ -76,6 +78,7 @@ const Dashboard = () => {
             icon={CheckCircle2}
             trend={{ value: "+5%", isPositive: true }}
             iconBgClass="bg-success"
+            href="/projects"
           />
           <StatCard
             title="Hours Logged Today"
@@ -83,6 +86,7 @@ const Dashboard = () => {
             icon={Clock}
             trend={{ value: "-3%", isPositive: false }}
             iconBgClass="bg-info"
+            href="/todays-hours"
           />
         </div>
 
