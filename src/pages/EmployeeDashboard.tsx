@@ -26,9 +26,10 @@ import { toast } from "sonner";
 import { formatDate } from "@/lib/utils";
 
 const EmployeeDashboard = () => {
+  const [logDate, setLogDate] = useState(new Date().toISOString().split('T')[0]);
   const [project, setProject] = useState("");
   const [task, setTask] = useState("");
-  const [category, setCategory] = useState("");
+  const [activityType, setActivityType] = useState("");
   const [description, setDescription] = useState("");
   const [hours, setHours] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState("all");
@@ -165,7 +166,7 @@ const EmployeeDashboard = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!project || !task || !category || !description || !hours) {
+    if (!logDate || !project || !activityType || !description || !hours) {
       toast.error("Please fill all required fields");
       return;
     }
@@ -182,9 +183,10 @@ const EmployeeDashboard = () => {
     }
 
     toast.success("Work log submitted successfully!");
+    setLogDate(new Date().toISOString().split('T')[0]);
     setProject("");
     setTask("");
-    setCategory("");
+    setActivityType("");
     setDescription("");
     setHours("");
   };
@@ -407,46 +409,65 @@ const EmployeeDashboard = () => {
           </CardHeader>
           <CardContent className="pt-0">
             <form onSubmit={handleSubmit} className="space-y-3">
-              <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
+              <div className="grid gap-3 grid-cols-2 md:grid-cols-5">
+                {/* Date */}
+                <div className="space-y-1">
+                  <Label htmlFor="log-date" className="text-xs">Date *</Label>
+                  <Input
+                    id="log-date"
+                    type="date"
+                    value={logDate}
+                    onChange={(e) => setLogDate(e.target.value)}
+                    className="h-9 bg-background"
+                  />
+                </div>
+
+                {/* Project */}
                 <div className="space-y-1">
                   <Label htmlFor="project" className="text-xs">Project *</Label>
                   <Select value={project} onValueChange={setProject}>
                     <SelectTrigger id="project" className="h-9 bg-background">
                       <SelectValue placeholder="Choose project" />
                     </SelectTrigger>
-                    <SelectContent className="bg-background">
+                    <SelectContent className="bg-background z-50">
                       {projects.map((p) => (
                         <SelectItem key={p} value={p}>{p}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
+
+                {/* Task/Subtask */}
                 <div className="space-y-1">
-                  <Label htmlFor="task" className="text-xs">Task *</Label>
+                  <Label htmlFor="task" className="text-xs">Task/Subtask</Label>
                   <Select value={task} onValueChange={setTask}>
                     <SelectTrigger id="task" className="h-9 bg-background">
                       <SelectValue placeholder="Select task" />
                     </SelectTrigger>
-                    <SelectContent className="bg-background">
+                    <SelectContent className="bg-background z-50">
                       {tasks.map((t) => (
                         <SelectItem key={t} value={t}>{t}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
+
+                {/* Activity Type */}
                 <div className="space-y-1">
-                  <Label htmlFor="category" className="text-xs">Category *</Label>
-                  <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger id="category" className="h-9 bg-background">
-                      <SelectValue placeholder="Select category" />
+                  <Label htmlFor="activity-type" className="text-xs">Activity Type *</Label>
+                  <Select value={activityType} onValueChange={setActivityType}>
+                    <SelectTrigger id="activity-type" className="h-9 bg-background">
+                      <SelectValue placeholder="Select type" />
                     </SelectTrigger>
-                    <SelectContent className="bg-background">
+                    <SelectContent className="bg-background z-50">
                       {categories.map((c) => (
                         <SelectItem key={c} value={c}>{c}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
+
+                {/* Hours */}
                 <div className="space-y-1">
                   <Label htmlFor="hours" className="text-xs">Hours * (max 9)</Label>
                   <Input
@@ -462,6 +483,8 @@ const EmployeeDashboard = () => {
                   />
                 </div>
               </div>
+
+              {/* Description Row */}
               <div className="flex gap-3 items-end">
                 <div className="flex-1 space-y-1">
                   <Label htmlFor="description" className="text-xs">Description *</Label>
