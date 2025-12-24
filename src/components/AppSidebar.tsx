@@ -40,7 +40,6 @@ const menuItems = [
   { title: "Project Templates", url: "/project-templates", icon: FileText },
   { title: "Sprints", url: "/sprints", icon: Target },
   { title: "Tasks", url: "/tasks", icon: ClipboardList },
-  { title: "Delayed Tasks", url: "/delayed-tasks", icon: AlertTriangle },
   { title: "Resource Allocation", url: "/resource-allocation", icon: UsersRound },
   { title: "Spent Hours", url: "/spent-hours", icon: Clock },
   { title: "Today's Hours", url: "/todays-hours", icon: Calendar },
