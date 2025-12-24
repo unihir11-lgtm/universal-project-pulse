@@ -185,19 +185,16 @@ const EmployeeDashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Today's Hours Card */}
+        {/* Daily Summary & Spent Hours Tracker */}
         <Card>
-          <CardHeader className="py-3">
-            <CardTitle className="flex items-center gap-2 text-sm">
-              <Clock className="h-4 w-4 text-primary" />
-              Today's Hours
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0 space-y-4">
-            {/* Summary & Tracker Row */}
-            <div className="grid gap-4 lg:grid-cols-2">
+          <CardContent className="py-4">
+            <div className="grid gap-6 lg:grid-cols-2">
               {/* Daily Summary */}
               <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium">Daily Summary</span>
+                </div>
                 <div className="flex gap-2 flex-wrap">
                   <div className="text-center px-4 py-2 bg-primary rounded-full">
                     <p className="text-[9px] text-primary-foreground/80 uppercase tracking-wide">Total Hours</p>
@@ -211,136 +208,149 @@ const EmployeeDashboard = () => {
                     <p className="text-[9px] text-emerald-700 dark:text-emerald-400 uppercase tracking-wide">Productive</p>
                     <p className="text-lg font-bold text-emerald-700 dark:text-emerald-400">{attendanceData.productiveHours}h</p>
                   </div>
+                  <div className={`text-center px-4 py-2 rounded-full ${monthlyData.difference >= 0 ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-red-100 dark:bg-red-900/30'}`}>
+                    <p className="text-[9px] text-muted-foreground uppercase tracking-wide">Monthly Diff</p>
+                    <p className={`text-lg font-bold ${monthlyData.difference >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                      {monthlyData.difference >= 0 ? '+' : ''}{monthlyData.difference}h
+                    </p>
+                  </div>
                 </div>
               </div>
 
               {/* Spent Hours Tracker */}
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Target className="h-4 w-4 text-primary" />
-                    <span className="text-xs font-medium">Progress</span>
+                    <Target className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">Spent Hours Tracker</span>
                   </div>
                   {getStatusBadge()}
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 relative h-2.5 bg-muted rounded-full overflow-hidden">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">Progress</span>
+                    <span className="text-xs font-medium ml-auto">{attendanceData.productiveHours}h / {TARGET_HOURS}h</span>
+                  </div>
+                  <div className="relative h-3 bg-muted rounded-full overflow-hidden">
                     <div 
                       className={`absolute top-0 left-0 h-full rounded-full transition-all ${getProgressColor()}`}
                       style={{ width: `${spentPercentage}%` }}
                     />
                   </div>
-                  <span className="text-xs font-medium">{attendanceData.productiveHours}h / {TARGET_HOURS}h</span>
-                </div>
-                <div className="flex gap-2">
                   {remainingHours > 0 && (
-                    <div className="inline-block px-3 py-1 bg-destructive/5 rounded-md border border-destructive/10">
+                    <div className="inline-block px-3 py-1.5 bg-teal-50 dark:bg-teal-900/20 rounded-md border border-teal-200 dark:border-teal-800">
                       <p className="text-[10px] text-muted-foreground">Remaining</p>
-                      <p className="text-sm font-bold text-destructive">{remainingHours.toFixed(2)}h</p>
+                      <p className="text-sm font-bold text-teal-600 dark:text-teal-400">{remainingHours.toFixed(2)}h</p>
                     </div>
                   )}
                   {extraHours > 0 && (
-                    <div className="inline-block px-3 py-1 bg-blue-500/5 rounded-md border border-blue-500/10">
+                    <div className="inline-block px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-md border border-blue-200 dark:border-blue-800">
                       <p className="text-[10px] text-muted-foreground">Extra</p>
-                      <p className="text-sm font-bold text-blue-600">+{extraHours.toFixed(2)}h</p>
+                      <p className="text-sm font-bold text-blue-600 dark:text-blue-400">+{extraHours.toFixed(2)}h</p>
                     </div>
                   )}
-                </div>
-              </div>
-            </div>
-
-            {/* Divider */}
-            <div className="border-t border-border" />
-
-            {/* Check-In / Check-Out */}
-            <div className="grid gap-3 md:grid-cols-2">
-              {/* Check-In */}
-              <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <LogIn className="h-4 w-4 text-primary" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-xs font-medium text-muted-foreground">First Check-In</h4>
-                  <p className="text-lg font-bold text-foreground">{attendanceData.inTime}</p>
-                </div>
-              </div>
-
-              {/* Check-Out */}
-              <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
-                <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0">
-                  <LogOut className="h-4 w-4 text-accent" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="text-xs font-medium text-muted-foreground">Final Check-Out</h4>
-                  <p className="text-lg font-bold text-foreground">{attendanceData.outTime}</p>
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
 
+        {/* Check-In / Check-Out Cards */}
+        <div className="grid gap-4 md:grid-cols-2">
+          {/* First Check-In */}
+          <Card>
+            <CardContent className="py-4">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                  <LogIn className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h4 className="text-xs text-muted-foreground">First Check-In</h4>
+                    <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 text-[10px] border-0">
+                      On Time
+                    </Badge>
+                  </div>
+                  <p className="text-xl font-bold text-foreground">{attendanceData.inTime}</p>
+                  <p className="text-xs text-muted-foreground">Biometric ID: EMP001 verified</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Final Check-Out */}
+          <Card>
+            <CardContent className="py-4">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                  <LogOut className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h4 className="text-xs text-muted-foreground">Final Check-Out</h4>
+                    <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 text-[10px] border-0">
+                      Completed
+                    </Badge>
+                  </div>
+                  <p className="text-xl font-bold text-foreground">{attendanceData.outTime}</p>
+                  <p className="text-xs text-muted-foreground">Biometric ID: EMP001 verified</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Break Sessions Card */}
         <Card>
           <CardHeader className="py-3">
             <CardTitle className="flex items-center gap-2 text-sm">
-              <Clock className="h-4 w-4 text-primary" />
+              <Clock className="h-4 w-4 text-amber-500" />
               Break Sessions
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead className="text-sm">Break In</TableHead>
-                  <TableHead className="text-sm">Break Out</TableHead>
-                  <TableHead className="text-sm text-right">Duration</TableHead>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="text-xs font-medium">Break #</TableHead>
+                  <TableHead className="text-xs font-medium">
+                    <span className="flex items-center gap-1">
+                      <span className="text-amber-500">॥</span> Break-In
+                    </span>
+                  </TableHead>
+                  <TableHead className="text-xs font-medium">
+                    <span className="flex items-center gap-1">
+                      <span className="text-muted-foreground">▷</span> Break-Out
+                    </span>
+                  </TableHead>
+                  <TableHead className="text-xs font-medium">Duration</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 <TableRow>
-                  <TableCell className="py-2 text-sm">12:30 PM</TableCell>
-                  <TableCell className="py-2 text-sm">01:00 PM</TableCell>
-                  <TableCell className="py-2 text-sm text-right font-medium">0.5h</TableCell>
+                  <TableCell className="py-3 text-sm text-primary font-medium">1</TableCell>
+                  <TableCell className="py-3 text-sm text-primary">10:30 AM</TableCell>
+                  <TableCell className="py-3 text-sm text-teal-600 dark:text-teal-400">10:45 AM</TableCell>
+                  <TableCell className="py-3 text-sm">0.25h</TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell className="py-2 text-sm">04:00 PM</TableCell>
-                  <TableCell className="py-2 text-sm">04:45 PM</TableCell>
-                  <TableCell className="py-2 text-sm text-right font-medium">0.75h</TableCell>
+                  <TableCell className="py-3 text-sm text-primary font-medium">2</TableCell>
+                  <TableCell className="py-3 text-sm text-primary">12:30 PM</TableCell>
+                  <TableCell className="py-3 text-sm text-teal-600 dark:text-teal-400">01:15 PM</TableCell>
+                  <TableCell className="py-3 text-sm">0.75h</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell className="py-3 text-sm text-primary font-medium">3</TableCell>
+                  <TableCell className="py-3 text-sm text-primary">04:00 PM</TableCell>
+                  <TableCell className="py-3 text-sm text-teal-600 dark:text-teal-400">04:15 PM</TableCell>
+                  <TableCell className="py-3 text-sm">0.25h</TableCell>
+                </TableRow>
+                <TableRow className="border-t-2">
+                  <TableCell className="py-3 text-sm font-semibold" colSpan={3}>Total Break Duration</TableCell>
+                  <TableCell className="py-3 text-sm font-bold text-amber-600 dark:text-amber-400">{attendanceData.breakDuration}h</TableCell>
                 </TableRow>
               </TableBody>
             </Table>
-          </CardContent>
-        </Card>
-
-        {/* Monthly Summary */}
-        <Card>
-          <CardHeader className="py-2">
-            <CardTitle className="flex items-center gap-2 text-xs">
-              <Calendar className="h-3.5 w-3.5 text-primary" />
-              Monthly Summary
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0 pb-3">
-            <div className="grid gap-2 grid-cols-4">
-              <div className="p-2 bg-secondary/50 rounded-md text-center">
-                <p className="text-[9px] text-muted-foreground uppercase">Days</p>
-                <p className="text-base font-bold text-foreground">{monthlyData.workingDays}</p>
-              </div>
-              <div className="p-2 bg-primary/5 rounded-md text-center">
-                <p className="text-[9px] text-muted-foreground uppercase">Expected</p>
-                <p className="text-base font-bold text-primary">{monthlyData.expectedHours}h</p>
-              </div>
-              <div className="p-2 bg-accent/10 rounded-md text-center">
-                <p className="text-[9px] text-muted-foreground uppercase">Actual</p>
-                <p className="text-base font-bold text-accent">{monthlyData.actualHours}h</p>
-              </div>
-              <div className={`p-2 rounded-md text-center ${monthlyData.difference >= 0 ? 'bg-success/10' : 'bg-destructive/10'}`}>
-                <p className="text-[9px] text-muted-foreground uppercase">Diff</p>
-                <p className={`text-base font-bold ${monthlyData.difference >= 0 ? 'text-success' : 'text-destructive'}`}>
-                  {monthlyData.difference >= 0 ? '+' : ''}{monthlyData.difference}h
-                </p>
-              </div>
-            </div>
           </CardContent>
         </Card>
 
