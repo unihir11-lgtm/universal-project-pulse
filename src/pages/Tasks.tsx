@@ -26,6 +26,8 @@ import { Badge } from "@/components/ui/badge";
 import { mockTasks } from "@/data/mockProjects";
 import { 
   Task, 
+  TaskStatus,
+  TASK_STATUS_LABELS,
   MAX_TASK_DEPTH, 
   canHaveChildren,
   wouldCreateCircularReference,
@@ -100,6 +102,7 @@ const Tasks = () => {
   const [estimatedHours, setEstimatedHours] = useState("");
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
   const [taskCategory, setTaskCategory] = useState<string>("");
+  const [taskStatus, setTaskStatus] = useState<TaskStatus>("open");
   const [parentTaskId, setParentTaskId] = useState<string>("none");
   const [filterSprint, setFilterSprint] = useState<string>("all");
   const [expandedTasks, setExpandedTasks] = useState<Set<number>>(new Set());
@@ -208,6 +211,7 @@ const Tasks = () => {
     setEstimatedHours("");
     setSelectedEmployees([]);
     setTaskCategory("");
+    setTaskStatus("open");
     setParentTaskId("none");
   };
 
@@ -375,6 +379,23 @@ const Tasks = () => {
                       {taskCategories.map((category) => (
                         <SelectItem key={category} value={category}>
                           {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Task Status */}
+                <div className="space-y-1">
+                  <Label htmlFor="task-status" className="text-xs">Status *</Label>
+                  <Select value={taskStatus} onValueChange={(value) => setTaskStatus(value as TaskStatus)}>
+                    <SelectTrigger id="task-status" className="h-8 text-xs bg-background">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background max-h-60">
+                      {(Object.keys(TASK_STATUS_LABELS) as TaskStatus[]).map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {TASK_STATUS_LABELS[status]}
                         </SelectItem>
                       ))}
                     </SelectContent>
