@@ -331,6 +331,17 @@ const Tasks = () => {
     }
   };
 
+  const getVarianceDisplay = (estimated: number | undefined, actual: number) => {
+    if (!estimated) return <span className="text-muted-foreground">-</span>;
+    const variance = estimated - actual;
+    if (variance > 0) {
+      return <span className="text-emerald-600 dark:text-emerald-400">+{variance.toFixed(1)}h</span>;
+    } else if (variance < 0) {
+      return <span className="text-destructive">{variance.toFixed(1)}h</span>;
+    }
+    return <span className="text-muted-foreground">0h</span>;
+  };
+
   const formatDueDate = (dueDate?: string) => {
     if (!dueDate) return <span className="text-muted-foreground">-</span>;
     return format(parseISO(dueDate), "yyyy-MM-dd");
@@ -619,6 +630,8 @@ const Tasks = () => {
                     <TableHead className="text-xs py-2">Project</TableHead>
                     <TableHead className="text-xs py-2">Category</TableHead>
                     <TableHead className="text-xs py-2 text-center">Est. Hours</TableHead>
+                    <TableHead className="text-xs py-2 text-center">Actual</TableHead>
+                    <TableHead className="text-xs py-2 text-center">Variance</TableHead>
                     <TableHead className="text-xs py-2 text-center">Logged</TableHead>
                     <TableHead className="text-xs py-2">Assignee</TableHead>
                     <TableHead className="text-xs py-2">Due Date</TableHead>
@@ -689,6 +702,8 @@ const Tasks = () => {
                           <TableCell className="text-sm py-2">{task.category}</TableCell>
                           <TableCell className="text-sm py-2 text-center">{task.estimatedHours ?? "-"}</TableCell>
                           <TableCell className="text-sm py-2 text-center">{task.loggedHours}h</TableCell>
+                          <TableCell className="text-sm py-2 text-center">{getVarianceDisplay(task.estimatedHours, task.loggedHours)}</TableCell>
+                          <TableCell className="text-sm py-2 text-center">{task.loggedHours}h</TableCell>
                           <TableCell className="text-sm py-2">{task.primaryAssigneeName}</TableCell>
                           <TableCell className="text-sm py-2">{formatDueDate(task.dueDate)}</TableCell>
                           <TableCell className="text-sm py-2">{getDaysDelayedBadge(task.dueDate, task.status)}</TableCell>
@@ -749,6 +764,8 @@ const Tasks = () => {
                                 <TableCell className="text-sm py-2">{subtask.category}</TableCell>
                                 <TableCell className="text-sm py-2 text-center">{subtask.estimatedHours ?? "-"}</TableCell>
                                 <TableCell className="text-sm py-2 text-center">{subtask.loggedHours}h</TableCell>
+                                <TableCell className="text-sm py-2 text-center">{getVarianceDisplay(subtask.estimatedHours, subtask.loggedHours)}</TableCell>
+                                <TableCell className="text-sm py-2 text-center">{subtask.loggedHours}h</TableCell>
                                 <TableCell className="text-sm py-2">{subtask.primaryAssigneeName}</TableCell>
                                 <TableCell className="text-sm py-2">{formatDueDate(subtask.dueDate)}</TableCell>
                                 <TableCell className="text-sm py-2">{getDaysDelayedBadge(subtask.dueDate, subtask.status)}</TableCell>
@@ -768,6 +785,8 @@ const Tasks = () => {
                                   <TableCell className="text-sm py-2 text-muted-foreground">{projectName}</TableCell>
                                   <TableCell className="text-sm py-2">{subSubtask.category}</TableCell>
                                   <TableCell className="text-sm py-2 text-center">{subSubtask.estimatedHours ?? "-"}</TableCell>
+                                  <TableCell className="text-sm py-2 text-center">{subSubtask.loggedHours}h</TableCell>
+                                  <TableCell className="text-sm py-2 text-center">{getVarianceDisplay(subSubtask.estimatedHours, subSubtask.loggedHours)}</TableCell>
                                   <TableCell className="text-sm py-2 text-center">{subSubtask.loggedHours}h</TableCell>
                                   <TableCell className="text-sm py-2">{subSubtask.primaryAssigneeName}</TableCell>
                                   <TableCell className="text-sm py-2">{formatDueDate(subSubtask.dueDate)}</TableCell>
