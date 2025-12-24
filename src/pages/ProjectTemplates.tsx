@@ -546,54 +546,6 @@ const ProjectTemplates = () => {
           </Dialog>
         </div>
 
-        {/* Summary Cards */}
-        <div className="grid gap-4 md:grid-cols-5">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Total Templates</p>
-              </div>
-              <p className="text-3xl font-bold text-foreground mt-2">{stats.total}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-2">
-                <Rocket className="h-4 w-4 text-primary" />
-                <p className="text-sm text-muted-foreground">Starter Packs</p>
-              </div>
-              <p className="text-3xl font-bold text-primary mt-2">{stats.starterPacks}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-2">
-                <Briefcase className="h-4 w-4 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Org Library</p>
-              </div>
-              <p className="text-3xl font-bold text-foreground mt-2">{stats.orgLibrary}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-2">
-                <Settings className="h-4 w-4 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Custom</p>
-              </div>
-              <p className="text-3xl font-bold text-foreground mt-2">{stats.custom}</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-2">
-                <Target className="h-4 w-4 text-success" />
-                <p className="text-sm text-muted-foreground">Total Usage</p>
-              </div>
-              <p className="text-3xl font-bold text-success mt-2">{stats.totalUsage}</p>
-            </CardContent>
-          </Card>
-        </div>
 
         {/* Filters */}
         <Card>
