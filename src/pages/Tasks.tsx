@@ -324,10 +324,10 @@ const Tasks = () => {
                         <span className="text-muted-foreground">No parent (root task)</span>
                       </SelectItem>
                       {groupedParentTasks.map(({ task, path }) => (
-                        <SelectItem key={task.id} value={task.id.toString()}>
+                        <SelectItem key={`parent-${task.id}`} value={task.id.toString()}>
                           <div className="flex items-center gap-1">
                             {path.map((segment, idx) => (
-                              <span key={idx} className="flex items-center">
+                              <span key={`${task.id}-segment-${idx}`} className="flex items-center">
                                 {idx > 0 && (
                                   <ChevronRight className="h-3 w-3 text-muted-foreground mx-0.5" />
                                 )}
