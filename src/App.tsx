@@ -23,6 +23,7 @@ import Sprints from "./pages/Sprints";
 import TaskTimeReport from "./pages/TaskTimeReport";
 import DelayedTasks from "./pages/DelayedTasks";
 import ResourceAllocation from "./pages/ResourceAllocation";
+import EmployeeCheckin from "./pages/EmployeeCheckin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -54,6 +55,7 @@ const App = () => (
             <Route path="/task-time-report" element={<TaskTimeReport />} />
             <Route path="/delayed-tasks" element={<DelayedTasks />} />
             <Route path="/resource-allocation" element={<ResourceAllocation />} />
+            <Route path="/employee-checkin" element={<EmployeeCheckin />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
