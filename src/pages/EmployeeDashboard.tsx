@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Clock, LogOut, LogIn, Target, FileText, Calendar, Filter, Activity, ClipboardList, UserCheck } from "lucide-react";
 import { toast } from "sonner";
 import { formatDate } from "@/lib/utils";
@@ -89,16 +90,16 @@ const EmployeeDashboard = () => {
 
   // Activity Log Data (Time Entry History) - 10 entries
   const activityLogData = [
-    { id: 1, date: "2024-12-24", time: "09:15 AM", project: "E-Commerce Platform", task: "Frontend Development", hours: 2.5, status: "Approved" },
-    { id: 2, date: "2024-12-24", time: "11:45 AM", project: "Mobile App", task: "API Integration", hours: 1.5, status: "Approved" },
-    { id: 3, date: "2024-12-24", time: "02:30 PM", project: "CRM System", task: "Bug Fixes", hours: 2.0, status: "Pending" },
-    { id: 4, date: "2024-12-23", time: "09:00 AM", project: "Admin Dashboard", task: "UI Design", hours: 3.0, status: "Approved" },
-    { id: 5, date: "2024-12-23", time: "01:00 PM", project: "E-Commerce Platform", task: "Testing", hours: 2.0, status: "Approved" },
-    { id: 6, date: "2024-12-23", time: "04:00 PM", project: "Mobile App", task: "Code Review", hours: 1.5, status: "Rejected" },
-    { id: 7, date: "2024-12-22", time: "10:00 AM", project: "CRM System", task: "Database Design", hours: 4.0, status: "Approved" },
-    { id: 8, date: "2024-12-22", time: "03:30 PM", project: "Admin Dashboard", task: "Documentation", hours: 1.0, status: "Approved" },
-    { id: 9, date: "2024-12-21", time: "09:30 AM", project: "E-Commerce Platform", task: "Backend Development", hours: 3.5, status: "Approved" },
-    { id: 10, date: "2024-12-21", time: "02:00 PM", project: "Mobile App", task: "Deployment", hours: 2.0, status: "Pending" },
+    { id: 1, date: "20-12-2024", employee: "Rahul Sharma", project: "E-Commerce Platform", task: "Payment Integration", activity: "Development", description: "Implemented payment gat...", status: "approved", hours: "6h" },
+    { id: 2, date: "20-12-2024", employee: "Priya Patel", project: "E-Commerce Platform", task: "Stripe Setup", activity: "Development", description: "Configured Stripe webhooks", status: "pending", hours: "4h" },
+    { id: 3, date: "19-12-2024", employee: "Rahul Sharma", project: "Mobile Banking App", task: "User Authentication", activity: "Development", description: "Built authentication flow", status: "approved", hours: "8h" },
+    { id: 4, date: "19-12-2024", employee: "Amit Kumar", project: "Mobile Banking App", task: "-", activity: "Meeting", description: "Sprint planning with client", status: "approved", hours: "2h" },
+    { id: 5, date: "18-12-2024", employee: "Priya Patel", project: "CRM System", task: "Contact Management", activity: "Design", description: "Designed contact manage...", status: "approved", hours: "5h" },
+    { id: 6, date: "18-12-2024", employee: "Sneha Gupta", project: "E-Commerce Platform", task: "Shopping Cart", activity: "Development", description: "Shopping cart state manag...", status: "pending", hours: "7h" },
+    { id: 7, date: "17-12-2024", employee: "Amit Kumar", project: "Internal Tools", task: "Build Pipeline", activity: "Admin", description: "CI/CD pipeline optimization", status: "approved", hours: "3h" },
+    { id: 8, date: "17-12-2024", employee: "Rahul Sharma", project: "CRM System", task: "-", activity: "Meeting", description: "Requirements gathering se...", status: "approved", hours: "1.5h" },
+    { id: 9, date: "16-12-2024", employee: "Priya Patel", project: "E-Commerce Platform", task: "Product Catalog", activity: "Development", description: "Product catalog search feat...", status: "approved", hours: "6h" },
+    { id: 10, date: "16-12-2024", employee: "Sneha Gupta", project: "Mobile Banking App", task: "Transaction History", activity: "Development", description: "Transaction history API inte...", status: "pending", hours: "4.5h" },
   ];
 
   // Attendance Log Data (Daily Attendance Report) - 10 entries
@@ -532,34 +533,53 @@ const EmployeeDashboard = () => {
                 <Table>
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
+                      <TableHead className="w-10 text-xs"><Checkbox /></TableHead>
                       <TableHead className="text-xs">Date</TableHead>
-                      <TableHead className="text-xs">Time</TableHead>
+                      <TableHead className="text-xs">Employee</TableHead>
                       <TableHead className="text-xs">Project</TableHead>
                       <TableHead className="text-xs">Task</TableHead>
-                      <TableHead className="text-xs">Hours</TableHead>
+                      <TableHead className="text-xs">Activity</TableHead>
+                      <TableHead className="text-xs">Description</TableHead>
                       <TableHead className="text-xs">Status</TableHead>
+                      <TableHead className="text-xs">Hours</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {activityLogData.map((item) => (
                       <TableRow key={item.id}>
-                        <TableCell className="py-2 text-xs text-muted-foreground">{formatDate(item.date)}</TableCell>
-                        <TableCell className="py-2 text-xs">{item.time}</TableCell>
-                        <TableCell className="py-2 text-xs font-medium">{item.project}</TableCell>
+                        <TableCell className="py-2"><Checkbox /></TableCell>
+                        <TableCell className="py-2 text-xs text-muted-foreground">{item.date}</TableCell>
+                        <TableCell className="py-2 text-xs font-medium">{item.employee}</TableCell>
+                        <TableCell className="py-2 text-xs text-primary">{item.project}</TableCell>
                         <TableCell className="py-2 text-xs">{item.task}</TableCell>
-                        <TableCell className="py-2 text-xs font-medium">{item.hours}h</TableCell>
                         <TableCell className="py-2">
                           <Badge 
                             variant="outline" 
                             className={`text-[10px] ${
-                              item.status === 'Approved' ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400' :
-                              item.status === 'Pending' ? 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400' :
+                              item.activity === 'Development' ? 'bg-primary/10 text-primary border-primary/20' :
+                              item.activity === 'Meeting' ? 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-900/30 dark:text-slate-400' :
+                              item.activity === 'Design' ? 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400' :
+                              item.activity === 'Admin' ? 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-900/30 dark:text-slate-400' :
+                              'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400'
+                            }`}
+                          >
+                            {item.activity}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="py-2 text-xs text-muted-foreground max-w-[180px] truncate">{item.description}</TableCell>
+                        <TableCell className="py-2">
+                          <Badge 
+                            variant="outline" 
+                            className={`text-[10px] ${
+                              item.status === 'approved' ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400' :
+                              item.status === 'pending' ? 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400' :
                               'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400'
                             }`}
                           >
                             {item.status}
                           </Badge>
                         </TableCell>
+                        <TableCell className="py-2 text-xs font-medium">{item.hours}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
