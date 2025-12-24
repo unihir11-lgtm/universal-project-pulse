@@ -106,6 +106,9 @@ const Tasks = () => {
   const [taskStatus, setTaskStatus] = useState<TaskStatus>("open");
   const [parentTaskId, setParentTaskId] = useState<string>("none");
   const [filterSprint, setFilterSprint] = useState<string>("all");
+  const [filterProject, setFilterProject] = useState<string>("all");
+  const [filterAssignee, setFilterAssignee] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
   const [expandedTasks, setExpandedTasks] = useState<Set<number>>(new Set());
 
   // Get project ID from project name
@@ -218,9 +221,26 @@ const Tasks = () => {
 
   const filteredTasks = useMemo(() => {
     // Filter root tasks only for list view, then we'll show hierarchy
-    const rootTasks = allTasks.filter(t => !t.parentTaskId);
+    let rootTasks = allTasks.filter(t => !t.parentTaskId);
+    
+    // Apply project filter
+    if (filterProject !== "all") {
+      const projectId = projectsData.find(p => p.project === filterProject)?.id;
+      rootTasks = rootTasks.filter(t => t.projectId === projectId);
+    }
+    
+    // Apply assignee filter
+    if (filterAssignee !== "all") {
+      rootTasks = rootTasks.filter(t => t.primaryAssigneeId === filterAssignee);
+    }
+    
+    // Apply status filter
+    if (filterStatus !== "all") {
+      rootTasks = rootTasks.filter(t => t.status === filterStatus);
+    }
+    
     return rootTasks;
-  }, [allTasks]);
+  }, [allTasks, filterProject, filterAssignee, filterStatus]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -518,24 +538,76 @@ const Tasks = () => {
         {/* Task List by Sprint */}
         <Card>
           <CardHeader className="py-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-1.5 text-sm">
-                <ListTodo className="h-4 w-4" />
-                Tasks by Sprint
-              </CardTitle>
-              <Select value={filterSprint} onValueChange={setFilterSprint}>
-                <SelectTrigger className="h-8 text-xs w-40 bg-background">
-                  <SelectValue placeholder="Filter by sprint" />
-                </SelectTrigger>
-                <SelectContent className="bg-background">
-                  <SelectItem value="all">All Sprints</SelectItem>
-                  {sprintsData.map((sprint) => (
-                    <SelectItem key={sprint.id} value={sprint.name}>
-                      {sprint.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-1.5 text-sm">
+                  <ListTodo className="h-4 w-4" />
+                  Tasks by Sprint
+                </CardTitle>
+              </div>
+              
+              {/* Filters Row */}
+              <div className="flex flex-wrap gap-2">
+                {/* Project Filter */}
+                <Select value={filterProject} onValueChange={setFilterProject}>
+                  <SelectTrigger className="h-8 text-xs w-44 bg-background">
+                    <SelectValue placeholder="Filter by project" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background z-50">
+                    <SelectItem value="all">All Projects</SelectItem>
+                    {projectsData.map((project) => (
+                      <SelectItem key={project.id} value={project.project}>
+                        {project.project}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* Assignee Filter */}
+                <Select value={filterAssignee} onValueChange={setFilterAssignee}>
+                  <SelectTrigger className="h-8 text-xs w-40 bg-background">
+                    <SelectValue placeholder="Filter by assignee" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background z-50">
+                    <SelectItem value="all">All Assignees</SelectItem>
+                    {employeesData.map((employee) => (
+                      <SelectItem key={employee.id} value={employee.id}>
+                        {employee.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* Status Filter */}
+                <Select value={filterStatus} onValueChange={setFilterStatus}>
+                  <SelectTrigger className="h-8 text-xs w-40 bg-background">
+                    <SelectValue placeholder="Filter by status" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background z-50 max-h-60">
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    {(Object.keys(TASK_STATUS_LABELS) as TaskStatus[]).map((status) => (
+                      <SelectItem key={status} value={status}>
+                        {TASK_STATUS_LABELS[status]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* Sprint Filter */}
+                <Select value={filterSprint} onValueChange={setFilterSprint}>
+                  <SelectTrigger className="h-8 text-xs w-36 bg-background">
+                    <SelectValue placeholder="Filter by sprint" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background z-50">
+                    <SelectItem value="all">All Sprints</SelectItem>
+                    {sprintsData.map((sprint) => (
+                      <SelectItem key={sprint.id} value={sprint.name}>
+                        {sprint.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="pt-0">
