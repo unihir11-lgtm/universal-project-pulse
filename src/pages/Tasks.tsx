@@ -56,20 +56,14 @@ const employeesData = [
 
 // Task categories
 const taskCategories = [
-  "Hold",
-  "Open",
+  "Testing",
+  "Designing",
+  "Development",
   "Analysis",
-  "Analysis Completed",
-  "Analysis Approved",
-  "Assign to Development",
-  "Unit Testing",
-  "BA Review",
-  "Assigned to QA",
-  "QA Verified",
-  "QC Completed",
-  "Preproduction deployment",
-  "Production deployment",
-  "Closed",
+  "Documentation",
+  "Code Review",
+  "Bug Fixing",
+  "Deployment",
 ];
 
 // Mock sprints data
