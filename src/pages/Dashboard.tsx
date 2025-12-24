@@ -34,6 +34,18 @@ const CHART_COLORS = [
   "hsl(199, 89%, 48%)",
 ];
 
+// Sample data to display when no real data exists
+const SAMPLE_PROJECTS = ["E-Commerce Platform", "Mobile Banking App", "CRM System", "Analytics Dashboard"];
+const SAMPLE_CHART_DATA = [
+  { name: "Mon", "E-Commerce Platform": 4, "Mobile Banking App": 3, "CRM System": 2, "Analytics Dashboard": 0 },
+  { name: "Tue", "E-Commerce Platform": 5, "Mobile Banking App": 2, "CRM System": 0, "Analytics Dashboard": 3 },
+  { name: "Wed", "E-Commerce Platform": 3, "Mobile Banking App": 0, "CRM System": 4, "Analytics Dashboard": 2 },
+  { name: "Thu", "E-Commerce Platform": 0, "Mobile Banking App": 6, "CRM System": 2, "Analytics Dashboard": 0 },
+  { name: "Fri", "E-Commerce Platform": 4, "Mobile Banking App": 0, "CRM System": 0, "Analytics Dashboard": 5 },
+  { name: "Sat", "E-Commerce Platform": 0, "Mobile Banking App": 0, "CRM System": 0, "Analytics Dashboard": 0 },
+  { name: "Sun", "E-Commerce Platform": 0, "Mobile Banking App": 0, "CRM System": 0, "Analytics Dashboard": 0 },
+];
+
 const Dashboard = () => {
   const navigate = useNavigate();
   
@@ -62,13 +74,13 @@ const Dashboard = () => {
   });
 
   // Process data for chart
-  const chartData = weekDays.map((day) => {
+  const processedChartData = weekDays.map((day) => {
     const dayStr = format(day, "yyyy-MM-dd");
     const dayLabel = format(day, "EEE");
     
     const dayData: Record<string, string | number> = { name: dayLabel };
     
-    if (weeklyProjectHours) {
+    if (weeklyProjectHours && weeklyProjectHours.length > 0) {
       const projectHoursMap = new Map<string, number>();
       
       weeklyProjectHours
@@ -87,10 +99,14 @@ const Dashboard = () => {
     return dayData;
   });
 
+  // Determine if we have real data or should use sample data
+  const hasRealData = weeklyProjectHours && weeklyProjectHours.length > 0;
+  const chartData = hasRealData ? processedChartData : SAMPLE_CHART_DATA;
+  
   // Get unique project names for lines
-  const projectNames = weeklyProjectHours
+  const projectNames = hasRealData
     ? [...new Set(weeklyProjectHours.map((entry) => (entry.projects as { name: string })?.name || "Unknown"))]
-    : [];
+    : SAMPLE_PROJECTS;
 
   return (
     <DashboardLayout>
@@ -140,37 +156,38 @@ const Dashboard = () => {
               <div className="h-[300px] flex items-center justify-center text-muted-foreground">
                 Loading...
               </div>
-            ) : projectNames.length === 0 ? (
-              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                No time entries for this week
-              </div>
             ) : (
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" />
-                  <YAxis stroke="hsl(var(--muted-foreground))" />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "hsl(var(--card))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: "var(--radius)",
-                    }}
-                  />
-                  <Legend />
-                  {projectNames.map((projectName, index) => (
-                    <Line
-                      key={projectName}
-                      type="monotone"
-                      dataKey={projectName}
-                      stroke={CHART_COLORS[index % CHART_COLORS.length]}
-                      strokeWidth={2}
-                      dot={{ fill: CHART_COLORS[index % CHART_COLORS.length], r: 4 }}
-                      connectNulls
+              <>
+                {!hasRealData && (
+                  <p className="text-sm text-muted-foreground mb-2">Sample data shown - no time entries recorded yet</p>
+                )}
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" />
+                    <YAxis stroke="hsl(var(--muted-foreground))" />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "var(--radius)",
+                      }}
                     />
-                  ))}
-                </LineChart>
-              </ResponsiveContainer>
+                    <Legend />
+                    {projectNames.map((projectName, index) => (
+                      <Line
+                        key={projectName}
+                        type="monotone"
+                        dataKey={projectName}
+                        stroke={CHART_COLORS[index % CHART_COLORS.length]}
+                        strokeWidth={2}
+                        dot={{ fill: CHART_COLORS[index % CHART_COLORS.length], r: 4 }}
+                        connectNulls
+                      />
+                    ))}
+                  </LineChart>
+                </ResponsiveContainer>
+              </>
             )}
           </CardContent>
         </Card>
