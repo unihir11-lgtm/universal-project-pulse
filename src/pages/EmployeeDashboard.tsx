@@ -35,6 +35,9 @@ const EmployeeDashboard = () => {
   const [hours, setHours] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState("all");
   const [filterDate, setFilterDate] = useState(new Date().toISOString().split('T')[0]);
+  const [activityLogDate, setActivityLogDate] = useState(new Date().toISOString().split('T')[0]);
+  const [attendanceLogDate, setAttendanceLogDate] = useState(new Date().toISOString().split('T')[0]);
+  const [checkinLogDate, setCheckinLogDate] = useState(new Date().toISOString().split('T')[0]);
   const TARGET_HOURS = 9;
 
   const employees = [
@@ -527,7 +530,15 @@ const EmployeeDashboard = () => {
               {/* Activity Log Tab - Time Entry History */}
               <TabsContent value="activity-log">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-medium text-muted-foreground">Time Entry History</h3>
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-sm font-medium text-muted-foreground">Time Entry History</h3>
+                    <Input
+                      type="date"
+                      value={activityLogDate}
+                      onChange={(e) => setActivityLogDate(e.target.value)}
+                      className="w-[140px] h-7 text-xs"
+                    />
+                  </div>
                   <Badge variant="secondary" className="text-xs">10 Records</Badge>
                 </div>
                 <Table>
@@ -589,7 +600,15 @@ const EmployeeDashboard = () => {
               {/* Attendance Log Tab - Daily Attendance Report */}
               <TabsContent value="attendance-log">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-medium text-muted-foreground">Daily Attendance Report</h3>
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-sm font-medium text-muted-foreground">Daily Attendance Report</h3>
+                    <Input
+                      type="date"
+                      value={attendanceLogDate}
+                      onChange={(e) => setAttendanceLogDate(e.target.value)}
+                      className="w-[140px] h-7 text-xs"
+                    />
+                  </div>
                   <Badge variant="secondary" className="text-xs">10 Records</Badge>
                 </div>
                 <Table>
@@ -635,7 +654,15 @@ const EmployeeDashboard = () => {
               {/* Employee Checkin Tab */}
               <TabsContent value="employee-checkin">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-medium text-muted-foreground">Employee Check-in Records</h3>
+                  <div className="flex items-center gap-3">
+                    <h3 className="text-sm font-medium text-muted-foreground">Employee Check-in Records</h3>
+                    <Input
+                      type="date"
+                      value={checkinLogDate}
+                      onChange={(e) => setCheckinLogDate(e.target.value)}
+                      className="w-[140px] h-7 text-xs"
+                    />
+                  </div>
                   <Badge variant="secondary" className="text-xs">10 Records</Badge>
                 </div>
                 <Table>
