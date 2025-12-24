@@ -131,16 +131,16 @@ const Dashboard = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 md:space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-xl md:text-3xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-sm md:text-base text-muted-foreground mt-1">
             Welcome back! Here's what's happening today.
           </p>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-3 md:gap-6 grid-cols-2 lg:grid-cols-3">
           <StatCard
             title="Total Projects"
             value="48"
@@ -215,76 +215,80 @@ const Dashboard = () => {
 
         {/* Quick Actions */}
         <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
+          <CardHeader className="pb-2 md:pb-6">
+            <CardTitle className="text-base md:text-lg">Quick Actions</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-3 md:gap-4 grid-cols-3">
               <Button 
-                className="h-24 flex flex-col gap-2" 
+                className="h-16 md:h-24 flex flex-col gap-1 md:gap-2 text-xs md:text-sm" 
                 variant="outline"
                 onClick={() => navigate("/employees")}
               >
-                <UserPlus className="h-6 w-6" />
-                <span>Add Employee</span>
+                <UserPlus className="h-4 w-4 md:h-6 md:w-6" />
+                <span className="hidden sm:inline">Add Employee</span>
+                <span className="sm:hidden">Employee</span>
               </Button>
               <Button 
-                className="h-24 flex flex-col gap-2" 
+                className="h-16 md:h-24 flex flex-col gap-1 md:gap-2 text-xs md:text-sm" 
                 variant="outline"
                 onClick={() => navigate("/projects")}
               >
-                <FilePlus className="h-6 w-6" />
-                <span>Add Project</span>
+                <FilePlus className="h-4 w-4 md:h-6 md:w-6" />
+                <span className="hidden sm:inline">Add Project</span>
+                <span className="sm:hidden">Project</span>
               </Button>
               <Button 
-                className="h-24 flex flex-col gap-2" 
+                className="h-16 md:h-24 flex flex-col gap-1 md:gap-2 text-xs md:text-sm" 
                 variant="outline"
                 onClick={() => navigate("/todays-hours")}
               >
-                <CalendarCheck className="h-6 w-6" />
-                <span>Today's Attendance</span>
+                <CalendarCheck className="h-4 w-4 md:h-6 md:w-6" />
+                <span className="hidden sm:inline">Today's Attendance</span>
+                <span className="sm:hidden">Attendance</span>
               </Button>
             </div>
           </CardContent>
         </Card>
 
         {/* Delayed Tasks Section */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
+        <div className="space-y-3 md:space-y-4">
+          <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-destructive" />
-              <h2 className="text-xl font-semibold text-foreground">Delayed Tasks</h2>
+              <Clock className="h-4 w-4 md:h-5 md:w-5 text-destructive" />
+              <h2 className="text-base md:text-xl font-semibold text-foreground">Delayed Tasks</h2>
             </div>
-            <Button variant="outline" size="sm" className="gap-2">
-              <Download className="h-4 w-4" />
-              Export CSV
+            <Button variant="outline" size="sm" className="gap-2 text-xs md:text-sm h-8">
+              <Download className="h-3 w-3 md:h-4 md:w-4" />
+              <span className="hidden sm:inline">Export CSV</span>
+              <span className="sm:hidden">Export</span>
             </Button>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-2">
             {/* Breakdown by Assignee */}
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Breakdown by Assignee</CardTitle>
+              <CardHeader className="pb-2 md:pb-3">
+                <CardTitle className="text-sm md:text-base">Breakdown by Assignee</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-2 md:space-y-3">
                 {DELAYED_BY_ASSIGNEE.map((item) => (
                   <div
                     key={item.name}
-                    className="flex items-center justify-between py-2 border-b border-border/50 last:border-0"
+                    className="flex items-center justify-between py-1.5 md:py-2 border-b border-border/50 last:border-0"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-xs font-medium">
+                    <div className="flex items-center gap-2 md:gap-3 min-w-0">
+                      <div className="h-6 w-6 md:h-8 md:w-8 rounded-full bg-muted flex items-center justify-center text-xs font-medium flex-shrink-0">
                         {item.name.split(" ").map((n) => n[0]).join("")}
                       </div>
-                      <span className="text-sm font-medium">{item.name}</span>
+                      <span className="text-xs md:text-sm font-medium truncate">{item.name}</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm text-muted-foreground">
-                        Avg: <span className="text-destructive font-medium">{item.avgDays} days</span>
+                    <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+                      <span className="text-xs md:text-sm text-muted-foreground hidden sm:inline">
+                        Avg: <span className="text-destructive font-medium">{item.avgDays}d</span>
                       </span>
-                      <Badge variant="secondary" className="text-xs">
-                        {item.taskCount} tasks
+                      <Badge variant="secondary" className="text-[10px] md:text-xs">
+                        {item.taskCount}
                       </Badge>
                     </div>
                   </div>
@@ -294,27 +298,27 @@ const Dashboard = () => {
 
             {/* Breakdown by Project */}
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Breakdown by Project</CardTitle>
+              <CardHeader className="pb-2 md:pb-3">
+                <CardTitle className="text-sm md:text-base">Breakdown by Project</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-2 md:space-y-3">
                 {DELAYED_BY_PROJECT.map((item) => (
                   <div
                     key={item.name}
-                    className="flex items-center justify-between py-2 border-b border-border/50 last:border-0"
+                    className="flex items-center justify-between py-1.5 md:py-2 border-b border-border/50 last:border-0"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                        <FolderKanban className="h-4 w-4 text-primary" />
+                    <div className="flex items-center gap-2 md:gap-3 min-w-0">
+                      <div className="h-6 w-6 md:h-8 md:w-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <FolderKanban className="h-3 w-3 md:h-4 md:w-4 text-primary" />
                       </div>
-                      <span className="text-sm font-medium">{item.name}</span>
+                      <span className="text-xs md:text-sm font-medium truncate">{item.name}</span>
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm text-muted-foreground">
-                        Avg: <span className="text-destructive font-medium">{item.avgDays} days</span>
+                    <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
+                      <span className="text-xs md:text-sm text-muted-foreground hidden sm:inline">
+                        Avg: <span className="text-destructive font-medium">{item.avgDays}d</span>
                       </span>
-                      <Badge variant="secondary" className="text-xs">
-                        {item.taskCount} tasks
+                      <Badge variant="secondary" className="text-[10px] md:text-xs">
+                        {item.taskCount}
                       </Badge>
                     </div>
                   </div>

@@ -135,17 +135,17 @@ const Employees = () => {
   };
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="space-y-4 md:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Employee Management</h1>
-            <p className="text-muted-foreground mt-1">
+            <h1 className="text-xl md:text-3xl font-bold text-foreground">Employee Management</h1>
+            <p className="text-sm text-muted-foreground mt-1">
               Manage your team members and their details
             </p>
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="gap-2">
+              <Button className="gap-2 w-full sm:w-auto">
                 <UserPlus className="h-4 w-4" />
                 Add Employee
               </Button>
@@ -162,7 +162,7 @@ const Employees = () => {
                 {/* Personal Details */}
                 <div className="space-y-4">
                   <h3 className="font-semibold text-lg">Personal Details</h3>
-                  <div className="grid gap-4 md:grid-cols-2">
+                  <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="firstName">First Name *</Label>
                       <Input
@@ -360,81 +360,91 @@ const Employees = () => {
         </div>
 
         <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>All Employees</CardTitle>
+          <CardHeader className="pb-2 md:pb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <CardTitle className="text-base md:text-lg">All Employees</CardTitle>
               <div className="flex gap-2">
-                <div className="relative">
+                <div className="relative flex-1 sm:flex-initial">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input placeholder="Search employees..." className="pl-9 w-64" />
+                  <Input placeholder="Search employees..." className="pl-9 w-full sm:w-64 h-9" />
                 </div>
-                <Button variant="outline" size="icon">
+                <Button variant="outline" size="icon" className="h-9 w-9 flex-shrink-0">
                   <Filter className="h-4 w-4" />
                 </Button>
               </div>
             </div>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Designation</TableHead>
-                  <TableHead>Department</TableHead>
-                  <TableHead>Biometric ID</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Joined Date</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {employees.map((employee) => (
-                  <TableRow 
-                    key={employee.id} 
-                    className="cursor-pointer hover:bg-muted/50"
-                    onClick={() => toast.info(`Viewing ${employee.name}'s profile`)}
-                  >
-                    <TableCell className="font-medium">{employee.name}</TableCell>
-                    <TableCell>{employee.designation}</TableCell>
-                    <TableCell>{employee.department}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{employee.biometricId}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={employee.status === "Active" ? "default" : "secondary"}
+            <div className="overflow-x-auto -mx-4 md:mx-0">
+              <div className="inline-block min-w-full align-middle">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="text-xs md:text-sm">Name</TableHead>
+                      <TableHead className="text-xs md:text-sm hidden sm:table-cell">Designation</TableHead>
+                      <TableHead className="text-xs md:text-sm hidden md:table-cell">Department</TableHead>
+                      <TableHead className="text-xs md:text-sm hidden lg:table-cell">Biometric ID</TableHead>
+                      <TableHead className="text-xs md:text-sm">Status</TableHead>
+                      <TableHead className="text-xs md:text-sm hidden md:table-cell">Joined Date</TableHead>
+                      <TableHead className="text-xs md:text-sm text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {employees.map((employee) => (
+                      <TableRow 
+                        key={employee.id} 
+                        className="cursor-pointer hover:bg-muted/50"
+                        onClick={() => toast.info(`Viewing ${employee.name}'s profile`)}
                       >
-                        {employee.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{employee.joinedDate}</TableCell>
-                    <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="bg-popover">
-                          <DropdownMenuItem onClick={() => toast.info(`Viewing ${employee.name}'s details`)}>
-                            View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => toast.info(`Editing ${employee.name}`)}>
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            className="text-destructive"
-                            onClick={() => toast.warning(`Deactivating ${employee.name}`)}
+                        <TableCell className="font-medium text-xs md:text-sm py-2 md:py-4">
+                          <div>
+                            <span>{employee.name}</span>
+                            <span className="block text-xs text-muted-foreground sm:hidden">{employee.designation}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-xs md:text-sm hidden sm:table-cell">{employee.designation}</TableCell>
+                        <TableCell className="text-xs md:text-sm hidden md:table-cell">{employee.department}</TableCell>
+                        <TableCell className="hidden lg:table-cell">
+                          <Badge variant="outline" className="text-xs">{employee.biometricId}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={employee.status === "Active" ? "default" : "secondary"}
+                            className="text-xs"
                           >
-                            Deactivate
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                            {employee.status}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-xs md:text-sm hidden md:table-cell">{employee.joinedDate}</TableCell>
+                        <TableCell className="text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => e.stopPropagation()}>
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="bg-popover">
+                              <DropdownMenuItem onClick={() => toast.info(`Viewing ${employee.name}'s details`)}>
+                                View Details
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => toast.info(`Editing ${employee.name}`)}>
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                className="text-destructive"
+                                onClick={() => toast.warning(`Deactivating ${employee.name}`)}
+                              >
+                                Deactivate
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
