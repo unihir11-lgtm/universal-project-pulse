@@ -131,53 +131,6 @@ const Sprints = () => {
           </p>
         </div>
 
-        {/* Sprint Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <Card>
-            <CardContent className="py-3">
-              <div className="flex items-center gap-2">
-                <Target className="h-4 w-4 text-primary" />
-                <div>
-                  <p className="text-[10px] text-muted-foreground uppercase">Total Sprints</p>
-                  <p className="text-lg font-bold text-foreground">{totalSprints}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="py-3">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-accent"></div>
-                <div>
-                  <p className="text-[10px] text-muted-foreground uppercase">Active</p>
-                  <p className="text-lg font-bold text-accent">{activeSprints}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="py-3">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                <div>
-                  <p className="text-[10px] text-muted-foreground uppercase">Completed</p>
-                  <p className="text-lg font-bold text-green-600">{completedSprints}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="py-3">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-muted-foreground"></div>
-                <div>
-                  <p className="text-[10px] text-muted-foreground uppercase">Planned</p>
-                  <p className="text-lg font-bold text-muted-foreground">{plannedSprints}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
 
         {/* Create Sprint Form */}
         <Card>

@@ -355,67 +355,6 @@ const DelayedTasks = () => {
           </Button>
         </div>
 
-        {/* Summary Cards */}
-        <div className="grid gap-4 md:grid-cols-5">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-destructive" />
-                <p className="text-sm text-muted-foreground">Total Delayed</p>
-              </div>
-              <p className="text-3xl font-bold text-destructive mt-2">
-                {stats.totalDelayed}
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-destructive" />
-                <p className="text-sm text-muted-foreground">Urgent/High</p>
-              </div>
-              <p className="text-3xl font-bold text-foreground mt-2">
-                {stats.urgentCount + stats.highCount}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                {stats.urgentCount} urgent, {stats.highCount} high
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Avg Days Delayed</p>
-              </div>
-              <p className="text-3xl font-bold text-foreground mt-2">
-                {stats.avgDaysDelayed.toFixed(1)}
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-amber-500" />
-                <p className="text-sm text-muted-foreground">Blocked Tasks</p>
-              </div>
-              <p className="text-3xl font-bold text-amber-500 mt-2">
-                {stats.blockedCount}
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">Delayed Hours</p>
-              </div>
-              <p className="text-3xl font-bold text-foreground mt-2">
-                {stats.totalDelayedHours}h
-              </p>
-            </CardContent>
-          </Card>
-        </div>
 
         {/* Breakdown Cards */}
         <div className="grid gap-6 md:grid-cols-2">
