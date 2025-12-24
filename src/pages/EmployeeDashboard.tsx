@@ -224,12 +224,6 @@ const EmployeeDashboard = () => {
                   ))}
                 </SelectContent>
               </Select>
-              <Input
-                type="date"
-                value={filterDate}
-                onChange={(e) => setFilterDate(e.target.value)}
-                className="w-[160px] h-8 text-sm"
-              />
             </div>
           </CardContent>
         </Card>
