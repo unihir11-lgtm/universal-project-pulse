@@ -20,7 +20,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Clock, LogOut, LogIn, Target, FileText, Calendar, Filter } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Clock, LogOut, LogIn, Target, FileText, Calendar, Filter, Activity, ClipboardList, UserCheck } from "lucide-react";
 import { toast } from "sonner";
 import { formatDate } from "@/lib/utils";
 
@@ -83,6 +84,48 @@ const EmployeeDashboard = () => {
     { id: 2, date: "2024-01-15", project: "Mobile App", task: "Bug Fixes", description: "Sprint planning and requirements gathering", hours: 2.0, category: "Meeting" },
     { id: 3, date: "2024-01-14", project: "Admin Dashboard", task: "Code Review", description: "Testing user authentication module", hours: 1.5, category: "Code Review" },
     { id: 4, date: "2024-01-14", project: "E-Commerce Platform", task: "Testing", description: "Bug fixes and code review", hours: 0.55, category: "Testing" },
+  ];
+
+  // Activity Log Data (Time Entry History) - 10 entries
+  const activityLogData = [
+    { id: 1, date: "2024-12-24", time: "09:15 AM", project: "E-Commerce Platform", task: "Frontend Development", hours: 2.5, status: "Approved" },
+    { id: 2, date: "2024-12-24", time: "11:45 AM", project: "Mobile App", task: "API Integration", hours: 1.5, status: "Approved" },
+    { id: 3, date: "2024-12-24", time: "02:30 PM", project: "CRM System", task: "Bug Fixes", hours: 2.0, status: "Pending" },
+    { id: 4, date: "2024-12-23", time: "09:00 AM", project: "Admin Dashboard", task: "UI Design", hours: 3.0, status: "Approved" },
+    { id: 5, date: "2024-12-23", time: "01:00 PM", project: "E-Commerce Platform", task: "Testing", hours: 2.0, status: "Approved" },
+    { id: 6, date: "2024-12-23", time: "04:00 PM", project: "Mobile App", task: "Code Review", hours: 1.5, status: "Rejected" },
+    { id: 7, date: "2024-12-22", time: "10:00 AM", project: "CRM System", task: "Database Design", hours: 4.0, status: "Approved" },
+    { id: 8, date: "2024-12-22", time: "03:30 PM", project: "Admin Dashboard", task: "Documentation", hours: 1.0, status: "Approved" },
+    { id: 9, date: "2024-12-21", time: "09:30 AM", project: "E-Commerce Platform", task: "Backend Development", hours: 3.5, status: "Approved" },
+    { id: 10, date: "2024-12-21", time: "02:00 PM", project: "Mobile App", task: "Deployment", hours: 2.0, status: "Pending" },
+  ];
+
+  // Attendance Log Data (Daily Attendance Report) - 10 entries
+  const attendanceLogData = [
+    { id: 1, date: "2024-12-24", checkIn: "09:05 AM", checkOut: "06:10 PM", totalHours: 8.3, breakHours: 1.25, productiveHours: 7.55, status: "Present" },
+    { id: 2, date: "2024-12-23", checkIn: "09:00 AM", checkOut: "06:00 PM", totalHours: 8.0, breakHours: 1.0, productiveHours: 7.0, status: "Present" },
+    { id: 3, date: "2024-12-22", checkIn: "09:15 AM", checkOut: "05:45 PM", totalHours: 7.5, breakHours: 0.75, productiveHours: 6.75, status: "Present" },
+    { id: 4, date: "2024-12-21", checkIn: "08:50 AM", checkOut: "06:30 PM", totalHours: 8.67, breakHours: 1.5, productiveHours: 7.17, status: "Present" },
+    { id: 5, date: "2024-12-20", checkIn: "09:30 AM", checkOut: "06:00 PM", totalHours: 7.5, breakHours: 1.0, productiveHours: 6.5, status: "Late" },
+    { id: 6, date: "2024-12-19", checkIn: "-", checkOut: "-", totalHours: 0, breakHours: 0, productiveHours: 0, status: "Absent" },
+    { id: 7, date: "2024-12-18", checkIn: "09:00 AM", checkOut: "06:15 PM", totalHours: 8.25, breakHours: 1.25, productiveHours: 7.0, status: "Present" },
+    { id: 8, date: "2024-12-17", checkIn: "08:45 AM", checkOut: "05:30 PM", totalHours: 7.75, breakHours: 1.0, productiveHours: 6.75, status: "Present" },
+    { id: 9, date: "2024-12-16", checkIn: "-", checkOut: "-", totalHours: 0, breakHours: 0, productiveHours: 0, status: "Leave" },
+    { id: 10, date: "2024-12-15", checkIn: "09:10 AM", checkOut: "06:20 PM", totalHours: 8.17, breakHours: 1.0, productiveHours: 7.17, status: "Present" },
+  ];
+
+  // Employee Checkin Data - 10 entries
+  const employeeCheckinData = [
+    { id: 1, empId: "EMP001", name: "Rahul Sharma", department: "Engineering", checkIn: "09:05 AM", checkOut: "06:10 PM", device: "Biometric", location: "Main Office" },
+    { id: 2, empId: "EMP002", name: "Priya Patel", department: "Design", checkIn: "09:15 AM", checkOut: "06:00 PM", device: "Mobile App", location: "Remote" },
+    { id: 3, empId: "EMP003", name: "Amit Kumar", department: "Engineering", checkIn: "08:50 AM", checkOut: "05:45 PM", device: "Biometric", location: "Main Office" },
+    { id: 4, empId: "EMP004", name: "Sneha Gupta", department: "HR", checkIn: "09:00 AM", checkOut: "06:30 PM", device: "Biometric", location: "Main Office" },
+    { id: 5, empId: "EMP005", name: "Vikram Singh", department: "Engineering", checkIn: "09:30 AM", checkOut: "06:15 PM", device: "Mobile App", location: "Remote" },
+    { id: 6, empId: "EMP006", name: "Neha Sharma", department: "Marketing", checkIn: "09:10 AM", checkOut: "05:50 PM", device: "Biometric", location: "Main Office" },
+    { id: 7, empId: "EMP007", name: "Rajesh Verma", department: "Finance", checkIn: "08:45 AM", checkOut: "06:00 PM", device: "Biometric", location: "Main Office" },
+    { id: 8, empId: "EMP008", name: "Anjali Mishra", department: "Engineering", checkIn: "09:20 AM", checkOut: "06:20 PM", device: "Mobile App", location: "Remote" },
+    { id: 9, empId: "EMP009", name: "Karan Joshi", department: "Design", checkIn: "09:00 AM", checkOut: "05:30 PM", device: "Biometric", location: "Main Office" },
+    { id: 10, empId: "EMP010", name: "Pooja Reddy", department: "Engineering", checkIn: "08:55 AM", checkOut: "06:05 PM", device: "Biometric", location: "Main Office" },
   ];
 
   const totalSpentHours = spentHoursData.reduce((sum, item) => sum + item.hours, 0);
@@ -438,61 +481,168 @@ const EmployeeDashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Spent Hours Section */}
+        {/* Activity Logs Tabs */}
         <Card>
-          <CardHeader className="py-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-sm">
-                <FileText className="h-4 w-4 text-primary" />
-                Spent Hours - Work Log
-              </CardTitle>
-              <Badge variant="secondary" className="text-xs">
-                Total: {totalSpentHours}h
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="text-sm">Date</TableHead>
-                  <TableHead className="text-sm">Project</TableHead>
-                  <TableHead className="text-sm">Task</TableHead>
-                  <TableHead className="text-sm">Description</TableHead>
-                  <TableHead className="text-sm">Category</TableHead>
-                  <TableHead className="text-sm text-right">Hours</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {spentHoursData.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell className="py-2 text-sm text-muted-foreground">{formatDate(item.date)}</TableCell>
-                    <TableCell className="py-2 text-sm font-medium">{item.project}</TableCell>
-                    <TableCell className="py-2 text-sm">{item.task}</TableCell>
-                    <TableCell className="py-2 text-sm text-muted-foreground">{item.description}</TableCell>
-                    <TableCell className="py-2">
-                      <Badge variant="outline" className="text-xs font-normal">
-                        {item.category}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="py-2 text-sm text-right font-medium">{item.hours}h</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+          <CardContent className="pt-4">
+            <Tabs defaultValue="activity-log" className="w-full">
+              <TabsList className="grid w-full grid-cols-3 mb-4">
+                <TabsTrigger value="activity-log" className="flex items-center gap-2 text-xs">
+                  <Activity className="h-3.5 w-3.5" />
+                  Activity Log
+                </TabsTrigger>
+                <TabsTrigger value="attendance-log" className="flex items-center gap-2 text-xs">
+                  <ClipboardList className="h-3.5 w-3.5" />
+                  Attendance Log
+                </TabsTrigger>
+                <TabsTrigger value="employee-checkin" className="flex items-center gap-2 text-xs">
+                  <UserCheck className="h-3.5 w-3.5" />
+                  Employee Checkin
+                </TabsTrigger>
+              </TabsList>
 
-            {/* Summary Bar */}
-            <div className="mt-3 p-2 bg-muted/50 rounded-lg flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">Today:</span>
-                <span className="text-xs font-medium">{formatDate(new Date().toISOString().split('T')[0])}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">Logged:</span>
-                <Badge variant="secondary" className="text-xs">{totalSpentHours}h</Badge>
-              </div>
-            </div>
+              {/* Activity Log Tab - Time Entry History */}
+              <TabsContent value="activity-log">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-medium text-muted-foreground">Time Entry History</h3>
+                  <Badge variant="secondary" className="text-xs">10 Records</Badge>
+                </div>
+                <Table>
+                  <TableHeader>
+                    <TableRow className="hover:bg-transparent">
+                      <TableHead className="text-xs">Date</TableHead>
+                      <TableHead className="text-xs">Time</TableHead>
+                      <TableHead className="text-xs">Project</TableHead>
+                      <TableHead className="text-xs">Task</TableHead>
+                      <TableHead className="text-xs">Hours</TableHead>
+                      <TableHead className="text-xs">Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {activityLogData.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell className="py-2 text-xs text-muted-foreground">{formatDate(item.date)}</TableCell>
+                        <TableCell className="py-2 text-xs">{item.time}</TableCell>
+                        <TableCell className="py-2 text-xs font-medium">{item.project}</TableCell>
+                        <TableCell className="py-2 text-xs">{item.task}</TableCell>
+                        <TableCell className="py-2 text-xs font-medium">{item.hours}h</TableCell>
+                        <TableCell className="py-2">
+                          <Badge 
+                            variant="outline" 
+                            className={`text-[10px] ${
+                              item.status === 'Approved' ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400' :
+                              item.status === 'Pending' ? 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400' :
+                              'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400'
+                            }`}
+                          >
+                            {item.status}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TabsContent>
+
+              {/* Attendance Log Tab - Daily Attendance Report */}
+              <TabsContent value="attendance-log">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-medium text-muted-foreground">Daily Attendance Report</h3>
+                  <Badge variant="secondary" className="text-xs">10 Records</Badge>
+                </div>
+                <Table>
+                  <TableHeader>
+                    <TableRow className="hover:bg-transparent">
+                      <TableHead className="text-xs">Date</TableHead>
+                      <TableHead className="text-xs">Check-In</TableHead>
+                      <TableHead className="text-xs">Check-Out</TableHead>
+                      <TableHead className="text-xs">Total Hrs</TableHead>
+                      <TableHead className="text-xs">Break</TableHead>
+                      <TableHead className="text-xs">Productive</TableHead>
+                      <TableHead className="text-xs">Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {attendanceLogData.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell className="py-2 text-xs text-muted-foreground">{formatDate(item.date)}</TableCell>
+                        <TableCell className="py-2 text-xs text-primary">{item.checkIn}</TableCell>
+                        <TableCell className="py-2 text-xs text-teal-600 dark:text-teal-400">{item.checkOut}</TableCell>
+                        <TableCell className="py-2 text-xs font-medium">{item.totalHours}h</TableCell>
+                        <TableCell className="py-2 text-xs text-amber-600">{item.breakHours}h</TableCell>
+                        <TableCell className="py-2 text-xs text-emerald-600 font-medium">{item.productiveHours}h</TableCell>
+                        <TableCell className="py-2">
+                          <Badge 
+                            variant="outline" 
+                            className={`text-[10px] ${
+                              item.status === 'Present' ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400' :
+                              item.status === 'Late' ? 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400' :
+                              item.status === 'Leave' ? 'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400' :
+                              'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400'
+                            }`}
+                          >
+                            {item.status}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TabsContent>
+
+              {/* Employee Checkin Tab */}
+              <TabsContent value="employee-checkin">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-medium text-muted-foreground">Employee Check-in Records</h3>
+                  <Badge variant="secondary" className="text-xs">10 Records</Badge>
+                </div>
+                <Table>
+                  <TableHeader>
+                    <TableRow className="hover:bg-transparent">
+                      <TableHead className="text-xs">Emp ID</TableHead>
+                      <TableHead className="text-xs">Name</TableHead>
+                      <TableHead className="text-xs">Department</TableHead>
+                      <TableHead className="text-xs">Check-In</TableHead>
+                      <TableHead className="text-xs">Check-Out</TableHead>
+                      <TableHead className="text-xs">Device</TableHead>
+                      <TableHead className="text-xs">Location</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {employeeCheckinData.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell className="py-2 text-xs text-primary font-medium">{item.empId}</TableCell>
+                        <TableCell className="py-2 text-xs font-medium">{item.name}</TableCell>
+                        <TableCell className="py-2 text-xs text-muted-foreground">{item.department}</TableCell>
+                        <TableCell className="py-2 text-xs text-primary">{item.checkIn}</TableCell>
+                        <TableCell className="py-2 text-xs text-teal-600 dark:text-teal-400">{item.checkOut}</TableCell>
+                        <TableCell className="py-2">
+                          <Badge 
+                            variant="outline" 
+                            className={`text-[10px] ${
+                              item.device === 'Biometric' ? 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400' :
+                              'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400'
+                            }`}
+                          >
+                            {item.device}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="py-2">
+                          <Badge 
+                            variant="outline" 
+                            className={`text-[10px] ${
+                              item.location === 'Main Office' ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400' :
+                              'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400'
+                            }`}
+                          >
+                            {item.location}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       </div>
