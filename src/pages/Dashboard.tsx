@@ -12,7 +12,10 @@ import {
   UserPlus,
   FilePlus,
   CalendarCheck,
+  Clock,
+  Download,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import {
   LineChart,
   Line,
@@ -44,6 +47,24 @@ const SAMPLE_CHART_DATA = [
   { name: "Fri", "E-Commerce Platform": 4, "Mobile Banking App": 0, "CRM System": 0, "Analytics Dashboard": 5 },
   { name: "Sat", "E-Commerce Platform": 0, "Mobile Banking App": 0, "CRM System": 0, "Analytics Dashboard": 0 },
   { name: "Sun", "E-Commerce Platform": 0, "Mobile Banking App": 0, "CRM System": 0, "Analytics Dashboard": 0 },
+];
+
+// Sample delayed tasks data by assignee
+const DELAYED_BY_ASSIGNEE = [
+  { name: "John Doe", avgDays: 5.2, taskCount: 8 },
+  { name: "Sarah Smith", avgDays: 3.8, taskCount: 5 },
+  { name: "Mike Johnson", avgDays: 2.5, taskCount: 3 },
+  { name: "Emily Brown", avgDays: 4.1, taskCount: 6 },
+  { name: "David Lee", avgDays: 1.9, taskCount: 2 },
+];
+
+// Sample delayed tasks data by project
+const DELAYED_BY_PROJECT = [
+  { name: "E-Commerce Platform", avgDays: 4.5, taskCount: 12 },
+  { name: "Mobile Banking App", avgDays: 3.2, taskCount: 7 },
+  { name: "CRM System", avgDays: 2.8, taskCount: 5 },
+  { name: "Analytics Dashboard", avgDays: 5.1, taskCount: 9 },
+  { name: "Inventory Management", avgDays: 1.5, taskCount: 3 },
 ];
 
 const Dashboard = () => {
@@ -226,6 +247,82 @@ const Dashboard = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Delayed Tasks Section */}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Clock className="h-5 w-5 text-destructive" />
+              <h2 className="text-xl font-semibold text-foreground">Delayed Tasks</h2>
+            </div>
+            <Button variant="outline" size="sm" className="gap-2">
+              <Download className="h-4 w-4" />
+              Export CSV
+            </Button>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* Breakdown by Assignee */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Breakdown by Assignee</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {DELAYED_BY_ASSIGNEE.map((item) => (
+                  <div
+                    key={item.name}
+                    className="flex items-center justify-between py-2 border-b border-border/50 last:border-0"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-xs font-medium">
+                        {item.name.split(" ").map((n) => n[0]).join("")}
+                      </div>
+                      <span className="text-sm font-medium">{item.name}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm text-muted-foreground">
+                        Avg: <span className="text-destructive font-medium">{item.avgDays} days</span>
+                      </span>
+                      <Badge variant="secondary" className="text-xs">
+                        {item.taskCount} tasks
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            {/* Breakdown by Project */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Breakdown by Project</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {DELAYED_BY_PROJECT.map((item) => (
+                  <div
+                    key={item.name}
+                    className="flex items-center justify-between py-2 border-b border-border/50 last:border-0"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                        <FolderKanban className="h-4 w-4 text-primary" />
+                      </div>
+                      <span className="text-sm font-medium">{item.name}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm text-muted-foreground">
+                        Avg: <span className="text-destructive font-medium">{item.avgDays} days</span>
+                      </span>
+                      <Badge variant="secondary" className="text-xs">
+                        {item.taskCount} tasks
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     </DashboardLayout>
   );
