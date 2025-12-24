@@ -129,21 +129,44 @@ export const canApproveMilestone = (role: UserRole): boolean => {
 };
 
 // Task - atomic unit of execution
-// Default workflow: New → Assigned → In Progress → In Review → Blocked → Completed
-export type TaskStatus = "new" | "assigned" | "in_progress" | "in_review" | "blocked" | "completed";
+export type TaskStatus = 
+  | "hold"
+  | "open"
+  | "analysis"
+  | "analysis_completed"
+  | "analysis_approved"
+  | "assign_to_development"
+  | "unit_testing"
+  | "ba_review"
+  | "assigned_to_qa"
+  | "qa_verified"
+  | "qc_completed"
+  | "preproduction_deployment"
+  | "production_deployment"
+  | "closed";
 
 export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
-  new: "New",
-  assigned: "Assigned",
-  in_progress: "In Progress",
-  in_review: "In Review",
-  blocked: "Blocked",
-  completed: "Completed",
+  hold: "Hold",
+  open: "Open",
+  analysis: "Analysis",
+  analysis_completed: "Analysis Completed",
+  analysis_approved: "Analysis Approved",
+  assign_to_development: "Assign to Development",
+  unit_testing: "Unit Testing",
+  ba_review: "BA Review",
+  assigned_to_qa: "Assigned to QA",
+  qa_verified: "QA Verified",
+  qc_completed: "QC Completed",
+  preproduction_deployment: "Preproduction deployment",
+  production_deployment: "Production deployment",
+  closed: "Closed",
 };
 
 // Status display order for UI
 export const TASK_STATUS_ORDER: TaskStatus[] = [
-  "new", "assigned", "in_progress", "in_review", "blocked", "completed"
+  "hold", "open", "analysis", "analysis_completed", "analysis_approved",
+  "assign_to_development", "unit_testing", "ba_review", "assigned_to_qa",
+  "qa_verified", "qc_completed", "preproduction_deployment", "production_deployment", "closed"
 ];
 
 // Roles that can perform transitions
@@ -159,32 +182,20 @@ export interface TaskTransitionRule {
 
 // Default workflow transition rules
 export const DEFAULT_TASK_TRANSITIONS: TaskTransitionRule[] = [
-  // New → Assigned (Team lead assigns task)
-  { from: "new", to: "assigned", allowedRoles: ["lead", "manager", "admin"], label: "Assign" },
-  
-  // Assigned → In Progress (Assignee starts work)
-  { from: "assigned", to: "in_progress", allowedRoles: ["assignee", "lead", "manager", "admin"], label: "Start Work" },
-  
-  // In Progress → In Review (Assignee submits for review)
-  { from: "in_progress", to: "in_review", allowedRoles: ["assignee", "lead", "manager", "admin"], label: "Submit for Review" },
-  
-  // In Progress → Blocked (Anyone can mark blocked)
-  { from: "in_progress", to: "blocked", allowedRoles: ["assignee", "lead", "manager", "admin"], label: "Mark Blocked" },
-  
-  // Blocked → In Progress (Unblock and resume)
-  { from: "blocked", to: "in_progress", allowedRoles: ["assignee", "lead", "manager", "admin"], label: "Unblock" },
-  
-  // In Review → Completed (Reviewer approves)
-  { from: "in_review", to: "completed", allowedRoles: ["lead", "manager", "admin"], label: "Approve & Complete" },
-  
-  // In Review → In Progress (Reviewer requests changes)
-  { from: "in_review", to: "in_progress", allowedRoles: ["lead", "manager", "admin"], label: "Request Changes" },
-  
-  // Completed → In Progress (Reopen task)
-  { from: "completed", to: "in_progress", allowedRoles: ["lead", "manager", "admin"], label: "Reopen" },
-  
-  // Assigned → New (Unassign - rare but needed)
-  { from: "assigned", to: "new", allowedRoles: ["lead", "manager", "admin"], label: "Unassign" },
+  { from: "hold", to: "open", allowedRoles: ["lead", "manager", "admin"], label: "Open" },
+  { from: "open", to: "analysis", allowedRoles: ["assignee", "lead", "manager", "admin"], label: "Start Analysis" },
+  { from: "analysis", to: "analysis_completed", allowedRoles: ["assignee", "lead", "manager", "admin"], label: "Complete Analysis" },
+  { from: "analysis_completed", to: "analysis_approved", allowedRoles: ["lead", "manager", "admin"], label: "Approve Analysis" },
+  { from: "analysis_approved", to: "assign_to_development", allowedRoles: ["lead", "manager", "admin"], label: "Assign to Dev" },
+  { from: "assign_to_development", to: "unit_testing", allowedRoles: ["assignee", "lead", "manager", "admin"], label: "Submit for Testing" },
+  { from: "unit_testing", to: "ba_review", allowedRoles: ["assignee", "lead", "manager", "admin"], label: "Submit for BA Review" },
+  { from: "ba_review", to: "assigned_to_qa", allowedRoles: ["lead", "manager", "admin"], label: "Assign to QA" },
+  { from: "assigned_to_qa", to: "qa_verified", allowedRoles: ["assignee", "lead", "manager", "admin"], label: "QA Verified" },
+  { from: "qa_verified", to: "qc_completed", allowedRoles: ["lead", "manager", "admin"], label: "QC Complete" },
+  { from: "qc_completed", to: "preproduction_deployment", allowedRoles: ["lead", "manager", "admin"], label: "Deploy to Preprod" },
+  { from: "preproduction_deployment", to: "production_deployment", allowedRoles: ["lead", "manager", "admin"], label: "Deploy to Production" },
+  { from: "production_deployment", to: "closed", allowedRoles: ["lead", "manager", "admin"], label: "Close" },
+  { from: "open", to: "hold", allowedRoles: ["lead", "manager", "admin"], label: "Put on Hold" },
 ];
 
 export type TaskPriority = "low" | "medium" | "high" | "urgent";
@@ -314,11 +325,20 @@ export const getTaskProgress = (task: Task, allTasks: Task[]): number => {
   
   // No subtasks - progress based on own status
   if (subtasks.length === 0) {
-    if (task.status === "completed") return 100;
-    if (task.status === "in_review") return 90;
-    if (task.status === "in_progress") return 50;
-    if (task.status === "assigned") return 10;
-    return 0;
+    if (task.status === "closed") return 100;
+    if (task.status === "production_deployment") return 95;
+    if (task.status === "preproduction_deployment") return 90;
+    if (task.status === "qc_completed") return 85;
+    if (task.status === "qa_verified") return 80;
+    if (task.status === "assigned_to_qa") return 70;
+    if (task.status === "ba_review") return 60;
+    if (task.status === "unit_testing") return 50;
+    if (task.status === "assign_to_development") return 40;
+    if (task.status === "analysis_approved") return 30;
+    if (task.status === "analysis_completed") return 25;
+    if (task.status === "analysis") return 20;
+    if (task.status === "open") return 10;
+    return 0; // hold
   }
   
   // With subtasks - average progress of children
