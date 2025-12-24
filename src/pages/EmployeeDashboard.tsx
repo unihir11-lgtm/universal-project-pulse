@@ -327,7 +327,7 @@ const EmployeeDashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Final Check-Out */}
+          {/* Estimated Check Out */}
           <Card>
             <CardContent className="py-4">
               <div className="flex items-center gap-4">
@@ -336,7 +336,7 @@ const EmployeeDashboard = () => {
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <h4 className="text-xs text-muted-foreground">Final Check-Out</h4>
+                    <h4 className="text-xs text-muted-foreground">Estimated Check Out</h4>
                     <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 text-[10px] border-0">
                       Completed
                     </Badge>
