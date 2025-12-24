@@ -33,6 +33,7 @@ import { ACTIVITY_TYPE_LABELS, ActivityType } from "@/types/project";
 type Project = Tables<"projects">;
 type Task = Tables<"tasks">;
 type TimeEntry = Tables<"time_entries">;
+type Profile = Tables<"profiles">;
 
 const SpentHours = () => {
   // Form state
@@ -49,6 +50,7 @@ const SpentHours = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [allTasks, setAllTasks] = useState<Task[]>([]); // All tasks for lookups
+  const [profiles, setProfiles] = useState<Profile[]>([]); // All profiles for employee names
   const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -61,17 +63,25 @@ const SpentHours = () => {
 
   // Mock time entries for demo (until auth is set up)
   const mockTimeEntries = useMemo(() => [
-    { id: "1", project_id: "11111111-1111-1111-1111-111111111111", task_id: "aaaa1111-1111-1111-1111-111111111111", activity_type: "dev", entry_date: "2024-12-20", logged_hours: 6, billable_hours: 6, is_billable: true, description: "Implemented payment gateway integration", status: "approved", is_corrected: false },
-    { id: "2", project_id: "11111111-1111-1111-1111-111111111111", task_id: "aaaa1112-1111-1111-1111-111111111111", activity_type: "dev", entry_date: "2024-12-20", logged_hours: 4, billable_hours: 4, is_billable: true, description: "Configured Stripe webhooks", status: "pending", is_corrected: false },
-    { id: "3", project_id: "22222222-2222-2222-2222-222222222222", task_id: "bbbb2222-2222-2222-2222-222222222222", activity_type: "dev", entry_date: "2024-12-19", logged_hours: 8, billable_hours: 8, is_billable: true, description: "Built authentication flow", status: "approved", is_corrected: false },
-    { id: "4", project_id: "22222222-2222-2222-2222-222222222222", task_id: null, activity_type: "meeting", entry_date: "2024-12-19", logged_hours: 2, billable_hours: 2, is_billable: true, description: "Sprint planning with client", status: "approved", is_corrected: false },
-    { id: "5", project_id: "33333333-3333-3333-3333-333333333333", task_id: "cccc3333-3333-3333-3333-333333333333", activity_type: "design", entry_date: "2024-12-18", logged_hours: 5, billable_hours: 5, is_billable: true, description: "Designed contact management UI", status: "approved", is_corrected: false },
-    { id: "6", project_id: "11111111-1111-1111-1111-111111111111", task_id: "aaaa1113-1111-1111-1111-111111111111", activity_type: "dev", entry_date: "2024-12-18", logged_hours: 7, billable_hours: 7, is_billable: true, description: "Shopping cart state management", status: "pending", is_corrected: false },
-    { id: "7", project_id: "55555555-5555-5555-5555-555555555555", task_id: "dddd5555-5555-5555-5555-555555555555", activity_type: "admin", entry_date: "2024-12-17", logged_hours: 3, billable_hours: 0, is_billable: false, description: "CI/CD pipeline optimization", status: "approved", is_corrected: false },
-    { id: "8", project_id: "33333333-3333-3333-3333-333333333333", task_id: null, activity_type: "meeting", entry_date: "2024-12-17", logged_hours: 1.5, billable_hours: 1.5, is_billable: true, description: "Requirements gathering session", status: "approved", is_corrected: false },
-    { id: "9", project_id: "11111111-1111-1111-1111-111111111111", task_id: "aaaa1114-1111-1111-1111-111111111111", activity_type: "dev", entry_date: "2024-12-16", logged_hours: 6, billable_hours: 6, is_billable: true, description: "Product catalog search feature", status: "approved", is_corrected: false },
-    { id: "10", project_id: "22222222-2222-2222-2222-222222222222", task_id: "bbbb2224-2222-2222-2222-222222222222", activity_type: "dev", entry_date: "2024-12-16", logged_hours: 4.5, billable_hours: 4.5, is_billable: true, description: "Transaction history API integration", status: "pending", is_corrected: false },
+    { id: "1", user_id: "user-1", project_id: "11111111-1111-1111-1111-111111111111", task_id: "aaaa1111-1111-1111-1111-111111111111", activity_type: "dev", entry_date: "2024-12-20", logged_hours: 6, billable_hours: 6, is_billable: true, description: "Implemented payment gateway integration", status: "approved", is_corrected: false },
+    { id: "2", user_id: "user-2", project_id: "11111111-1111-1111-1111-111111111111", task_id: "aaaa1112-1111-1111-1111-111111111111", activity_type: "dev", entry_date: "2024-12-20", logged_hours: 4, billable_hours: 4, is_billable: true, description: "Configured Stripe webhooks", status: "pending", is_corrected: false },
+    { id: "3", user_id: "user-1", project_id: "22222222-2222-2222-2222-222222222222", task_id: "bbbb2222-2222-2222-2222-222222222222", activity_type: "dev", entry_date: "2024-12-19", logged_hours: 8, billable_hours: 8, is_billable: true, description: "Built authentication flow", status: "approved", is_corrected: false },
+    { id: "4", user_id: "user-3", project_id: "22222222-2222-2222-2222-222222222222", task_id: null, activity_type: "meeting", entry_date: "2024-12-19", logged_hours: 2, billable_hours: 2, is_billable: true, description: "Sprint planning with client", status: "approved", is_corrected: false },
+    { id: "5", user_id: "user-2", project_id: "33333333-3333-3333-3333-333333333333", task_id: "cccc3333-3333-3333-3333-333333333333", activity_type: "design", entry_date: "2024-12-18", logged_hours: 5, billable_hours: 5, is_billable: true, description: "Designed contact management UI", status: "approved", is_corrected: false },
+    { id: "6", user_id: "user-4", project_id: "11111111-1111-1111-1111-111111111111", task_id: "aaaa1113-1111-1111-1111-111111111111", activity_type: "dev", entry_date: "2024-12-18", logged_hours: 7, billable_hours: 7, is_billable: true, description: "Shopping cart state management", status: "pending", is_corrected: false },
+    { id: "7", user_id: "user-3", project_id: "55555555-5555-5555-5555-555555555555", task_id: "dddd5555-5555-5555-5555-555555555555", activity_type: "admin", entry_date: "2024-12-17", logged_hours: 3, billable_hours: 0, is_billable: false, description: "CI/CD pipeline optimization", status: "approved", is_corrected: false },
+    { id: "8", user_id: "user-1", project_id: "33333333-3333-3333-3333-333333333333", task_id: null, activity_type: "meeting", entry_date: "2024-12-17", logged_hours: 1.5, billable_hours: 1.5, is_billable: true, description: "Requirements gathering session", status: "approved", is_corrected: false },
+    { id: "9", user_id: "user-2", project_id: "11111111-1111-1111-1111-111111111111", task_id: "aaaa1114-1111-1111-1111-111111111111", activity_type: "dev", entry_date: "2024-12-16", logged_hours: 6, billable_hours: 6, is_billable: true, description: "Product catalog search feature", status: "approved", is_corrected: false },
+    { id: "10", user_id: "user-4", project_id: "22222222-2222-2222-2222-222222222222", task_id: "bbbb2224-2222-2222-2222-222222222222", activity_type: "dev", entry_date: "2024-12-16", logged_hours: 4.5, billable_hours: 4.5, is_billable: true, description: "Transaction history API integration", status: "pending", is_corrected: false },
   ] as const, []);
+
+  // Mock employees for demo
+  const mockEmployees: Record<string, string> = {
+    "user-1": "Rahul Sharma",
+    "user-2": "Priya Patel",
+    "user-3": "Amit Kumar",
+    "user-4": "Sneha Gupta",
+  };
 
   const maxHoursPerDay = 9;
 
@@ -109,6 +119,23 @@ const SpentHours = () => {
       }
     };
     fetchAllTasks();
+  }, []);
+
+  // Fetch profiles for employee names
+  useEffect(() => {
+    const fetchProfiles = async () => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .order("full_name");
+      
+      if (error) {
+        console.error("Error fetching profiles:", error);
+      } else {
+        setProfiles(data || []);
+      }
+    };
+    fetchProfiles();
   }, []);
 
   // Fetch tasks when project changes (for form dropdown)
@@ -329,6 +356,15 @@ const SpentHours = () => {
     return allTasks.find(t => t.id === taskId)?.name || "Unknown";
   };
 
+  // Get employee name by user_id
+  const getEmployeeName = (userId: string) => {
+    // First check profiles from database
+    const profile = profiles.find(p => p.id === userId);
+    if (profile) return profile.full_name;
+    // Fallback to mock employees
+    return mockEmployees[userId] || "Unknown";
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-4">
@@ -433,6 +469,7 @@ const SpentHours = () => {
                       />
                     </TableHead>
                     <TableHead className="text-sm">Date</TableHead>
+                    <TableHead className="text-sm">Employee</TableHead>
                     <TableHead className="text-sm">Project</TableHead>
                     <TableHead className="text-sm">Task</TableHead>
                     <TableHead className="text-sm">Activity</TableHead>
@@ -451,6 +488,7 @@ const SpentHours = () => {
                         />
                       </TableCell>
                       <TableCell className="py-2 text-sm">{formatDate(entry.entry_date)}</TableCell>
+                      <TableCell className="py-2 text-sm font-medium">{getEmployeeName(entry.user_id)}</TableCell>
                       <TableCell className="py-2 text-sm font-medium">{getProjectName(entry.project_id)}</TableCell>
                       <TableCell className="py-2 text-sm">{getTaskName(entry.task_id)}</TableCell>
                       <TableCell className="py-2">{getActivityBadge(entry.activity_type)}</TableCell>
