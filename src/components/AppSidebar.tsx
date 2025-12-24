@@ -46,6 +46,7 @@ const menuItems = [
   { title: "Task Time Report", url: "/task-time-report", icon: Timer },
   { title: "Project Summary", url: "/project-summary", icon: ListChecks },
   { title: "Attendance", url: "/attendance", icon: UserCheck },
+  { title: "Employee Check-in", url: "/employee-checkin", icon: ClipboardList },
 ];
 
 export function AppSidebar() {
