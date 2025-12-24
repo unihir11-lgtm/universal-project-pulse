@@ -667,49 +667,6 @@ const EmployeeRates = () => {
           )}
         </div>
 
-        {/* Summary Cards */}
-        <div className="grid gap-4 md:grid-cols-5">
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground">Total Employees</p>
-              <p className="text-3xl font-bold text-foreground mt-2">
-                {displayStats.totalEmployees}
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground">With Rates</p>
-              <p className="text-3xl font-bold text-success mt-2">
-                {displayStats.withRates}
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground">Missing Rates</p>
-              <p className="text-3xl font-bold text-destructive mt-2">
-                {displayStats.withoutRates}
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground">Avg Bill Rate</p>
-              <p className="text-3xl font-bold text-foreground mt-2">
-                ${displayStats.avgBillRate.toFixed(0)}/h
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-sm text-muted-foreground">Avg Margin</p>
-              <p className="text-3xl font-bold text-foreground mt-2">
-                {displayStats.avgMargin.toFixed(0)}%
-              </p>
-            </CardContent>
-          </Card>
-        </div>
 
         {/* Filters */}
         <Card>
