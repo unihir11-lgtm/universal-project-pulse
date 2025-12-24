@@ -219,18 +219,34 @@ const Tasks = () => {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "completed":
-        return <Badge className="bg-green-500/20 text-green-700 text-xs">Completed</Badge>;
-      case "in_progress":
-        return <Badge className="bg-blue-500/20 text-blue-700 text-xs">In Progress</Badge>;
-      case "in_review":
-        return <Badge className="bg-purple-500/20 text-purple-700 text-xs">In Review</Badge>;
-      case "assigned":
-        return <Badge className="bg-amber-500/20 text-amber-700 text-xs">Assigned</Badge>;
-      case "new":
-        return <Badge className="bg-gray-500/20 text-gray-700 text-xs">New</Badge>;
-      case "blocked":
-        return <Badge className="bg-red-500/20 text-red-700 text-xs">Blocked</Badge>;
+      case "closed":
+        return <Badge className="bg-green-500/20 text-green-700 text-xs">Closed</Badge>;
+      case "production_deployment":
+        return <Badge className="bg-green-500/20 text-green-700 text-xs">Production</Badge>;
+      case "preproduction_deployment":
+        return <Badge className="bg-emerald-500/20 text-emerald-700 text-xs">Preprod</Badge>;
+      case "qc_completed":
+        return <Badge className="bg-teal-500/20 text-teal-700 text-xs">QC Completed</Badge>;
+      case "qa_verified":
+        return <Badge className="bg-cyan-500/20 text-cyan-700 text-xs">QA Verified</Badge>;
+      case "assigned_to_qa":
+        return <Badge className="bg-blue-500/20 text-blue-700 text-xs">Assigned to QA</Badge>;
+      case "ba_review":
+        return <Badge className="bg-indigo-500/20 text-indigo-700 text-xs">BA Review</Badge>;
+      case "unit_testing":
+        return <Badge className="bg-violet-500/20 text-violet-700 text-xs">Unit Testing</Badge>;
+      case "assign_to_development":
+        return <Badge className="bg-purple-500/20 text-purple-700 text-xs">Dev Assigned</Badge>;
+      case "analysis_approved":
+        return <Badge className="bg-fuchsia-500/20 text-fuchsia-700 text-xs">Analysis Approved</Badge>;
+      case "analysis_completed":
+        return <Badge className="bg-pink-500/20 text-pink-700 text-xs">Analysis Done</Badge>;
+      case "analysis":
+        return <Badge className="bg-rose-500/20 text-rose-700 text-xs">Analysis</Badge>;
+      case "open":
+        return <Badge className="bg-amber-500/20 text-amber-700 text-xs">Open</Badge>;
+      case "hold":
+        return <Badge className="bg-gray-500/20 text-gray-700 text-xs">Hold</Badge>;
       default:
         return <Badge className="text-xs">{status}</Badge>;
     }

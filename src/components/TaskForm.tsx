@@ -74,7 +74,7 @@ export const TaskForm = ({
   const [formData, setFormData] = useState<TaskFormData>({
     name: initialData?.name ?? "",
     description: initialData?.description ?? "",
-    status: initialData?.status ?? "new",
+    status: initialData?.status ?? "open",
     priority: initialData?.priority ?? "medium",
     category: initialData?.category ?? "development",
     parentTaskId: initialData?.parentTaskId ?? null,
