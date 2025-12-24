@@ -376,6 +376,7 @@ export const mockTasks: Task[] = [
     loggedHours: 6,
     category: "design",
     createdAt: "2024-01-08",
+    dueDate: "2025-12-14",
     completedAt: "2024-01-14",
   },
   {
@@ -394,7 +395,7 @@ export const mockTasks: Task[] = [
     loggedHours: 4,
     category: "design",
     createdAt: "2024-01-10",
-    dueDate: "2024-01-18",
+    dueDate: "2025-12-15",
   },
   {
     id: 1023,
@@ -412,7 +413,7 @@ export const mockTasks: Task[] = [
     loggedHours: 0,
     category: "design",
     createdAt: "2024-01-12",
-    dueDate: "2024-01-19",
+    dueDate: "2025-12-16",
   },
   {
     id: 103,
@@ -430,7 +431,7 @@ export const mockTasks: Task[] = [
     category: "documentation",
     tags: ["api", "docs"],
     createdAt: "2024-01-10",
-    dueDate: "2024-01-25",
+    dueDate: "2025-12-17",
   },
   {
     id: 104,
@@ -466,7 +467,7 @@ export const mockTasks: Task[] = [
     category: "development",
     tags: ["security", "mobile", "auth"],
     createdAt: "2024-01-10",
-    dueDate: "2024-02-10",
+    dueDate: "2025-12-18",
   },
   // Subtasks under 201 (Biometric login)
   {
@@ -503,6 +504,7 @@ export const mockTasks: Task[] = [
     loggedHours: 5,
     category: "development",
     createdAt: "2024-01-12",
+    dueDate: "2025-12-19",
   },
   {
     id: 202,
@@ -521,7 +523,7 @@ export const mockTasks: Task[] = [
     category: "design",
     tags: ["ui", "mobile"],
     createdAt: "2024-01-12",
-    dueDate: "2024-02-05",
+    dueDate: "2025-12-20",
   },
   {
     id: 203,

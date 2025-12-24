@@ -16,8 +16,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Plus, ListTodo, ChevronRight, ChevronDown } from "lucide-react";
+import { Plus, ListTodo, ChevronRight, ChevronDown, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
+import { format, differenceInDays, parseISO } from "date-fns";
 import { useState, useMemo } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -269,6 +270,52 @@ const Tasks = () => {
     }
   };
 
+  const getDaysDelayedBadge = (dueDate?: string, status?: string) => {
+    if (!dueDate) return <span className="text-muted-foreground">-</span>;
+    
+    // If task is closed, no delay
+    if (status === "closed") {
+      return <Badge className="bg-green-500/20 text-green-700 text-xs">On time</Badge>;
+    }
+    
+    const today = new Date();
+    const due = parseISO(dueDate);
+    const daysDelayed = differenceInDays(today, due);
+    
+    if (daysDelayed <= 0) {
+      return <Badge className="bg-green-500/20 text-green-700 text-xs">On track</Badge>;
+    }
+    
+    // Color based on delay severity
+    if (daysDelayed >= 7) {
+      return (
+        <Badge className="bg-destructive/20 text-destructive text-xs flex items-center gap-1">
+          <AlertTriangle className="h-3 w-3" />
+          {daysDelayed} days
+        </Badge>
+      );
+    } else if (daysDelayed >= 4) {
+      return (
+        <Badge className="bg-orange-500/20 text-orange-700 text-xs flex items-center gap-1">
+          <AlertTriangle className="h-3 w-3" />
+          {daysDelayed} days
+        </Badge>
+      );
+    } else {
+      return (
+        <Badge className="bg-amber-500/20 text-amber-700 text-xs flex items-center gap-1">
+          <AlertTriangle className="h-3 w-3" />
+          {daysDelayed} days
+        </Badge>
+      );
+    }
+  };
+
+  const formatDueDate = (dueDate?: string) => {
+    if (!dueDate) return <span className="text-muted-foreground">-</span>;
+    return format(parseISO(dueDate), "yyyy-MM-dd");
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-3">
@@ -502,6 +549,8 @@ const Tasks = () => {
                     <TableHead className="text-xs py-2 text-center">Est. Hours</TableHead>
                     <TableHead className="text-xs py-2 text-center">Logged</TableHead>
                     <TableHead className="text-xs py-2">Assignee</TableHead>
+                    <TableHead className="text-xs py-2">Due Date</TableHead>
+                    <TableHead className="text-xs py-2">Days Delayed</TableHead>
                     <TableHead className="text-xs py-2">Status</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -569,6 +618,8 @@ const Tasks = () => {
                           <TableCell className="text-sm py-2 text-center">{task.estimatedHours ?? "-"}</TableCell>
                           <TableCell className="text-sm py-2 text-center">{task.loggedHours}h</TableCell>
                           <TableCell className="text-sm py-2">{task.primaryAssigneeName}</TableCell>
+                          <TableCell className="text-sm py-2">{formatDueDate(task.dueDate)}</TableCell>
+                          <TableCell className="text-sm py-2">{getDaysDelayedBadge(task.dueDate, task.status)}</TableCell>
                           <TableCell className="text-sm py-2">{getStatusBadge(task.status)}</TableCell>
                         </TableRow>
                         
@@ -627,6 +678,8 @@ const Tasks = () => {
                                 <TableCell className="text-sm py-2 text-center">{subtask.estimatedHours ?? "-"}</TableCell>
                                 <TableCell className="text-sm py-2 text-center">{subtask.loggedHours}h</TableCell>
                                 <TableCell className="text-sm py-2">{subtask.primaryAssigneeName}</TableCell>
+                                <TableCell className="text-sm py-2">{formatDueDate(subtask.dueDate)}</TableCell>
+                                <TableCell className="text-sm py-2">{getDaysDelayedBadge(subtask.dueDate, subtask.status)}</TableCell>
                                 <TableCell className="text-sm py-2">{getStatusBadge(subtask.status)}</TableCell>
                               </TableRow>
 
@@ -645,6 +698,8 @@ const Tasks = () => {
                                   <TableCell className="text-sm py-2 text-center">{subSubtask.estimatedHours ?? "-"}</TableCell>
                                   <TableCell className="text-sm py-2 text-center">{subSubtask.loggedHours}h</TableCell>
                                   <TableCell className="text-sm py-2">{subSubtask.primaryAssigneeName}</TableCell>
+                                  <TableCell className="text-sm py-2">{formatDueDate(subSubtask.dueDate)}</TableCell>
+                                  <TableCell className="text-sm py-2">{getDaysDelayedBadge(subSubtask.dueDate, subSubtask.status)}</TableCell>
                                   <TableCell className="text-sm py-2">{getStatusBadge(subSubtask.status)}</TableCell>
                                 </TableRow>
                               ))}
