@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Search, UserPlus, Filter, MoreVertical } from "lucide-react";
+import { Search, UserPlus, Filter, MoreVertical, Pencil, Clock, User } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,10 +34,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useState } from "react";
 import { toast } from "sonner";
 
-const employees = [
+interface Employee {
+  id: number;
+  name: string;
+  designation: string;
+  department: string;
+  biometricId: string;
+  status: string;
+  joinedDate: string;
+  editedBy?: string;
+  editedAt?: string;
+  editedVia?: string;
+}
+
+const employees: Employee[] = [
   {
     id: 1,
     name: "John Doe",
@@ -46,6 +65,9 @@ const employees = [
     biometricId: "EMP001",
     status: "Active",
     joinedDate: "2023-01-15",
+    editedBy: "Admin User",
+    editedAt: "Dec 28, 10:30 AM",
+    editedVia: "Web Portal",
   },
   {
     id: 2,
@@ -55,6 +77,9 @@ const employees = [
     biometricId: "EMP002",
     status: "Active",
     joinedDate: "2022-08-20",
+    editedBy: "HR Manager",
+    editedAt: "Dec 27, 03:15 PM",
+    editedVia: "Mobile App",
   },
   {
     id: 3,
@@ -64,6 +89,9 @@ const employees = [
     biometricId: "EMP003",
     status: "Active",
     joinedDate: "2023-03-10",
+    editedBy: "System Auto",
+    editedAt: "Dec 26, 09:00 AM",
+    editedVia: "Biometric Sync",
   },
   {
     id: 4,
@@ -73,6 +101,9 @@ const employees = [
     biometricId: "EMP004",
     status: "Active",
     joinedDate: "2022-11-05",
+    editedBy: "Team Lead",
+    editedAt: "Dec 25, 11:45 AM",
+    editedVia: "Web Portal",
   },
   {
     id: 5,
@@ -82,6 +113,9 @@ const employees = [
     biometricId: "EMP005",
     status: "On Leave",
     joinedDate: "2023-02-28",
+    editedBy: "Admin User",
+    editedAt: "Dec 24, 02:00 PM",
+    editedVia: "Manual Entry",
   },
 ];
 
@@ -393,13 +427,40 @@ const Employees = () => {
                     {employees.map((employee) => (
                       <TableRow 
                         key={employee.id} 
-                        className="cursor-pointer hover:bg-muted/50"
+                        className={`cursor-pointer hover:bg-muted/50 ${employee.editedBy ? "bg-blue-50/50 dark:bg-blue-900/10" : ""}`}
                         onClick={() => toast.info(`Viewing ${employee.name}'s profile`)}
                       >
                         <TableCell className="font-medium text-xs md:text-sm py-2 md:py-4">
-                          <div>
+                          <div className="flex flex-col">
                             <span>{employee.name}</span>
                             <span className="block text-xs text-muted-foreground sm:hidden">{employee.designation}</span>
+                            {employee.editedBy && (
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <div className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5">
+                                      <Pencil className="h-2.5 w-2.5" />
+                                      <span>Edited</span>
+                                    </div>
+                                  </TooltipTrigger>
+                                  <TooltipContent className="bg-background border">
+                                    <div className="text-xs space-y-1">
+                                      <div className="flex items-center gap-1.5">
+                                        <User className="h-3 w-3" />
+                                        <span>{employee.editedBy}</span>
+                                      </div>
+                                      <div className="flex items-center gap-1.5">
+                                        <Clock className="h-3 w-3" />
+                                        <span>{employee.editedAt}</span>
+                                      </div>
+                                      <div className="flex items-center gap-1.5">
+                                        <span className="text-muted-foreground">Via: {employee.editedVia}</span>
+                                      </div>
+                                    </div>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            )}
                           </div>
                         </TableCell>
                         <TableCell className="text-xs md:text-sm hidden sm:table-cell">{employee.designation}</TableCell>

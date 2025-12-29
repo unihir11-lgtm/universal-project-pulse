@@ -16,12 +16,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Plus, Target, Calendar, Edit, Trash2 } from "lucide-react";
+import { Plus, Target, Calendar, Edit, Trash2, Pencil, Clock, User } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 // Mock projects data
 const projectsData = [
@@ -34,13 +40,26 @@ const projectsData = [
   { id: 7, name: "Universal Software" },
 ];
 
+interface Sprint {
+  id: number;
+  name: string;
+  project: string;
+  startDate: string;
+  endDate: string;
+  status: string;
+  tasks: number;
+  editedBy?: string;
+  editedAt?: string;
+  editedVia?: string;
+}
+
 // Mock sprints data
-const sprintsData = [
-  { id: 1, name: "Sprint 1", project: "Universal Software", startDate: "2024-12-01", endDate: "2024-12-15", status: "Completed", tasks: 12 },
-  { id: 2, name: "Sprint 2", project: "Universal Software", startDate: "2024-12-16", endDate: "2024-12-31", status: "Active", tasks: 8 },
-  { id: 3, name: "Sprint 3", project: "Universal Software", startDate: "2025-01-01", endDate: "2025-01-15", status: "Planned", tasks: 5 },
-  { id: 4, name: "Sprint 1", project: "Super App", startDate: "2024-12-01", endDate: "2024-12-15", status: "Completed", tasks: 10 },
-  { id: 5, name: "Sprint 2", project: "Super App", startDate: "2024-12-16", endDate: "2024-12-31", status: "Active", tasks: 6 },
+const sprintsData: Sprint[] = [
+  { id: 1, name: "Sprint 1", project: "Universal Software", startDate: "2024-12-01", endDate: "2024-12-15", status: "Completed", tasks: 12, editedBy: "Admin User", editedAt: "Dec 28, 10:30 AM", editedVia: "Web Portal" },
+  { id: 2, name: "Sprint 2", project: "Universal Software", startDate: "2024-12-16", endDate: "2024-12-31", status: "Active", tasks: 8, editedBy: "Project Manager", editedAt: "Dec 27, 03:15 PM", editedVia: "Mobile App" },
+  { id: 3, name: "Sprint 3", project: "Universal Software", startDate: "2025-01-01", endDate: "2025-01-15", status: "Planned", tasks: 5, editedBy: "System Auto", editedAt: "Dec 26, 09:00 AM", editedVia: "Scheduler" },
+  { id: 4, name: "Sprint 1", project: "Super App", startDate: "2024-12-01", endDate: "2024-12-15", status: "Completed", tasks: 10, editedBy: "Team Lead", editedAt: "Dec 25, 11:45 AM", editedVia: "Web Portal" },
+  { id: 5, name: "Sprint 2", project: "Super App", startDate: "2024-12-16", endDate: "2024-12-31", status: "Active", tasks: 6, editedBy: "Admin User", editedAt: "Dec 24, 02:00 PM", editedVia: "Manual Entry" },
   { id: 6, name: "Sprint 1", project: "Go Live", startDate: "2024-12-01", endDate: "2024-12-15", status: "Completed", tasks: 15 },
 ];
 
@@ -272,8 +291,39 @@ const Sprints = () => {
                 </TableHeader>
                 <TableBody>
                   {filteredSprints.map((sprint) => (
-                    <TableRow key={sprint.id}>
-                      <TableCell className="text-sm py-2 font-medium">{sprint.name}</TableCell>
+                    <TableRow key={sprint.id} className={sprint.editedBy ? "bg-blue-50/50 dark:bg-blue-900/10" : ""}>
+                      <TableCell className="text-sm py-2 font-medium">
+                        <div className="flex flex-col">
+                          <span>{sprint.name}</span>
+                          {sprint.editedBy && (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5">
+                                    <Pencil className="h-2.5 w-2.5" />
+                                    <span>Edited</span>
+                                  </div>
+                                </TooltipTrigger>
+                                <TooltipContent className="bg-background border">
+                                  <div className="text-xs space-y-1">
+                                    <div className="flex items-center gap-1.5">
+                                      <User className="h-3 w-3" />
+                                      <span>{sprint.editedBy}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                      <Clock className="h-3 w-3" />
+                                      <span>{sprint.editedAt}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="text-muted-foreground">Via: {sprint.editedVia}</span>
+                                    </div>
+                                  </div>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
+                        </div>
+                      </TableCell>
                       <TableCell className="text-sm py-2">{sprint.project}</TableCell>
                       <TableCell className="text-sm py-2">{formatDate(sprint.startDate)}</TableCell>
                       <TableCell className="text-sm py-2">{formatDate(sprint.endDate)}</TableCell>

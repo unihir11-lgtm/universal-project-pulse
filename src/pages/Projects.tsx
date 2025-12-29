@@ -28,8 +28,17 @@ import {
   FileText,
   Sparkles,
   Save,
-  Calendar
+  Calendar,
+  Pencil,
+  Clock,
+  User
 } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 // Mock project templates data
 const projectTemplates = [
@@ -749,8 +758,39 @@ const Projects = () => {
               </TableHeader>
               <TableBody>
                 {filteredProjects.map((project) => (
-                  <TableRow key={project.id}>
-                    <TableCell className="font-medium">{project.name}</TableCell>
+                  <TableRow key={project.id} className={project.editedBy ? "bg-blue-50/50 dark:bg-blue-900/10" : ""}>
+                    <TableCell className="font-medium">
+                      <div className="flex flex-col">
+                        <span>{project.name}</span>
+                        {project.editedBy && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5">
+                                  <Pencil className="h-2.5 w-2.5" />
+                                  <span>Edited</span>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent className="bg-background border">
+                                <div className="text-xs space-y-1">
+                                  <div className="flex items-center gap-1.5">
+                                    <User className="h-3 w-3" />
+                                    <span>{project.editedBy}</span>
+                                  </div>
+                                  <div className="flex items-center gap-1.5">
+                                    <Clock className="h-3 w-3" />
+                                    <span>{project.editedAt}</span>
+                                  </div>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-muted-foreground">Via: {project.editedVia}</span>
+                                  </div>
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <Badge variant={getProjectTypeVariant(project.projectType)}>
                         {project.projectType === "external" ? "External" : "Internal"}
