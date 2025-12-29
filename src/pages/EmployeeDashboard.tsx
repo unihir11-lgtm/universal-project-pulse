@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Clock, LogOut, LogIn, Target, FileText, Calendar, Filter, Activity, ClipboardList, UserCheck } from "lucide-react";
+import { Clock, LogOut, LogIn, Target, FileText, Calendar, Filter, Activity, ClipboardList, UserCheck, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDate } from "@/lib/utils";
 
@@ -547,6 +547,7 @@ const EmployeeDashboard = () => {
                       <TableHead className="text-xs">Description</TableHead>
                       <TableHead className="text-xs">Status</TableHead>
                       <TableHead className="text-xs">Hours</TableHead>
+                      <TableHead className="text-xs">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -585,6 +586,16 @@ const EmployeeDashboard = () => {
                           </Badge>
                         </TableCell>
                         <TableCell className="py-2 text-xs font-medium">{item.hours}</TableCell>
+                        <TableCell className="py-2">
+                          <div className="flex items-center gap-1">
+                            <Button variant="ghost" size="icon" className="h-7 w-7">
+                              <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-7 w-7">
+                              <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                            </Button>
+                          </div>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -615,6 +626,7 @@ const EmployeeDashboard = () => {
                       <TableHead className="text-xs">Break</TableHead>
                       <TableHead className="text-xs">Productive</TableHead>
                       <TableHead className="text-xs">Status</TableHead>
+                      <TableHead className="text-xs">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -638,6 +650,16 @@ const EmployeeDashboard = () => {
                           >
                             {item.status}
                           </Badge>
+                        </TableCell>
+                        <TableCell className="py-2">
+                          <div className="flex items-center gap-1">
+                            <Button variant="ghost" size="icon" className="h-7 w-7">
+                              <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-7 w-7">
+                              <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -669,6 +691,7 @@ const EmployeeDashboard = () => {
                       <TableHead className="text-xs">Check-Out</TableHead>
                       <TableHead className="text-xs">Device</TableHead>
                       <TableHead className="text-xs">Location</TableHead>
+                      <TableHead className="text-xs">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -700,6 +723,16 @@ const EmployeeDashboard = () => {
                           >
                             {item.location}
                           </Badge>
+                        </TableCell>
+                        <TableCell className="py-2">
+                          <div className="flex items-center gap-1">
+                            <Button variant="ghost" size="icon" className="h-7 w-7">
+                              <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-7 w-7">
+                              <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
