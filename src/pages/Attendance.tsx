@@ -64,6 +64,9 @@ const Attendance = () => {
       outTime: "06:10 PM",
       totalHours: "8.3",
       status: "Present",
+      editedBy: "Admin User",
+      editedAt: "Dec 28, 10:30 AM",
+      editedVia: "Web Portal",
     },
     {
       id: 2,
@@ -75,6 +78,9 @@ const Attendance = () => {
       outTime: "06:05 PM",
       totalHours: "8.2",
       status: "Present",
+      editedBy: "HR Manager",
+      editedAt: "Dec 27, 03:15 PM",
+      editedVia: "Mobile App",
     },
     {
       id: 3,
@@ -86,6 +92,9 @@ const Attendance = () => {
       outTime: "06:20 PM",
       totalHours: "8.3",
       status: "Present",
+      editedBy: "System Auto",
+      editedAt: "Dec 26, 09:00 AM",
+      editedVia: "Biometric Sync",
     },
     {
       id: 4,
@@ -97,6 +106,9 @@ const Attendance = () => {
       outTime: "06:00 PM",
       totalHours: "8.3",
       status: "Present",
+      editedBy: "Team Lead",
+      editedAt: "Dec 25, 11:45 AM",
+      editedVia: "Web Portal",
     },
     {
       id: 5,
@@ -108,6 +120,9 @@ const Attendance = () => {
       outTime: "-",
       totalHours: "0",
       status: "Absent",
+      editedBy: "Admin User",
+      editedAt: "Dec 24, 02:00 PM",
+      editedVia: "Manual Entry",
     },
     {
       id: 6,
