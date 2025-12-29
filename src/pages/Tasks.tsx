@@ -16,7 +16,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Plus, ListTodo, ChevronRight, ChevronDown, AlertTriangle, Pencil, Trash2 } from "lucide-react";
+import { Plus, ListTodo, ChevronRight, ChevronDown, AlertTriangle, Pencil, Trash2, Clock, User } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { format, differenceInDays, parseISO } from "date-fns";
 import { useState, useMemo } from "react";
@@ -663,7 +669,7 @@ const Tasks = () => {
                       <>
                         <TableRow 
                           key={task.id} 
-                          className="cursor-pointer hover:bg-muted/50" 
+                          className={`cursor-pointer hover:bg-muted/50 ${task.editedBy ? "bg-blue-50/50 dark:bg-blue-900/10" : ""}`}
                           onClick={() => {
                             if (subtaskCount > 0) {
                               toggleExpand();
@@ -673,29 +679,58 @@ const Tasks = () => {
                           }}
                         >
                           <TableCell className="text-sm py-2">
-                            <div className="flex items-center gap-2">
-                              {subtaskCount > 0 && (
-                                <button 
-                                  onClick={(e) => { e.stopPropagation(); toggleExpand(); }}
-                                  className="p-0.5 hover:bg-muted rounded"
-                                >
-                                  {isExpanded ? (
-                                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                                  ) : (
-                                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                                  )}
-                                </button>
-                              )}
-                              {subtaskCount === 0 && <div className="w-5" />}
-                              <span className="font-medium">{task.name}</span>
-                              {subtaskCount > 0 && (
-                                <Badge 
-                                  variant="outline" 
-                                  className="text-[10px] cursor-pointer hover:bg-muted"
-                                  onClick={(e) => { e.stopPropagation(); toggleExpand(); }}
-                                >
-                                  {subtaskCount} subtask{subtaskCount > 1 ? "s" : ""}
-                                </Badge>
+                            <div className="flex flex-col">
+                              <div className="flex items-center gap-2">
+                                {subtaskCount > 0 && (
+                                  <button 
+                                    onClick={(e) => { e.stopPropagation(); toggleExpand(); }}
+                                    className="p-0.5 hover:bg-muted rounded"
+                                  >
+                                    {isExpanded ? (
+                                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                                    ) : (
+                                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                                    )}
+                                  </button>
+                                )}
+                                {subtaskCount === 0 && <div className="w-5" />}
+                                <span className="font-medium">{task.name}</span>
+                                {subtaskCount > 0 && (
+                                  <Badge 
+                                    variant="outline" 
+                                    className="text-[10px] cursor-pointer hover:bg-muted"
+                                    onClick={(e) => { e.stopPropagation(); toggleExpand(); }}
+                                  >
+                                    {subtaskCount} subtask{subtaskCount > 1 ? "s" : ""}
+                                  </Badge>
+                                )}
+                              </div>
+                              {task.editedBy && (
+                                <TooltipProvider>
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <div className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5 ml-5">
+                                        <Pencil className="h-2.5 w-2.5" />
+                                        <span>Edited</span>
+                                      </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent className="bg-background border">
+                                      <div className="text-xs space-y-1">
+                                        <div className="flex items-center gap-1.5">
+                                          <User className="h-3 w-3" />
+                                          <span>{task.editedBy}</span>
+                                        </div>
+                                        <div className="flex items-center gap-1.5">
+                                          <Clock className="h-3 w-3" />
+                                          <span>{task.editedAt}</span>
+                                        </div>
+                                        <div className="flex items-center gap-1.5">
+                                          <span className="text-muted-foreground">Via: {task.editedVia}</span>
+                                        </div>
+                                      </div>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                </TooltipProvider>
                               )}
                             </div>
                           </TableCell>

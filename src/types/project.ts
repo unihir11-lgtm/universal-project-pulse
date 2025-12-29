@@ -258,6 +258,10 @@ export interface Task {
   createdAt: string;
   dueDate?: string;
   completedAt?: string;
+  // Edit tracking
+  editedBy?: string;
+  editedAt?: string;
+  editedVia?: string;
 }
 
 // Maximum UI depth for task hierarchy (DB can support more)
@@ -398,6 +402,10 @@ export interface Project {
   currency?: Currency;
   // Lock currency after first invoice
   currencyLocked?: boolean;
+  // Edit tracking
+  editedBy?: string;
+  editedAt?: string;
+  editedVia?: string;
 }
 
 export interface User {

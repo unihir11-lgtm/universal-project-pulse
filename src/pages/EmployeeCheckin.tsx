@@ -52,11 +52,11 @@ const EmployeeCheckin = () => {
   const [editData, setEditData] = useState<CheckinEntry | null>(null);
 
   const [checkinData, setCheckinData] = useState<CheckinEntry[]>([
-    { id: 1, empId: "EMP001", name: "Rahul Sharma", department: "Engineering", checkIn: "09:05 AM", checkOut: "06:10 PM", device: "Biometric", location: "Main Office" },
-    { id: 2, empId: "EMP002", name: "Priya Patel", department: "Design", checkIn: "09:15 AM", checkOut: "06:00 PM", device: "Mobile App", location: "Remote" },
-    { id: 3, empId: "EMP003", name: "Amit Kumar", department: "Engineering", checkIn: "08:50 AM", checkOut: "05:45 PM", device: "Biometric", location: "Main Office" },
-    { id: 4, empId: "EMP004", name: "Sneha Gupta", department: "HR", checkIn: "09:00 AM", checkOut: "06:30 PM", device: "Biometric", location: "Main Office" },
-    { id: 5, empId: "EMP005", name: "Vikram Singh", department: "Engineering", checkIn: "09:30 AM", checkOut: "06:15 PM", device: "Mobile App", location: "Remote" },
+    { id: 1, empId: "EMP001", name: "Rahul Sharma", department: "Engineering", checkIn: "09:05 AM", checkOut: "06:10 PM", device: "Biometric", location: "Main Office", editedBy: "Admin User", editedAt: "Dec 28, 10:30 AM", editedVia: "Web Portal" },
+    { id: 2, empId: "EMP002", name: "Priya Patel", department: "Design", checkIn: "09:15 AM", checkOut: "06:00 PM", device: "Mobile App", location: "Remote", editedBy: "HR Manager", editedAt: "Dec 27, 03:15 PM", editedVia: "Mobile App" },
+    { id: 3, empId: "EMP003", name: "Amit Kumar", department: "Engineering", checkIn: "08:50 AM", checkOut: "05:45 PM", device: "Biometric", location: "Main Office", editedBy: "System Auto", editedAt: "Dec 26, 09:00 AM", editedVia: "Biometric Sync" },
+    { id: 4, empId: "EMP004", name: "Sneha Gupta", department: "HR", checkIn: "09:00 AM", checkOut: "06:30 PM", device: "Biometric", location: "Main Office", editedBy: "Team Lead", editedAt: "Dec 25, 11:45 AM", editedVia: "Web Portal" },
+    { id: 5, empId: "EMP005", name: "Vikram Singh", department: "Engineering", checkIn: "09:30 AM", checkOut: "06:15 PM", device: "Mobile App", location: "Remote", editedBy: "Admin User", editedAt: "Dec 24, 02:00 PM", editedVia: "Manual Entry" },
     { id: 6, empId: "EMP006", name: "Neha Sharma", department: "Marketing", checkIn: "09:10 AM", checkOut: "05:50 PM", device: "Biometric", location: "Main Office" },
     { id: 7, empId: "EMP007", name: "Rajesh Verma", department: "Finance", checkIn: "08:45 AM", checkOut: "06:00 PM", device: "Biometric", location: "Main Office" },
     { id: 8, empId: "EMP008", name: "Anjali Mishra", department: "Engineering", checkIn: "09:20 AM", checkOut: "06:20 PM", device: "Mobile App", location: "Remote" },
