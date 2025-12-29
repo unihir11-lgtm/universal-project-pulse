@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { UserCheck, Download, Filter, Search } from "lucide-react";
+import { UserCheck, Download, Filter, Search, Pencil, Check, X } from "lucide-react";
 import { toast } from "sonner";
 
 interface CheckinEntry {
@@ -39,8 +39,10 @@ const EmployeeCheckin = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editData, setEditData] = useState<CheckinEntry | null>(null);
 
-  const checkinData: CheckinEntry[] = [
+  const [checkinData, setCheckinData] = useState<CheckinEntry[]>([
     { id: 1, empId: "EMP001", name: "Rahul Sharma", department: "Engineering", checkIn: "09:05 AM", checkOut: "06:10 PM", device: "Biometric", location: "Main Office" },
     { id: 2, empId: "EMP002", name: "Priya Patel", department: "Design", checkIn: "09:15 AM", checkOut: "06:00 PM", device: "Mobile App", location: "Remote" },
     { id: 3, empId: "EMP003", name: "Amit Kumar", department: "Engineering", checkIn: "08:50 AM", checkOut: "05:45 PM", device: "Biometric", location: "Main Office" },
@@ -51,10 +53,11 @@ const EmployeeCheckin = () => {
     { id: 8, empId: "EMP008", name: "Anjali Mishra", department: "Engineering", checkIn: "09:20 AM", checkOut: "06:20 PM", device: "Mobile App", location: "Remote" },
     { id: 9, empId: "EMP009", name: "Karan Joshi", department: "Design", checkIn: "09:00 AM", checkOut: "05:30 PM", device: "Biometric", location: "Main Office" },
     { id: 10, empId: "EMP010", name: "Pooja Reddy", department: "Engineering", checkIn: "08:55 AM", checkOut: "06:05 PM", device: "Biometric", location: "Main Office" },
-  ];
+  ]);
 
   const departments = ["all", ...new Set(checkinData.map(item => item.department))];
   const locations = ["all", ...new Set(checkinData.map(item => item.location))];
+  const deviceTypes = ["Biometric", "Mobile App"];
 
   const filteredData = checkinData.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -81,6 +84,34 @@ const EmployeeCheckin = () => {
   };
 
   const isAllSelected = filteredData.length > 0 && selectedIds.length === filteredData.length;
+
+  const handleEdit = (item: CheckinEntry) => {
+    setEditingId(item.id);
+    setEditData({ ...item });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditData(null);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editData) return;
+    
+    setCheckinData(prev => 
+      prev.map(item => 
+        item.id === editData.id ? editData : item
+      )
+    );
+    setEditingId(null);
+    setEditData(null);
+    toast.success("Check-in record updated successfully");
+  };
+
+  const handleEditChange = (field: keyof CheckinEntry, value: string) => {
+    if (!editData) return;
+    setEditData({ ...editData, [field]: value });
+  };
 
   const exportToCSV = () => {
     const dataToExport = selectedIds.length > 0 
@@ -205,6 +236,7 @@ const EmployeeCheckin = () => {
                   <TableHead className="text-xs">Check-Out</TableHead>
                   <TableHead className="text-xs">Device</TableHead>
                   <TableHead className="text-xs">Location</TableHead>
+                  <TableHead className="text-xs">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -218,30 +250,107 @@ const EmployeeCheckin = () => {
                     </TableCell>
                     <TableCell className="py-2 text-xs text-primary font-medium">{item.empId}</TableCell>
                     <TableCell className="py-2 text-xs font-medium">{item.name}</TableCell>
-                    <TableCell className="py-2 text-xs text-muted-foreground">{item.department}</TableCell>
-                    <TableCell className="py-2 text-xs text-primary">{item.checkIn}</TableCell>
-                    <TableCell className="py-2 text-xs text-teal-600 dark:text-teal-400">{item.checkOut}</TableCell>
-                    <TableCell className="py-2">
-                      <Badge 
-                        variant="outline" 
-                        className={`text-[10px] ${
-                          item.device === 'Biometric' ? 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400' :
-                          'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400'
-                        }`}
-                      >
-                        {item.device}
-                      </Badge>
+                    <TableCell className="py-2 text-xs text-muted-foreground">
+                      {editingId === item.id ? (
+                        <Input
+                          value={editData?.department || ""}
+                          onChange={(e) => handleEditChange("department", e.target.value)}
+                          className="h-7 w-24 text-xs"
+                        />
+                      ) : (
+                        item.department
+                      )}
+                    </TableCell>
+                    <TableCell className="py-2 text-xs text-primary">
+                      {editingId === item.id ? (
+                        <Input
+                          value={editData?.checkIn || ""}
+                          onChange={(e) => handleEditChange("checkIn", e.target.value)}
+                          className="h-7 w-24 text-xs"
+                        />
+                      ) : (
+                        item.checkIn
+                      )}
+                    </TableCell>
+                    <TableCell className="py-2 text-xs text-teal-600 dark:text-teal-400">
+                      {editingId === item.id ? (
+                        <Input
+                          value={editData?.checkOut || ""}
+                          onChange={(e) => handleEditChange("checkOut", e.target.value)}
+                          className="h-7 w-24 text-xs"
+                        />
+                      ) : (
+                        item.checkOut
+                      )}
                     </TableCell>
                     <TableCell className="py-2">
-                      <Badge 
-                        variant="outline" 
-                        className={`text-[10px] ${
-                          item.location === 'Main Office' ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400' :
-                          'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400'
-                        }`}
-                      >
-                        {item.location}
-                      </Badge>
+                      {editingId === item.id ? (
+                        <Select
+                          value={editData?.device || ""}
+                          onValueChange={(value) => handleEditChange("device", value)}
+                        >
+                          <SelectTrigger className="h-7 w-28 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-background">
+                            {deviceTypes.map(d => (
+                              <SelectItem key={d} value={d}>{d}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <Badge 
+                          variant="outline" 
+                          className={`text-[10px] ${
+                            item.device === 'Biometric' ? 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400' :
+                            'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400'
+                          }`}
+                        >
+                          {item.device}
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="py-2">
+                      {editingId === item.id ? (
+                        <Select
+                          value={editData?.location || ""}
+                          onValueChange={(value) => handleEditChange("location", value)}
+                        >
+                          <SelectTrigger className="h-7 w-28 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-background">
+                            <SelectItem value="Main Office">Main Office</SelectItem>
+                            <SelectItem value="Remote">Remote</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <Badge 
+                          variant="outline" 
+                          className={`text-[10px] ${
+                            item.location === 'Main Office' ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400' :
+                            'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400'
+                          }`}
+                        >
+                          {item.location}
+                        </Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="py-2">
+                      {editingId === item.id ? (
+                        <div className="flex items-center gap-1">
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleSaveEdit}>
+                            <Check className="h-3.5 w-3.5 text-success" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleCancelEdit}>
+                            <X className="h-3.5 w-3.5 text-destructive" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEdit(item)}>
+                          <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+                        </Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
