@@ -11,19 +11,40 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Download, Calendar, UserCheck, Search } from "lucide-react";
+import { Download, Calendar, UserCheck, Search, Pencil, X, Check } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
+
+interface AttendanceRecord {
+  id: number;
+  name: string;
+  employeeId: string;
+  inTime: string;
+  breakIn: string;
+  breakOut: string;
+  outTime: string;
+  totalHours: string;
+  status: string;
+}
 
 const Attendance = () => {
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
   const [searchEmployee, setSearchEmployee] = useState("");
   const [selectedEmployees, setSelectedEmployees] = useState<number[]>([]);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editData, setEditData] = useState<AttendanceRecord | null>(null);
 
-  const attendanceData = [
+  const [attendanceData, setAttendanceData] = useState<AttendanceRecord[]>([
     {
       id: 1,
       name: "John Doe",
@@ -90,7 +111,7 @@ const Attendance = () => {
       totalHours: "4.5",
       status: "In Progress",
     },
-  ];
+  ]);
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -132,6 +153,34 @@ const Attendance = () => {
     } else {
       toast.success("Exporting attendance report to Excel...");
     }
+  };
+
+  const handleEdit = (record: AttendanceRecord) => {
+    setEditingId(record.id);
+    setEditData({ ...record });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditData(null);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editData) return;
+    
+    setAttendanceData(prev => 
+      prev.map(record => 
+        record.id === editData.id ? editData : record
+      )
+    );
+    setEditingId(null);
+    setEditData(null);
+    toast.success("Attendance record updated successfully");
+  };
+
+  const handleEditChange = (field: keyof AttendanceRecord, value: string) => {
+    if (!editData) return;
+    setEditData({ ...editData, [field]: value });
   };
 
   return (
@@ -253,6 +302,7 @@ const Attendance = () => {
                   <TableHead className="text-sm py-2">Out</TableHead>
                   <TableHead className="text-sm py-2">Hours</TableHead>
                   <TableHead className="text-sm py-2">Status</TableHead>
+                  <TableHead className="text-sm py-2">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -266,14 +316,96 @@ const Attendance = () => {
                     </TableCell>
                     <TableCell className="text-sm py-2 font-medium">{record.employeeId}</TableCell>
                     <TableCell className="text-sm py-2">{record.name}</TableCell>
-                    <TableCell className="text-sm py-2">{record.inTime}</TableCell>
-                    <TableCell className="text-sm py-2">{record.breakIn}</TableCell>
-                    <TableCell className="text-sm py-2">{record.breakOut}</TableCell>
-                    <TableCell className="text-sm py-2">{record.outTime}</TableCell>
-                    <TableCell className="py-2">
-                      <Badge variant="outline" className="text-xs px-1.5 py-0">{record.totalHours}h</Badge>
+                    <TableCell className="text-sm py-2">
+                      {editingId === record.id ? (
+                        <Input
+                          value={editData?.inTime || ""}
+                          onChange={(e) => handleEditChange("inTime", e.target.value)}
+                          className="h-7 w-24 text-xs"
+                        />
+                      ) : (
+                        record.inTime
+                      )}
                     </TableCell>
-                    <TableCell className="py-2">{getStatusBadge(record.status)}</TableCell>
+                    <TableCell className="text-sm py-2">
+                      {editingId === record.id ? (
+                        <Input
+                          value={editData?.breakIn || ""}
+                          onChange={(e) => handleEditChange("breakIn", e.target.value)}
+                          className="h-7 w-24 text-xs"
+                        />
+                      ) : (
+                        record.breakIn
+                      )}
+                    </TableCell>
+                    <TableCell className="text-sm py-2">
+                      {editingId === record.id ? (
+                        <Input
+                          value={editData?.breakOut || ""}
+                          onChange={(e) => handleEditChange("breakOut", e.target.value)}
+                          className="h-7 w-24 text-xs"
+                        />
+                      ) : (
+                        record.breakOut
+                      )}
+                    </TableCell>
+                    <TableCell className="text-sm py-2">
+                      {editingId === record.id ? (
+                        <Input
+                          value={editData?.outTime || ""}
+                          onChange={(e) => handleEditChange("outTime", e.target.value)}
+                          className="h-7 w-24 text-xs"
+                        />
+                      ) : (
+                        record.outTime
+                      )}
+                    </TableCell>
+                    <TableCell className="py-2">
+                      {editingId === record.id ? (
+                        <Input
+                          value={editData?.totalHours || ""}
+                          onChange={(e) => handleEditChange("totalHours", e.target.value)}
+                          className="h-7 w-16 text-xs"
+                        />
+                      ) : (
+                        <Badge variant="outline" className="text-xs px-1.5 py-0">{record.totalHours}h</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="py-2">
+                      {editingId === record.id ? (
+                        <Select
+                          value={editData?.status || ""}
+                          onValueChange={(value) => handleEditChange("status", value)}
+                        >
+                          <SelectTrigger className="h-7 w-28 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-background">
+                            <SelectItem value="Present">Present</SelectItem>
+                            <SelectItem value="Absent">Absent</SelectItem>
+                            <SelectItem value="In Progress">In Progress</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        getStatusBadge(record.status)
+                      )}
+                    </TableCell>
+                    <TableCell className="py-2">
+                      {editingId === record.id ? (
+                        <div className="flex items-center gap-1">
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleSaveEdit}>
+                            <Check className="h-3.5 w-3.5 text-success" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleCancelEdit}>
+                            <X className="h-3.5 w-3.5 text-destructive" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEdit(record)}>
+                          <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+                        </Button>
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
