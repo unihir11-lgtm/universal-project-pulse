@@ -16,7 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Plus, ListTodo, ChevronRight, ChevronDown, AlertTriangle } from "lucide-react";
+import { Plus, ListTodo, ChevronRight, ChevronDown, AlertTriangle, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { format, differenceInDays, parseISO } from "date-fns";
 import { useState, useMemo } from "react";
@@ -637,6 +637,7 @@ const Tasks = () => {
                     <TableHead className="text-xs py-2">Due Date</TableHead>
                     <TableHead className="text-xs py-2">Days Delayed</TableHead>
                     <TableHead className="text-xs py-2">Status</TableHead>
+                    <TableHead className="text-xs py-2">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -708,6 +709,16 @@ const Tasks = () => {
                           <TableCell className="text-sm py-2">{formatDueDate(task.dueDate)}</TableCell>
                           <TableCell className="text-sm py-2">{getDaysDelayedBadge(task.dueDate, task.status)}</TableCell>
                           <TableCell className="text-sm py-2">{getStatusBadge(task.status)}</TableCell>
+                          <TableCell className="text-sm py-2">
+                            <div className="flex items-center gap-1">
+                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => e.stopPropagation()}>
+                                <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+                              </Button>
+                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => e.stopPropagation()}>
+                                <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                              </Button>
+                            </div>
+                          </TableCell>
                         </TableRow>
                         
                         {/* Subtask rows */}
@@ -770,6 +781,16 @@ const Tasks = () => {
                                 <TableCell className="text-sm py-2">{formatDueDate(subtask.dueDate)}</TableCell>
                                 <TableCell className="text-sm py-2">{getDaysDelayedBadge(subtask.dueDate, subtask.status)}</TableCell>
                                 <TableCell className="text-sm py-2">{getStatusBadge(subtask.status)}</TableCell>
+                                <TableCell className="text-sm py-2">
+                                  <div className="flex items-center gap-1">
+                                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => e.stopPropagation()}>
+                                      <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+                                    </Button>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => e.stopPropagation()}>
+                                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                                    </Button>
+                                  </div>
+                                </TableCell>
                               </TableRow>
 
                               {/* Level 2 subtasks */}
@@ -792,6 +813,16 @@ const Tasks = () => {
                                   <TableCell className="text-sm py-2">{formatDueDate(subSubtask.dueDate)}</TableCell>
                                   <TableCell className="text-sm py-2">{getDaysDelayedBadge(subSubtask.dueDate, subSubtask.status)}</TableCell>
                                   <TableCell className="text-sm py-2">{getStatusBadge(subSubtask.status)}</TableCell>
+                                  <TableCell className="text-sm py-2">
+                                    <div className="flex items-center gap-1">
+                                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => e.stopPropagation()}>
+                                        <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+                                      </Button>
+                                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => e.stopPropagation()}>
+                                        <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                                      </Button>
+                                    </div>
+                                  </TableCell>
                                 </TableRow>
                               ))}
                             </>
