@@ -20,8 +20,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { UserCheck, Download, Filter, Search, Pencil, Check, X } from "lucide-react";
+import { UserCheck, Download, Filter, Search, Pencil, Check, X, Clock, User } from "lucide-react";
 import { toast } from "sonner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface CheckinEntry {
   id: number;
@@ -32,6 +38,9 @@ interface CheckinEntry {
   checkOut: string;
   device: string;
   location: string;
+  editedBy?: string;
+  editedAt?: string;
+  editedVia?: string;
 }
 
 const EmployeeCheckin = () => {
@@ -98,9 +107,24 @@ const EmployeeCheckin = () => {
   const handleSaveEdit = () => {
     if (!editData) return;
     
+    const now = new Date();
+    const formattedDate = now.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    
+    const updatedRecord = {
+      ...editData,
+      editedBy: "Admin User",
+      editedAt: formattedDate,
+      editedVia: "Web Portal"
+    };
+    
     setCheckinData(prev => 
       prev.map(item => 
-        item.id === editData.id ? editData : item
+        item.id === editData.id ? updatedRecord : item
       )
     );
     setEditingId(null);
@@ -241,7 +265,7 @@ const EmployeeCheckin = () => {
               </TableHeader>
               <TableBody>
                 {filteredData.map((item) => (
-                  <TableRow key={item.id}>
+                  <TableRow key={item.id} className={item.editedBy ? "bg-blue-50/50 dark:bg-blue-900/10" : ""}>
                     <TableCell className="py-2">
                       <Checkbox 
                         checked={selectedIds.includes(item.id)}
@@ -249,7 +273,38 @@ const EmployeeCheckin = () => {
                       />
                     </TableCell>
                     <TableCell className="py-2 text-xs text-primary font-medium">{item.empId}</TableCell>
-                    <TableCell className="py-2 text-xs font-medium">{item.name}</TableCell>
+                    <TableCell className="py-2 text-xs font-medium">
+                      <div className="flex flex-col">
+                        <span>{item.name}</span>
+                        {item.editedBy && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5">
+                                  <Pencil className="h-2.5 w-2.5" />
+                                  <span>Edited</span>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent className="bg-background border">
+                                <div className="text-xs space-y-1">
+                                  <div className="flex items-center gap-1.5">
+                                    <User className="h-3 w-3" />
+                                    <span>{item.editedBy}</span>
+                                  </div>
+                                  <div className="flex items-center gap-1.5">
+                                    <Clock className="h-3 w-3" />
+                                    <span>{item.editedAt}</span>
+                                  </div>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-muted-foreground">Via: {item.editedVia}</span>
+                                  </div>
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell className="py-2 text-xs text-muted-foreground">
                       {editingId === item.id ? (
                         <Input

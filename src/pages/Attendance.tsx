@@ -20,9 +20,15 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Download, Calendar, UserCheck, Search, Pencil, X, Check } from "lucide-react";
+import { Download, Calendar, UserCheck, Search, Pencil, X, Check, Clock, User } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface AttendanceRecord {
   id: number;
@@ -34,6 +40,9 @@ interface AttendanceRecord {
   outTime: string;
   totalHours: string;
   status: string;
+  editedBy?: string;
+  editedAt?: string;
+  editedVia?: string;
 }
 
 const Attendance = () => {
@@ -168,9 +177,24 @@ const Attendance = () => {
   const handleSaveEdit = () => {
     if (!editData) return;
     
+    const now = new Date();
+    const formattedDate = now.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    
+    const updatedRecord = {
+      ...editData,
+      editedBy: "Admin User",
+      editedAt: formattedDate,
+      editedVia: "Web Portal"
+    };
+    
     setAttendanceData(prev => 
       prev.map(record => 
-        record.id === editData.id ? editData : record
+        record.id === editData.id ? updatedRecord : record
       )
     );
     setEditingId(null);
@@ -307,7 +331,7 @@ const Attendance = () => {
               </TableHeader>
               <TableBody>
                 {filteredAttendance.map((record) => (
-                  <TableRow key={record.id}>
+                  <TableRow key={record.id} className={record.editedBy ? "bg-blue-50/50 dark:bg-blue-900/10" : ""}>
                     <TableCell className="py-2">
                       <Checkbox
                         checked={selectedEmployees.includes(record.id)}
@@ -315,7 +339,38 @@ const Attendance = () => {
                       />
                     </TableCell>
                     <TableCell className="text-sm py-2 font-medium">{record.employeeId}</TableCell>
-                    <TableCell className="text-sm py-2">{record.name}</TableCell>
+                    <TableCell className="text-sm py-2">
+                      <div className="flex flex-col">
+                        <span>{record.name}</span>
+                        {record.editedBy && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5">
+                                  <Pencil className="h-2.5 w-2.5" />
+                                  <span>Edited</span>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent className="bg-background border">
+                                <div className="text-xs space-y-1">
+                                  <div className="flex items-center gap-1.5">
+                                    <User className="h-3 w-3" />
+                                    <span>{record.editedBy}</span>
+                                  </div>
+                                  <div className="flex items-center gap-1.5">
+                                    <Clock className="h-3 w-3" />
+                                    <span>{record.editedAt}</span>
+                                  </div>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-muted-foreground">Via: {record.editedVia}</span>
+                                  </div>
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell className="text-sm py-2">
                       {editingId === record.id ? (
                         <Input
