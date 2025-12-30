@@ -315,7 +315,6 @@ const EmployeeDashboard = () => {
                     </Badge>
                   </div>
                   <p className="text-xl font-bold text-foreground">{attendanceData.inTime}</p>
-                  <p className="text-xs text-muted-foreground">Biometric ID: EMP001 verified</p>
                 </div>
               </div>
             </CardContent>
@@ -336,7 +335,6 @@ const EmployeeDashboard = () => {
                     </Badge>
                   </div>
                   <p className="text-xl font-bold text-foreground">{attendanceData.outTime}</p>
-                  <p className="text-xs text-muted-foreground">Biometric ID: EMP001 verified</p>
                 </div>
               </div>
             </CardContent>
