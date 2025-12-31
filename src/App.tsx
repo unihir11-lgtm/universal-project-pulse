@@ -16,6 +16,7 @@ import TodaysHours from "./pages/TodaysHours";
 import Reports from "./pages/Reports";
 import Attendance from "./pages/Attendance";
 import Settings from "./pages/Settings";
+import EditProfile from "./pages/EditProfile";
 import Roles from "./pages/Roles";
 import ProjectSummary from "./pages/ProjectSummary";
 import Tasks from "./pages/Tasks";
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/reports" element={<Reports />} />
             <Route path="/attendance" element={<Attendance />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/edit-profile" element={<EditProfile />} />
             <Route path="/roles" element={<Roles />} />
             <Route path="/project-summary" element={<ProjectSummary />} />
             <Route path="/tasks" element={<Tasks />} />
