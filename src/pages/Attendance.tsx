@@ -20,9 +20,20 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Download, Calendar, UserCheck, Search, Pencil, X, Check, Clock, User } from "lucide-react";
+import { Download, Calendar, UserCheck, Search, Pencil, X, Check, Clock, User, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 import {
   Tooltip,
   TooltipContent,
@@ -52,6 +63,30 @@ const Attendance = () => {
   const [selectedEmployees, setSelectedEmployees] = useState<number[]>([]);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editData, setEditData] = useState<AttendanceRecord | null>(null);
+  const [isAddManualOpen, setIsAddManualOpen] = useState(false);
+  const [manualEmployee, setManualEmployee] = useState("");
+  const [manualDate, setManualDate] = useState<Date | undefined>(new Date());
+
+  const employeeList = [
+    { id: "EMP001", name: "John Doe" },
+    { id: "EMP002", name: "Sarah Smith" },
+    { id: "EMP003", name: "Mike Johnson" },
+    { id: "EMP004", name: "Emily Brown" },
+    { id: "EMP005", name: "David Lee" },
+    { id: "EMP006", name: "Lisa Wang" },
+  ];
+
+  const handleAddManual = () => {
+    if (!manualEmployee || !manualDate) {
+      toast.error("Please select employee and date");
+      return;
+    }
+    const selectedEmp = employeeList.find(emp => emp.id === manualEmployee);
+    toast.success(`Manual attendance added for ${selectedEmp?.name} on ${format(manualDate, "PPP")}`);
+    setIsAddManualOpen(false);
+    setManualEmployee("");
+    setManualDate(new Date());
+  };
 
   const [attendanceData, setAttendanceData] = useState<AttendanceRecord[]>([
     {
@@ -228,11 +263,77 @@ const Attendance = () => {
         {/* Compact Header */}
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold text-foreground">Attendance Report</h1>
-          <Button onClick={handleExport} size="sm" className="gap-1.5 h-8 text-xs">
-            <Download className="h-3.5 w-3.5" />
-            Export
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button onClick={() => setIsAddManualOpen(true)} size="sm" className="gap-1.5 h-8 text-xs">
+              <Plus className="h-3.5 w-3.5" />
+              Add Manual
+            </Button>
+            <Button onClick={handleExport} size="sm" variant="outline" className="gap-1.5 h-8 text-xs">
+              <Download className="h-3.5 w-3.5" />
+              Export
+            </Button>
+          </div>
         </div>
+
+        {/* Add Manual Dialog */}
+        <Dialog open={isAddManualOpen} onOpenChange={setIsAddManualOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Add Manual Attendance</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="employee">Employee</Label>
+                <Select value={manualEmployee} onValueChange={setManualEmployee}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select employee" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background">
+                    {employeeList.map((emp) => (
+                      <SelectItem key={emp.id} value={emp.id}>
+                        {emp.name} ({emp.id})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !manualDate && "text-muted-foreground"
+                      )}
+                    >
+                      <Calendar className="mr-2 h-4 w-4" />
+                      {manualDate ? format(manualDate, "PPP") : <span>Pick a date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 bg-background" align="start">
+                    <CalendarComponent
+                      mode="single"
+                      selected={manualDate}
+                      onSelect={setManualDate}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsAddManualOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleAddManual}>
+                Add Attendance
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Inline Filters */}
         <Card>
