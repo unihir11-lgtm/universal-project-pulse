@@ -45,6 +45,7 @@ interface AttendanceRecord {
   id: number;
   name: string;
   employeeId: string;
+  date: string;
   inTime: string;
   breakIn: string;
   breakOut: string;
@@ -93,6 +94,7 @@ const Attendance = () => {
       id: 1,
       name: "John Doe",
       employeeId: "EMP001",
+      date: "2024-12-31",
       inTime: "09:05 AM",
       breakIn: "12:30 PM",
       breakOut: "01:15 PM",
@@ -107,6 +109,7 @@ const Attendance = () => {
       id: 2,
       name: "Sarah Smith",
       employeeId: "EMP002",
+      date: "2024-12-31",
       inTime: "08:55 AM",
       breakIn: "12:00 PM",
       breakOut: "01:00 PM",
@@ -121,6 +124,7 @@ const Attendance = () => {
       id: 3,
       name: "Mike Johnson",
       employeeId: "EMP003",
+      date: "2024-12-30",
       inTime: "09:15 AM",
       breakIn: "01:00 PM",
       breakOut: "01:45 PM",
@@ -135,6 +139,7 @@ const Attendance = () => {
       id: 4,
       name: "Emily Brown",
       employeeId: "EMP004",
+      date: "2024-12-30",
       inTime: "09:00 AM",
       breakIn: "12:45 PM",
       breakOut: "01:30 PM",
@@ -149,6 +154,7 @@ const Attendance = () => {
       id: 5,
       name: "David Lee",
       employeeId: "EMP005",
+      date: "2024-12-29",
       inTime: "-",
       breakIn: "-",
       breakOut: "-",
@@ -163,6 +169,7 @@ const Attendance = () => {
       id: 6,
       name: "Lisa Wang",
       employeeId: "EMP006",
+      date: "2024-12-31",
       inTime: "09:10 AM",
       breakIn: "12:15 PM",
       breakOut: "01:00 PM",
@@ -436,6 +443,7 @@ const Attendance = () => {
                   </TableHead>
                   <TableHead className="text-sm py-2">Emp ID</TableHead>
                   <TableHead className="text-sm py-2">Name</TableHead>
+                  <TableHead className="text-sm py-2">Date</TableHead>
                   <TableHead className="text-sm py-2">In</TableHead>
                   <TableHead className="text-sm py-2">Break In</TableHead>
                   <TableHead className="text-sm py-2">Break Out</TableHead>
@@ -487,6 +495,7 @@ const Attendance = () => {
                         )}
                       </div>
                     </TableCell>
+                    <TableCell className="text-sm py-2">{format(new Date(record.date), "MMM dd, yyyy")}</TableCell>
                     <TableCell className="text-sm py-2">
                       {editingId === record.id ? (
                         <Input
