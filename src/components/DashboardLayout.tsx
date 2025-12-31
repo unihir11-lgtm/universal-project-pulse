@@ -3,8 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Input } from "@/components/ui/input";
-import { Search, Bell, User } from "lucide-react";
+import { Search, Bell, User, LogOut, UserPen } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -13,7 +19,11 @@ interface DashboardLayoutProps {
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const navigate = useNavigate();
 
-  const handleHomeClick = () => {
+  const handleEditProfile = () => {
+    navigate("/settings");
+  };
+
+  const handleLogout = () => {
     navigate("/");
   };
 
@@ -41,9 +51,24 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 <Bell className="h-4 w-4 md:h-5 md:w-5" />
                 <span className="absolute top-1 right-1 h-2 w-2 bg-accent rounded-full"></span>
               </Button>
-              <Button variant="ghost" size="icon" onClick={handleHomeClick} className="h-9 w-9 md:h-10 md:w-10">
-                <User className="h-4 w-4 md:h-5 md:w-5" />
-              </Button>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-9 w-9 md:h-10 md:w-10">
+                    <User className="h-4 w-4 md:h-5 md:w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={handleEditProfile} className="cursor-pointer">
+                    <UserPen className="mr-2 h-4 w-4" />
+                    Edit Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive focus:text-destructive">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </header>
 
