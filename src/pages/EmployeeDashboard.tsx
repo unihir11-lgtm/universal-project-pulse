@@ -200,8 +200,8 @@ const EmployeeDashboard = () => {
       <div className="space-y-4">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Employee Dashboard</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-xl md:text-2xl font-bold text-foreground">Employee Dashboard</h1>
+          <p className="text-xs md:text-sm text-muted-foreground">
             Welcome back! Here's your daily overview
           </p>
         </div>
@@ -209,13 +209,13 @@ const EmployeeDashboard = () => {
         {/* Filter Bar */}
         <Card>
           <CardContent className="py-3">
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Filter className="h-4 w-4" />
                 <span>Filters:</span>
               </div>
               <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
-                <SelectTrigger className="w-[180px] h-8 text-sm bg-background">
+                <SelectTrigger className="w-full sm:w-[180px] h-8 text-sm bg-background">
                   <SelectValue placeholder="All Employees" />
                 </SelectTrigger>
                 <SelectContent className="bg-background">
@@ -238,7 +238,7 @@ const EmployeeDashboard = () => {
                   <Clock className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm font-medium">Daily Summary</span>
                 </div>
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex gap-2 flex-wrap overflow-x-auto pb-1">
                   <div className="text-center px-4 py-2 bg-primary rounded-full">
                     <p className="text-[9px] text-primary-foreground/80 uppercase tracking-wide">Total Hours</p>
                     <p className="text-lg font-bold text-primary-foreground">{attendanceData.totalHours}h</p>
@@ -299,7 +299,7 @@ const EmployeeDashboard = () => {
         </Card>
 
         {/* Check-In / Check-Out Cards */}
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-2">
           {/* First Check-In */}
           <Card>
             <CardContent className="py-4">
@@ -349,8 +349,8 @@ const EmployeeDashboard = () => {
               Break Sessions
             </CardTitle>
           </CardHeader>
-          <CardContent className="pt-0">
-            <Table>
+          <CardContent className="pt-0 overflow-x-auto">
+            <Table className="min-w-[400px]">
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
                   <TableHead className="text-xs font-medium">Break #</TableHead>
@@ -405,7 +405,7 @@ const EmployeeDashboard = () => {
           </CardHeader>
           <CardContent className="pt-0">
             <form onSubmit={handleSubmit} className="space-y-3">
-              <div className="grid gap-3 grid-cols-2 md:grid-cols-5">
+              <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-5">
                 {/* Date */}
                 <div className="space-y-1">
                   <Label htmlFor="log-date" className="text-xs">Date *</Label>
@@ -504,36 +504,40 @@ const EmployeeDashboard = () => {
         <Card>
           <CardContent className="pt-4">
             <Tabs defaultValue="activity-log" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-4">
-                <TabsTrigger value="activity-log" className="flex items-center gap-2 text-xs">
-                  <Activity className="h-3.5 w-3.5" />
-                  Activity Log
+              <TabsList className="grid w-full grid-cols-3 mb-4 h-auto">
+                <TabsTrigger value="activity-log" className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs px-1 sm:px-3 py-2">
+                  <Activity className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                  <span className="hidden sm:inline">Activity Log</span>
+                  <span className="sm:hidden">Activity</span>
                 </TabsTrigger>
-                <TabsTrigger value="attendance-log" className="flex items-center gap-2 text-xs">
-                  <ClipboardList className="h-3.5 w-3.5" />
-                  Attendance Log
+                <TabsTrigger value="attendance-log" className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs px-1 sm:px-3 py-2">
+                  <ClipboardList className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                  <span className="hidden sm:inline">Attendance Log</span>
+                  <span className="sm:hidden">Attendance</span>
                 </TabsTrigger>
-                <TabsTrigger value="employee-checkin" className="flex items-center gap-2 text-xs">
-                  <UserCheck className="h-3.5 w-3.5" />
-                  Employee Checkin
+                <TabsTrigger value="employee-checkin" className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs px-1 sm:px-3 py-2">
+                  <UserCheck className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                  <span className="hidden sm:inline">Employee Checkin</span>
+                  <span className="sm:hidden">Checkin</span>
                 </TabsTrigger>
               </TabsList>
 
               {/* Activity Log Tab - Time Entry History */}
               <TabsContent value="activity-log">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <h3 className="text-sm font-medium text-muted-foreground">Time Entry History</h3>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                    <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">Time Entry History</h3>
                     <Input
                       type="date"
                       value={activityLogDate}
                       onChange={(e) => setActivityLogDate(e.target.value)}
-                      className="w-[140px] h-7 text-xs"
+                      className="w-full sm:w-[140px] h-7 text-xs"
                     />
                   </div>
-                  <Badge variant="secondary" className="text-xs">10 Records</Badge>
+                  <Badge variant="secondary" className="text-xs w-fit">10 Records</Badge>
                 </div>
-                <Table>
+                <div className="overflow-x-auto">
+                <Table className="min-w-[900px]">
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
                       <TableHead className="w-10 text-xs"><Checkbox /></TableHead>
@@ -598,23 +602,25 @@ const EmployeeDashboard = () => {
                     ))}
                   </TableBody>
                 </Table>
+                </div>
               </TabsContent>
 
               {/* Attendance Log Tab - Daily Attendance Report */}
               <TabsContent value="attendance-log">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <h3 className="text-sm font-medium text-muted-foreground">Daily Attendance Report</h3>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                    <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">Daily Attendance Report</h3>
                     <Input
                       type="date"
                       value={attendanceLogDate}
                       onChange={(e) => setAttendanceLogDate(e.target.value)}
-                      className="w-[140px] h-7 text-xs"
+                      className="w-full sm:w-[140px] h-7 text-xs"
                     />
                   </div>
-                  <Badge variant="secondary" className="text-xs">10 Records</Badge>
+                  <Badge variant="secondary" className="text-xs w-fit">10 Records</Badge>
                 </div>
-                <Table>
+                <div className="overflow-x-auto">
+                <Table className="min-w-[700px]">
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
                       <TableHead className="text-xs">Date</TableHead>
@@ -658,23 +664,24 @@ const EmployeeDashboard = () => {
                     ))}
                   </TableBody>
                 </Table>
+                </div>
               </TabsContent>
 
-              {/* Employee Checkin Tab */}
               <TabsContent value="employee-checkin">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <h3 className="text-sm font-medium text-muted-foreground">Employee Check-in Records</h3>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                    <h3 className="text-xs sm:text-sm font-medium text-muted-foreground">Employee Check-in Records</h3>
                     <Input
                       type="date"
                       value={checkinLogDate}
                       onChange={(e) => setCheckinLogDate(e.target.value)}
-                      className="w-[140px] h-7 text-xs"
+                      className="w-full sm:w-[140px] h-7 text-xs"
                     />
                   </div>
-                  <Badge variant="secondary" className="text-xs">10 Records</Badge>
+                  <Badge variant="secondary" className="text-xs w-fit">10 Records</Badge>
                 </div>
-                <Table>
+                <div className="overflow-x-auto">
+                <Table className="min-w-[700px]">
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
                       <TableHead className="text-xs">Emp ID</TableHead>
@@ -726,6 +733,7 @@ const EmployeeDashboard = () => {
                     ))}
                   </TableBody>
                 </Table>
+                </div>
               </TabsContent>
             </Tabs>
           </CardContent>

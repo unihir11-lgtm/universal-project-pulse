@@ -268,14 +268,15 @@ const Attendance = () => {
     <DashboardLayout>
       <div className="space-y-3">
         {/* Compact Header */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-foreground">Attendance Report</h1>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <h1 className="text-lg md:text-xl font-bold text-foreground">Attendance Report</h1>
           <div className="flex items-center gap-2">
-            <Button onClick={() => setIsAddManualOpen(true)} size="sm" className="gap-1.5 h-8 text-xs">
+            <Button onClick={() => setIsAddManualOpen(true)} size="sm" className="gap-1.5 h-8 text-xs flex-1 sm:flex-none">
               <Plus className="h-3.5 w-3.5" />
-              Add Manual
+              <span className="hidden sm:inline">Add Manual</span>
+              <span className="sm:hidden">Add</span>
             </Button>
-            <Button onClick={handleExport} size="sm" variant="outline" className="gap-1.5 h-8 text-xs">
+            <Button onClick={handleExport} size="sm" variant="outline" className="gap-1.5 h-8 text-xs flex-1 sm:flex-none">
               <Download className="h-3.5 w-3.5" />
               Export
             </Button>
@@ -431,8 +432,8 @@ const Attendance = () => {
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="pt-0">
-            <Table>
+          <CardContent className="pt-0 overflow-x-auto">
+            <Table className="min-w-[900px]">
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-10 py-2">

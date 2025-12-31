@@ -172,14 +172,14 @@ const EmployeeCheckin = () => {
     <DashboardLayout>
       <div className="space-y-4">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Employee Check-in</h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="text-lg md:text-2xl font-bold text-foreground">Employee Check-in</h1>
+            <p className="text-xs md:text-sm text-muted-foreground">
               View and manage employee check-in records
             </p>
           </div>
-          <Button onClick={exportToCSV} className="gap-2">
+          <Button onClick={exportToCSV} className="gap-2 w-full sm:w-auto">
             <Download className="h-4 w-4" />
             Export {selectedIds.length > 0 ? `(${selectedIds.length})` : "All"}
           </Button>
@@ -188,18 +188,18 @@ const EmployeeCheckin = () => {
         {/* Filters */}
         <Card>
           <CardContent className="py-3">
-            <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 flex-wrap">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Filter className="h-4 w-4" />
                 <span>Filters:</span>
               </div>
-              <div className="relative">
+              <div className="relative flex-1 sm:flex-none">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search by name or ID..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9 w-[200px] h-8 text-sm"
+                  className="pl-9 w-full sm:w-[200px] h-8 text-sm"
                 />
               </div>
               <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
@@ -243,8 +243,8 @@ const EmployeeCheckin = () => {
               </Badge>
             </div>
           </CardHeader>
-          <CardContent className="pt-0">
-            <Table>
+          <CardContent className="pt-0 overflow-x-auto">
+            <Table className="min-w-[800px]">
               <TableHeader>
                 <TableRow className="hover:bg-transparent">
                   <TableHead className="w-10">

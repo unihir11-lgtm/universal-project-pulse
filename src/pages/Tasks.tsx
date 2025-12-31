@@ -358,8 +358,8 @@ const Tasks = () => {
       <div className="space-y-3">
         {/* Header */}
         <div>
-          <h1 className="text-xl font-bold text-foreground">Tasks</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-lg md:text-xl font-bold text-foreground">Tasks</h1>
+          <p className="text-xs md:text-sm text-muted-foreground">
             Manage tasks and sprint assignments
           </p>
         </div>
@@ -374,7 +374,7 @@ const Tasks = () => {
           </CardHeader>
           <CardContent className="pt-0">
             <form onSubmit={handleTaskSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                 {/* Project Selection */}
                 <div className="space-y-1">
                   <Label htmlFor="task-project" className="text-xs">Project *</Label>
@@ -564,7 +564,7 @@ const Tasks = () => {
               </div>
               
               {/* Filters Row */}
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 overflow-x-auto pb-1">
                 {/* Project Filter */}
                 <Select value={filterProject} onValueChange={setFilterProject}>
                   <SelectTrigger className="h-8 text-xs w-44 bg-background">
@@ -627,9 +627,9 @@ const Tasks = () => {
               </div>
             </div>
           </CardHeader>
-          <CardContent className="pt-0">
+          <CardContent className="pt-0 overflow-x-auto">
             <div className="overflow-auto">
-              <Table>
+              <Table className="min-w-[1100px]">
                 <TableHeader>
                   <TableRow>
                     <TableHead className="text-xs py-2">Task Name</TableHead>
