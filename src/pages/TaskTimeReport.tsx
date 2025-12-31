@@ -388,17 +388,17 @@ const TaskTimeReport = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="space-y-4 md:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Task Time Report</h1>
-            <p className="text-muted-foreground mt-1">
+            <h1 className="text-xl md:text-3xl font-bold text-foreground">Task Time Report</h1>
+            <p className="text-xs md:text-sm text-muted-foreground mt-1">
               Actual time spent per task with variance analysis
             </p>
           </div>
-          <Button onClick={handleExportCSV} className="gap-2">
+          <Button onClick={handleExportCSV} className="gap-2 w-full sm:w-auto">
             <Download className="h-4 w-4" />
-            Export CSV
+            <span className="sm:inline">Export CSV</span>
           </Button>
         </div>
 
@@ -412,7 +412,7 @@ const TaskTimeReport = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4 md:grid-cols-5">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-5">
               <div className="space-y-2">
                 <Label>Project</Label>
                 <Select value={filterProject} onValueChange={setFilterProject}>
@@ -458,11 +458,11 @@ const TaskTimeReport = () => {
                   onChange={(e) => setFilterEndDate(e.target.value)}
                 />
               </div>
-              <div className="flex items-end gap-2">
-                <Button variant="outline" onClick={expandAll} className="flex-1">
-                  Expand All
+              <div className="flex items-end gap-2 sm:col-span-2 md:col-span-1">
+                <Button variant="outline" onClick={expandAll} className="flex-1 text-xs md:text-sm">
+                  Expand
                 </Button>
-                <Button variant="outline" onClick={collapseAll} className="flex-1">
+                <Button variant="outline" onClick={collapseAll} className="flex-1 text-xs md:text-sm">
                   Collapse
                 </Button>
               </div>
@@ -472,37 +472,39 @@ const TaskTimeReport = () => {
 
         {/* Task Table */}
         <Card>
-          <CardHeader>
+          <CardHeader className="pb-2 md:pb-6">
             <div className="flex items-center justify-between">
-              <CardTitle>Task Time Breakdown</CardTitle>
-              <Badge variant="secondary">{summaryTotals.totalTasks} Tasks</Badge>
+              <CardTitle className="text-sm md:text-base">Task Time Breakdown</CardTitle>
+              <Badge variant="secondary" className="text-xs">{summaryTotals.totalTasks} Tasks</Badge>
             </div>
           </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="min-w-[300px]">Task</TableHead>
-                  <TableHead>Project</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Estimated</TableHead>
-                  <TableHead className="text-right">Actual</TableHead>
-                  <TableHead className="text-right">Variance</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredTasks.length > 0 ? (
-                  filteredTasks.map(task => renderTaskRow(task))
-                ) : (
+          <CardContent className="p-0 md:p-6">
+            <div className="overflow-x-auto">
+              <Table className="min-w-[900px]">
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
-                      No tasks found. Try adjusting your filters.
-                    </TableCell>
+                    <TableHead className="min-w-[250px] text-xs md:text-sm">Task</TableHead>
+                    <TableHead className="text-xs md:text-sm">Project</TableHead>
+                    <TableHead className="text-xs md:text-sm">Status</TableHead>
+                    <TableHead className="text-right text-xs md:text-sm">Estimated</TableHead>
+                    <TableHead className="text-right text-xs md:text-sm">Actual</TableHead>
+                    <TableHead className="text-right text-xs md:text-sm">Variance</TableHead>
+                    <TableHead className="text-xs md:text-sm">Status</TableHead>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filteredTasks.length > 0 ? (
+                    filteredTasks.map(task => renderTaskRow(task))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                        No tasks found. Try adjusting your filters.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
       </div>
