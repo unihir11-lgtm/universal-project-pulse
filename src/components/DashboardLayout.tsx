@@ -20,7 +20,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const navigate = useNavigate();
 
   const handleEditProfile = () => {
-    navigate("/settings");
+    navigate("/edit-profile");
   };
 
   const handleLogout = () => {
