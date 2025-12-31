@@ -650,14 +650,9 @@ const EmployeeDashboard = () => {
                           </Badge>
                         </TableCell>
                         <TableCell className="py-2">
-                          <div className="flex items-center gap-1">
-                            <Button variant="ghost" size="icon" className="h-7 w-7">
-                              <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
-                            </Button>
-                            <Button variant="ghost" size="icon" className="h-7 w-7">
-                              <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                            </Button>
-                          </div>
+                          <Button variant="ghost" size="icon" className="h-7 w-7">
+                            <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -723,14 +718,9 @@ const EmployeeDashboard = () => {
                           </Badge>
                         </TableCell>
                         <TableCell className="py-2">
-                          <div className="flex items-center gap-1">
-                            <Button variant="ghost" size="icon" className="h-7 w-7">
-                              <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
-                            </Button>
-                            <Button variant="ghost" size="icon" className="h-7 w-7">
-                              <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                            </Button>
-                          </div>
+                          <Button variant="ghost" size="icon" className="h-7 w-7">
+                            <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}
