@@ -12,7 +12,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Search, UserPlus, Filter, MoreVertical, Pencil, Clock, User } from "lucide-react";
+import { Search, UserPlus, Filter, MoreVertical, Pencil, Clock, User, Upload, X } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -121,6 +122,7 @@ const employees: Employee[] = [
 
 const Employees = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -135,6 +137,25 @@ const Employees = () => {
     address: "",
     emergencyContact: "",
   });
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Image size should be less than 5MB");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfileImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setProfileImage(null);
+  };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -152,6 +173,7 @@ const Employees = () => {
     toast.success("Employee added successfully");
     setDialogOpen(false);
     // Reset form
+    setProfileImage(null);
     setFormData({
       firstName: "",
       lastName: "",
@@ -196,6 +218,52 @@ const Employees = () => {
                 {/* Personal Details */}
                 <div className="space-y-4">
                   <h3 className="font-semibold text-lg">Personal Details</h3>
+                  
+                  {/* Profile Image Upload */}
+                  <div className="space-y-2">
+                    <Label>Profile Photo</Label>
+                    <div className="flex items-center gap-4">
+                      <div className="relative">
+                        <Avatar className="h-20 w-20 border-2 border-dashed border-muted-foreground/50">
+                          <AvatarImage src={profileImage || ""} alt="Profile preview" />
+                          <AvatarFallback className="bg-muted">
+                            <User className="h-8 w-8 text-muted-foreground" />
+                          </AvatarFallback>
+                        </Avatar>
+                        {profileImage && (
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
+                            onClick={removeImage}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        )}
+                      </div>
+                      <div className="flex-1">
+                        <Label
+                          htmlFor="profileImage"
+                          className="flex items-center justify-center gap-2 px-4 py-2 border border-dashed border-muted-foreground/50 rounded-md cursor-pointer hover:bg-muted/50 transition-colors"
+                        >
+                          <Upload className="h-4 w-4" />
+                          <span className="text-sm">Upload Photo</span>
+                        </Label>
+                        <Input
+                          id="profileImage"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleImageChange}
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          JPG, PNG or GIF. Max 5MB.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="firstName">First Name *</Label>
