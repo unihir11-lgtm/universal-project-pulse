@@ -475,7 +475,7 @@ const Reports = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-5">
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-5">
             <div className="space-y-2">
               <Label>Project</Label>
               <Select value={filterProject} onValueChange={setFilterProject}>
@@ -539,8 +539,8 @@ const Reports = () => {
             <Badge variant="secondary">{filteredBillingSummary.length} Records</Badge>
           </div>
         </CardHeader>
-        <CardContent>
-          <Table>
+        <CardContent className="overflow-x-auto">
+          <Table className="min-w-[900px]">
             <TableHeader>
               <TableRow>
                 <TableHead>User</TableHead>

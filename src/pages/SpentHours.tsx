@@ -369,14 +369,14 @@ const SpentHours = () => {
     <DashboardLayout>
       <div className="space-y-4">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Spent Hours</h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="text-lg md:text-2xl font-bold text-foreground">Spent Hours</h1>
+            <p className="text-xs md:text-sm text-muted-foreground">
               Log and track time spent on projects and tasks
             </p>
           </div>
-          <Button onClick={handleExport} variant="outline" size="sm" className="gap-2">
+          <Button onClick={handleExport} variant="outline" size="sm" className="gap-2 w-full sm:w-auto">
             <Download className="h-4 w-4" />
             Export
           </Button>
@@ -390,7 +390,7 @@ const SpentHours = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="grid gap-3 grid-cols-2 md:grid-cols-4">
+            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
               <div className="space-y-1">
                 <Label className="text-xs">Project</Label>
                 <Select value={filterProject} onValueChange={setFilterProject}>
@@ -459,7 +459,8 @@ const SpentHours = () => {
                 No time entries found. Start logging your work above!
               </div>
             ) : (
-              <Table>
+              <div className="overflow-x-auto">
+              <Table className="min-w-[900px]">
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-10">
@@ -509,6 +510,7 @@ const SpentHours = () => {
                   ))}
                 </TableBody>
               </Table>
+              </div>
             )}
           </CardContent>
         </Card>
