@@ -85,17 +85,17 @@ const Roles = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="space-y-4 md:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Roles & Permissions</h1>
-            <p className="text-muted-foreground mt-1">
+            <h1 className="text-xl md:text-3xl font-bold text-foreground">Roles & Permissions</h1>
+            <p className="text-sm text-muted-foreground mt-1">
               Manage user roles and access control
             </p>
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="gap-2">
+              <Button className="gap-2 w-full sm:w-auto">
                 <Plus className="h-4 w-4" />
                 Add Role
               </Button>
@@ -169,14 +169,15 @@ const Roles = () => {
 
         {/* Roles List */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5" />
+          <CardHeader className="py-3 md:py-6">
+            <CardTitle className="flex items-center gap-2 text-sm md:text-base">
+              <Shield className="h-4 w-4 md:h-5 md:w-5" />
               Existing Roles
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Table>
+            <div className="overflow-x-auto">
+            <Table className="min-w-[600px]">
               <TableHeader>
                 <TableRow>
                   <TableHead>Role Name</TableHead>
@@ -252,17 +253,18 @@ const Roles = () => {
                 ))}
               </TableBody>
             </Table>
+            </div>
           </CardContent>
         </Card>
 
         {/* Permission Matrix Overview */}
         <Card>
-          <CardHeader>
-            <CardTitle>Quick Permission Overview</CardTitle>
+          <CardHeader className="py-3 md:py-6">
+            <CardTitle className="text-sm md:text-base">Quick Permission Overview</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-2">
                 <div className="p-4 border rounded-lg space-y-2">
                   <h4 className="font-semibold text-foreground">Admin</h4>
                   <p className="text-sm text-muted-foreground">

@@ -318,16 +318,16 @@ const ResourceAllocation = () => {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Resource Allocation</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-xl md:text-3xl font-bold tracking-tight">Resource Allocation</h1>
+            <p className="text-xs md:text-sm text-muted-foreground">
               Track capacity and see who is available for new work
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
             <Select value={timeWindow} onValueChange={(v) => setTimeWindow(v as TimeWindow)}>
-              <SelectTrigger className="w-[140px]">
+              <SelectTrigger className="w-full sm:w-[140px]">
                 <Calendar className="mr-2 h-4 w-4" />
                 <SelectValue />
               </SelectTrigger>
@@ -337,9 +337,10 @@ const ResourceAllocation = () => {
                 <SelectItem value="month">This Month</SelectItem>
               </SelectContent>
             </Select>
-            <Button onClick={handleExport} variant="outline">
+            <Button onClick={handleExport} variant="outline" className="w-full sm:w-auto">
               <Download className="mr-2 h-4 w-4" />
-              Export CSV
+              <span className="hidden sm:inline">Export CSV</span>
+              <span className="sm:hidden">Export</span>
             </Button>
           </div>
         </div>
@@ -387,10 +388,10 @@ const ResourceAllocation = () => {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList>
-            <TabsTrigger value="heatmap">Capacity Heatmap</TabsTrigger>
-            <TabsTrigger value="table">Detailed View</TabsTrigger>
-            <TabsTrigger value="department">By Department</TabsTrigger>
+          <TabsList className="w-full sm:w-auto flex">
+            <TabsTrigger value="heatmap" className="flex-1 sm:flex-none text-xs sm:text-sm">Heatmap</TabsTrigger>
+            <TabsTrigger value="table" className="flex-1 sm:flex-none text-xs sm:text-sm">Details</TabsTrigger>
+            <TabsTrigger value="department" className="flex-1 sm:flex-none text-xs sm:text-sm">Department</TabsTrigger>
           </TabsList>
 
           {/* Heatmap View */}
@@ -406,7 +407,7 @@ const ResourceAllocation = () => {
                 </p>
               </CardHeader>
               <CardContent>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                   {filteredResources.map(resource => (
                     <Card 
                       key={resource.id} 

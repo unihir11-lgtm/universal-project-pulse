@@ -83,29 +83,30 @@ const TodaysHours = () => {
     <DashboardLayout>
       <div className="space-y-3">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Today's Hours</h1>
-            <p className="text-sm text-muted-foreground">
+            <h1 className="text-xl md:text-2xl font-bold text-foreground">Today's Hours</h1>
+            <p className="text-xs md:text-sm text-muted-foreground">
               Real-time attendance tracking and biometric data
             </p>
           </div>
-          <Button onClick={handleExport} variant="outline" size="sm" className="gap-2">
+          <Button onClick={handleExport} variant="outline" size="sm" className="gap-2 w-full sm:w-auto">
             <Download className="h-4 w-4" />
-            Export to Excel
+            <span className="hidden sm:inline">Export to Excel</span>
+            <span className="sm:hidden">Export</span>
           </Button>
         </div>
 
         {/* Filters - Inline */}
         <Card>
           <CardContent className="py-3">
-            <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
               <div className="flex items-center gap-2">
                 <Filter className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm font-medium">Filters:</span>
               </div>
               <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
-                <SelectTrigger className="w-[180px] h-9">
+                <SelectTrigger className="w-full sm:w-[180px] h-9">
                   <SelectValue placeholder="Select employee" />
                 </SelectTrigger>
                 <SelectContent>
@@ -121,7 +122,7 @@ const TodaysHours = () => {
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="w-[160px] h-9"
+                className="w-full sm:w-[160px] h-9"
               />
             </div>
           </CardContent>
@@ -138,7 +139,7 @@ const TodaysHours = () => {
                   <Clock className="h-4 w-4 text-primary" />
                   <h3 className="text-sm font-semibold text-foreground">Daily Summary</h3>
                 </div>
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex gap-2 flex-wrap justify-center sm:justify-start">
                   <div className="text-center px-4 py-2 bg-primary rounded-full">
                     <p className="text-[9px] text-primary-foreground/80 uppercase tracking-wide">Total Hours</p>
                     <p className="text-lg font-bold text-primary-foreground">{attendanceData.totalHours}h</p>

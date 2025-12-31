@@ -448,17 +448,17 @@ const ProjectTemplates = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="space-y-4 md:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Project Templates</h1>
-            <p className="text-muted-foreground mt-1">
+            <h1 className="text-xl md:text-3xl font-bold text-foreground">Project Templates</h1>
+            <p className="text-sm text-muted-foreground mt-1">
               Create and manage reusable project templates
             </p>
           </div>
           <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="gap-2">
+              <Button className="gap-2 w-full sm:w-auto">
                 <Plus className="h-4 w-4" />
                 Create Template
               </Button>
@@ -549,8 +549,8 @@ const ProjectTemplates = () => {
 
         {/* Filters */}
         <Card>
-          <CardContent className="pt-6">
-            <div className="grid gap-4 md:grid-cols-4">
+          <CardContent className="pt-4 md:pt-6">
+            <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
               <div className="space-y-2">
                 <Label>Search</Label>
                 <div className="relative">
@@ -602,7 +602,7 @@ const ProjectTemplates = () => {
         </Card>
 
         {/* Template Grid */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {filteredTemplates.map((template) => (
             <Card key={template.id} className="flex flex-col hover:shadow-lg transition-shadow">
               <CardHeader>
