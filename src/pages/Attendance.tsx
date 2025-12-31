@@ -495,7 +495,7 @@ const Attendance = () => {
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="text-sm py-2">{format(new Date(record.date), "MMM dd, yyyy")}</TableCell>
+                    <TableCell className="text-sm py-2">{format(new Date(record.date), "dd/MM/yyyy")}</TableCell>
                     <TableCell className="text-sm py-2">
                       {editingId === record.id ? (
                         <Input
