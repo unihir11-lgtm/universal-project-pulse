@@ -350,7 +350,7 @@ const Tasks = () => {
 
   const formatDueDate = (dueDate?: string) => {
     if (!dueDate) return <span className="text-muted-foreground">-</span>;
-    return format(parseISO(dueDate), "yyyy-MM-dd");
+    return format(parseISO(dueDate), "dd/MM/yyyy");
   };
 
   return (
