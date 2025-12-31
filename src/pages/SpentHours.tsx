@@ -22,7 +22,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 
-import { Download, Clock, Filter, AlertCircle, Pencil, Trash2 } from "lucide-react";
+import { Download, Clock, Filter, AlertCircle } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 import { formatDate } from "@/lib/utils";
@@ -476,7 +476,7 @@ const SpentHours = () => {
                     <TableHead className="text-sm">Description</TableHead>
                     <TableHead className="text-sm">Status</TableHead>
                     <TableHead className="text-sm text-right">Hours</TableHead>
-                    <TableHead className="text-sm">Actions</TableHead>
+                    
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -504,16 +504,6 @@ const SpentHours = () => {
                             ({entry.billable_hours}b)
                           </span>
                         )}
-                      </TableCell>
-                      <TableCell className="py-2">
-                        <div className="flex items-center gap-1">
-                          <Button variant="ghost" size="icon" className="h-7 w-7">
-                            <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-7 w-7">
-                            <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                          </Button>
-                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
