@@ -93,10 +93,10 @@ const Settings = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 md:space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Settings</h1>
-          <p className="text-muted-foreground mt-1">
+          <h1 className="text-xl md:text-3xl font-bold text-foreground">Settings</h1>
+          <p className="text-sm text-muted-foreground mt-1">
             Manage system configuration and preferences
           </p>
         </div>
@@ -134,8 +134,8 @@ const Settings = () => {
 
             {/* Signup Links Table */}
             {signupLinks.length > 0 && (
-              <div className="border rounded-lg">
-                <Table>
+              <div className="border rounded-lg overflow-x-auto">
+                <Table className="min-w-[600px]">
                   <TableHeader>
                     <TableRow>
                       <TableHead>Employee</TableHead>
@@ -179,9 +179,9 @@ const Settings = () => {
           </CardContent>
         </Card>
 
-        <div className="flex justify-end gap-2">
-          <Button variant="outline">Cancel</Button>
-          <Button onClick={handleSave}>Save Settings</Button>
+        <div className="flex flex-col-reverse sm:flex-row justify-end gap-2">
+          <Button variant="outline" className="w-full sm:w-auto">Cancel</Button>
+          <Button onClick={handleSave} className="w-full sm:w-auto">Save Settings</Button>
         </div>
       </div>
     </DashboardLayout>

@@ -711,36 +711,37 @@ const Projects = () => {
         </div>
 
         <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between flex-wrap gap-4">
-              <div className="flex items-center gap-4">
-                <CardTitle>Projects</CardTitle>
+          <CardHeader className="py-3 md:py-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 md:gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                <CardTitle className="text-base md:text-lg">Projects</CardTitle>
                 <Tabs value={filterType} onValueChange={(v) => setFilterType(v as typeof filterType)}>
-                  <TabsList>
-                    <TabsTrigger value="external">External</TabsTrigger>
-                    <TabsTrigger value="internal">Internal</TabsTrigger>
-                    <TabsTrigger value="all">All</TabsTrigger>
+                  <TabsList className="h-8">
+                    <TabsTrigger value="external" className="text-xs md:text-sm px-2 md:px-3">External</TabsTrigger>
+                    <TabsTrigger value="internal" className="text-xs md:text-sm px-2 md:px-3">Internal</TabsTrigger>
+                    <TabsTrigger value="all" className="text-xs md:text-sm px-2 md:px-3">All</TabsTrigger>
                   </TabsList>
                 </Tabs>
               </div>
               <div className="flex gap-2">
-                <div className="relative">
+                <div className="relative flex-1 md:flex-none">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input 
                     placeholder="Search projects..." 
-                    className="pl-9 w-64"
+                    className="pl-9 w-full md:w-64 h-9"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-                <Button variant="outline" size="icon">
+                <Button variant="outline" size="icon" className="h-9 w-9 flex-shrink-0">
                   <Filter className="h-4 w-4" />
                 </Button>
               </div>
             </div>
           </CardHeader>
           <CardContent>
-            <Table>
+            <div className="overflow-x-auto">
+            <Table className="min-w-[1000px]">
               <TableHeader>
                 <TableRow>
                   <TableHead>Project Name</TableHead>
@@ -886,6 +887,7 @@ const Projects = () => {
                 ))}
               </TableBody>
             </Table>
+            </div>
           </CardContent>
         </Card>
       </div>

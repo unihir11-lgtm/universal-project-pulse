@@ -341,17 +341,18 @@ const DelayedTasks = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="space-y-4 md:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Delayed Tasks</h1>
-            <p className="text-muted-foreground mt-1">
+            <h1 className="text-xl md:text-3xl font-bold text-foreground">Delayed Tasks</h1>
+            <p className="text-sm text-muted-foreground mt-1">
               Tasks past due date requiring attention
             </p>
           </div>
-          <Button onClick={handleExportCSV} className="gap-2">
+          <Button onClick={handleExportCSV} className="gap-2 w-full sm:w-auto">
             <Download className="h-4 w-4" />
-            Export CSV
+            <span className="hidden sm:inline">Export CSV</span>
+            <span className="sm:hidden">Export</span>
           </Button>
         </div>
 
@@ -417,14 +418,14 @@ const DelayedTasks = () => {
 
         {/* Filters */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
+          <CardHeader className="py-3 md:py-6">
+            <CardTitle className="flex items-center gap-2 text-sm md:text-base">
+              <Calendar className="h-4 w-4 md:h-5 md:w-5" />
               Filters
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
               <div className="space-y-2">
                 <Label>Project</Label>
                 <Select value={filterProject} onValueChange={setFilterProject}>

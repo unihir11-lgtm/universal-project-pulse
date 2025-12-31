@@ -531,18 +531,18 @@ const EmployeeRates = () => {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="space-y-4 md:space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Employee Rates</h1>
-            <p className="text-muted-foreground mt-1">
+            <h1 className="text-xl md:text-3xl font-bold text-foreground">Employee Rates</h1>
+            <p className="text-sm text-muted-foreground mt-1">
               Manage billing and cost rates for employees
             </p>
           </div>
           {canManageRates && (
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button onClick={() => handleOpenAddDialog()} className="gap-2">
+                <Button onClick={() => handleOpenAddDialog()} className="gap-2 w-full sm:w-auto">
                   <Plus className="h-4 w-4" />
                   Add Rate
                 </Button>
@@ -701,14 +701,15 @@ const EmployeeRates = () => {
 
         {/* Rates Table */}
         <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Employee Rate Configuration</CardTitle>
+          <CardHeader className="py-3 md:py-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <CardTitle className="text-base md:text-lg">Employee Rate Configuration</CardTitle>
               <Badge variant="secondary">{displayEmployees.length} Employees</Badge>
             </div>
           </CardHeader>
           <CardContent>
-            <Table>
+            <div className="overflow-x-auto">
+            <Table className="min-w-[900px]">
               <TableHeader>
                 <TableRow>
                   <TableHead>Employee</TableHead>
@@ -782,6 +783,7 @@ const EmployeeRates = () => {
                 ))}
               </TableBody>
             </Table>
+            </div>
           </CardContent>
         </Card>
 

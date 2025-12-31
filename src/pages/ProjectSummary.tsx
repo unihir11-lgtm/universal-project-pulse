@@ -167,9 +167,9 @@ const ProjectSummary = () => {
     <DashboardLayout>
       <div className="space-y-3">
         {/* Compact Header */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-foreground">Project Summary</h1>
-          <Button onClick={handleExport} size="sm" className="gap-1.5 h-8 text-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <h1 className="text-lg md:text-xl font-bold text-foreground">Project Summary</h1>
+          <Button onClick={handleExport} size="sm" className="gap-1.5 h-8 text-xs w-full sm:w-auto">
             <Download className="h-3.5 w-3.5" />
             Export
           </Button>

@@ -144,8 +144,8 @@ const Sprints = () => {
       <div className="space-y-3">
         {/* Header */}
         <div>
-          <h1 className="text-xl font-bold text-foreground">Sprint Management</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-lg md:text-xl font-bold text-foreground">Sprint Management</h1>
+          <p className="text-xs md:text-sm text-muted-foreground">
             Create and manage project sprints
           </p>
         </div>
@@ -161,7 +161,7 @@ const Sprints = () => {
           </CardHeader>
           <CardContent className="pt-0">
             <form onSubmit={handleSubmit} className="space-y-3">
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
                 {/* Sprint Name */}
                 <div className="space-y-1">
                   <Label htmlFor="sprint-name" className="text-xs">Sprint Name *</Label>
@@ -276,8 +276,8 @@ const Sprints = () => {
             </div>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="overflow-auto">
-              <Table>
+            <div className="overflow-x-auto">
+              <Table className="min-w-[800px]">
                 <TableHeader>
                   <TableRow>
                     <TableHead className="text-xs py-2">Sprint Name</TableHead>
