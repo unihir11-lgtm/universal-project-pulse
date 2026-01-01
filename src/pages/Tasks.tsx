@@ -30,6 +30,13 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { mockTasks } from "@/data/mockProjects";
 import { 
   Task, 
@@ -116,6 +123,39 @@ const Tasks = () => {
   const [filterAssignee, setFilterAssignee] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [expandedTasks, setExpandedTasks] = useState<Set<number>>(new Set());
+
+  // Edit dialog state
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [editFormData, setEditFormData] = useState({
+    name: "",
+    category: "",
+    estimatedHours: "",
+    status: "" as TaskStatus,
+    dueDate: "",
+  });
+
+  const handleEditTask = (task: Task) => {
+    setSelectedTask(task);
+    setEditFormData({
+      name: task.name,
+      category: task.category ?? "",
+      estimatedHours: task.estimatedHours?.toString() ?? "",
+      status: task.status,
+      dueDate: task.dueDate ?? "",
+    });
+    setEditDialogOpen(true);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editFormData.name.trim()) {
+      toast.error("Please enter task name");
+      return;
+    }
+    toast.success(`Task "${editFormData.name}" updated successfully!`);
+    setEditDialogOpen(false);
+    setSelectedTask(null);
+  };
 
   // Get project ID from project name
   const selectedProjectId = useMemo(() => {
@@ -746,7 +786,7 @@ const Tasks = () => {
                           <TableCell className="text-sm py-2">{getStatusBadge(task.status)}</TableCell>
                           <TableCell className="text-sm py-2">
                             <div className="flex items-center gap-1">
-                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => e.stopPropagation()}>
+                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); handleEditTask(task); }}>
                                 <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
                               </Button>
                               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => e.stopPropagation()}>
@@ -818,7 +858,7 @@ const Tasks = () => {
                                 <TableCell className="text-sm py-2">{getStatusBadge(subtask.status)}</TableCell>
                                 <TableCell className="text-sm py-2">
                                   <div className="flex items-center gap-1">
-                                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => e.stopPropagation()}>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); handleEditTask(subtask); }}>
                                       <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
                                     </Button>
                                     <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => e.stopPropagation()}>
@@ -850,7 +890,7 @@ const Tasks = () => {
                                   <TableCell className="text-sm py-2">{getStatusBadge(subSubtask.status)}</TableCell>
                                   <TableCell className="text-sm py-2">
                                     <div className="flex items-center gap-1">
-                                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => e.stopPropagation()}>
+                                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); handleEditTask(subSubtask); }}>
                                         <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
                                       </Button>
                                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => e.stopPropagation()}>
@@ -871,6 +911,96 @@ const Tasks = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Edit Task Dialog */}
+        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Edit Task</DialogTitle>
+              <DialogDescription>
+                Update task details
+              </DialogDescription>
+            </DialogHeader>
+            {selectedTask && (
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-task-name">Task Name *</Label>
+                  <Input
+                    id="edit-task-name"
+                    value={editFormData.name}
+                    onChange={(e) => setEditFormData(prev => ({ ...prev, name: e.target.value }))}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-task-category">Category</Label>
+                    <Select
+                      value={editFormData.category}
+                      onValueChange={(value) => setEditFormData(prev => ({ ...prev, category: value }))}
+                    >
+                      <SelectTrigger id="edit-task-category" className="bg-background">
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-background">
+                        {taskCategories.map((category) => (
+                          <SelectItem key={category} value={category}>
+                            {category}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-task-hours">Estimated Hours</Label>
+                    <Input
+                      id="edit-task-hours"
+                      type="number"
+                      step="0.5"
+                      min="0"
+                      value={editFormData.estimatedHours}
+                      onChange={(e) => setEditFormData(prev => ({ ...prev, estimatedHours: e.target.value }))}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-task-status">Status *</Label>
+                  <Select
+                    value={editFormData.status}
+                    onValueChange={(value) => setEditFormData(prev => ({ ...prev, status: value as TaskStatus }))}
+                  >
+                    <SelectTrigger id="edit-task-status" className="bg-background">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background max-h-60">
+                      {(Object.keys(TASK_STATUS_LABELS) as TaskStatus[]).map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {TASK_STATUS_LABELS[status]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-task-due">Due Date</Label>
+                  <Input
+                    id="edit-task-due"
+                    type="date"
+                    value={editFormData.dueDate}
+                    onChange={(e) => setEditFormData(prev => ({ ...prev, dueDate: e.target.value }))}
+                  />
+                </div>
+                <div className="flex justify-end gap-2 pt-4 border-t">
+                  <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleSaveEdit}>
+                    Save Changes
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardLayout>
   );
