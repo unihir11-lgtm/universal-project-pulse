@@ -21,7 +21,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Clock, LogOut, LogIn, Target, FileText, Calendar, Filter, Activity, ClipboardList, UserCheck, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDate } from "@/lib/utils";
@@ -540,7 +539,6 @@ const EmployeeDashboard = () => {
                 <Table className="min-w-[900px]">
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
-                      <TableHead className="w-10 text-xs"><Checkbox /></TableHead>
                       <TableHead className="text-xs">Date</TableHead>
                       <TableHead className="text-xs">Employee</TableHead>
                       <TableHead className="text-xs">Project</TableHead>
@@ -555,7 +553,6 @@ const EmployeeDashboard = () => {
                   <TableBody>
                     {activityLogData.map((item) => (
                       <TableRow key={item.id}>
-                        <TableCell className="py-2"><Checkbox /></TableCell>
                         <TableCell className="py-2 text-xs text-muted-foreground">{item.date}</TableCell>
                         <TableCell className="py-2 text-xs font-medium">{item.employee}</TableCell>
                         <TableCell className="py-2 text-xs text-primary">{item.project}</TableCell>
