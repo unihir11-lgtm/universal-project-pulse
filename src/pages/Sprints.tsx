@@ -28,6 +28,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 // Mock projects data
 const projectsData = [
@@ -74,6 +81,39 @@ const Sprints = () => {
   // Filter state
   const [filterProject, setFilterProject] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
+
+  // Edit dialog state
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedSprint, setSelectedSprint] = useState<Sprint | null>(null);
+  const [editFormData, setEditFormData] = useState({
+    name: "",
+    project: "",
+    startDate: "",
+    endDate: "",
+    status: "",
+  });
+
+  const handleEditSprint = (sprint: Sprint) => {
+    setSelectedSprint(sprint);
+    setEditFormData({
+      name: sprint.name,
+      project: sprint.project,
+      startDate: sprint.startDate,
+      endDate: sprint.endDate,
+      status: sprint.status,
+    });
+    setEditDialogOpen(true);
+  };
+
+  const handleSaveEdit = () => {
+    if (!editFormData.name.trim()) {
+      toast.error("Please enter sprint name");
+      return;
+    }
+    toast.success(`Sprint "${editFormData.name}" updated successfully!`);
+    setEditDialogOpen(false);
+    setSelectedSprint(null);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -331,7 +371,7 @@ const Sprints = () => {
                       <TableCell className="text-sm py-2">{getStatusBadge(sprint.status)}</TableCell>
                       <TableCell className="text-sm py-2">
                         <div className="flex items-center justify-center gap-1">
-                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => toast.info(`Edit ${sprint.name}`)}>
+                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => handleEditSprint(sprint)}>
                             <Edit className="h-3.5 w-3.5" />
                           </Button>
                           <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => toast.info(`Delete ${sprint.name}`)}>
@@ -346,6 +386,92 @@ const Sprints = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Edit Sprint Dialog */}
+        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Edit Sprint</DialogTitle>
+              <DialogDescription>
+                Update sprint details
+              </DialogDescription>
+            </DialogHeader>
+            {selectedSprint && (
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-sprint-name">Sprint Name *</Label>
+                  <Input
+                    id="edit-sprint-name"
+                    value={editFormData.name}
+                    onChange={(e) => setEditFormData(prev => ({ ...prev, name: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-sprint-project">Project *</Label>
+                  <Select
+                    value={editFormData.project}
+                    onValueChange={(value) => setEditFormData(prev => ({ ...prev, project: value }))}
+                  >
+                    <SelectTrigger id="edit-sprint-project" className="bg-background">
+                      <SelectValue placeholder="Select project" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background">
+                      {projectsData.map((project) => (
+                        <SelectItem key={project.id} value={project.name}>
+                          {project.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-start-date">Start Date *</Label>
+                    <Input
+                      id="edit-start-date"
+                      type="date"
+                      value={editFormData.startDate}
+                      onChange={(e) => setEditFormData(prev => ({ ...prev, startDate: e.target.value }))}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-end-date">End Date *</Label>
+                    <Input
+                      id="edit-end-date"
+                      type="date"
+                      value={editFormData.endDate}
+                      onChange={(e) => setEditFormData(prev => ({ ...prev, endDate: e.target.value }))}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-sprint-status">Status *</Label>
+                  <Select
+                    value={editFormData.status}
+                    onValueChange={(value) => setEditFormData(prev => ({ ...prev, status: value }))}
+                  >
+                    <SelectTrigger id="edit-sprint-status" className="bg-background">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background">
+                      <SelectItem value="Planned">Planned</SelectItem>
+                      <SelectItem value="Active">Active</SelectItem>
+                      <SelectItem value="Completed">Completed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex justify-end gap-2 pt-4 border-t">
+                  <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleSaveEdit}>
+                    Save Changes
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardLayout>
   );
