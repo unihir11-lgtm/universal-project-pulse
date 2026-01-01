@@ -321,6 +321,36 @@ const SpentHours = () => {
     });
   }, [displayEntries, filterProject, filterTask, filterStartDate, filterEndDate]);
 
+  // Group entries by date
+  const groupedByDate = useMemo(() => {
+    const groups: Record<string, { entries: typeof filteredEntries; totalHours: number }> = {};
+    
+    filteredEntries.forEach(entry => {
+      const date = entry.entry_date;
+      if (!groups[date]) {
+        groups[date] = { entries: [], totalHours: 0 };
+      }
+      groups[date].entries.push(entry);
+      groups[date].totalHours += entry.logged_hours;
+    });
+    
+    // Sort dates in descending order
+    const sortedDates = Object.keys(groups).sort((a, b) => b.localeCompare(a));
+    
+    return sortedDates.map(date => ({
+      date,
+      entries: groups[date].entries,
+      totalHours: groups[date].totalHours,
+    }));
+  }, [filteredEntries]);
+
+  // Format hours to HH:MM format
+  const formatHoursToHHMM = (hours: number) => {
+    const h = Math.floor(hours);
+    const m = Math.round((hours - h) * 60);
+    return `${h.toString().padStart(2, '0')} Hrs. ${m.toString().padStart(2, '0')} Min`;
+  };
+
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
       setSelectedLogs(filteredEntries.map(entry => entry.id));
@@ -459,57 +489,71 @@ const SpentHours = () => {
                 No time entries found. Start logging your work above!
               </div>
             ) : (
-              <div className="overflow-x-auto">
-              <Table className="min-w-[900px]">
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-10">
-                      <Checkbox
-                        checked={selectedLogs.length === filteredEntries.length && filteredEntries.length > 0}
-                        onCheckedChange={handleSelectAll}
-                      />
-                    </TableHead>
-                    <TableHead className="text-sm">Date</TableHead>
-                    <TableHead className="text-sm">Employee</TableHead>
-                    <TableHead className="text-sm">Project</TableHead>
-                    <TableHead className="text-sm">Task</TableHead>
-                    <TableHead className="text-sm">Activity</TableHead>
-                    <TableHead className="text-sm">Description</TableHead>
-                    <TableHead className="text-sm">Status</TableHead>
-                    <TableHead className="text-sm text-right">Hours</TableHead>
+              <div className="overflow-x-auto space-y-4">
+                {groupedByDate.map((group) => (
+                  <div key={group.date} className="border rounded-lg overflow-hidden">
+                    {/* Date Header Row */}
+                    <div className="bg-muted/50 px-4 py-2 border-b">
+                      <span className="font-semibold text-sm">
+                        {formatDate(group.date)} : Total - {formatHoursToHHMM(group.totalHours)}
+                      </span>
+                    </div>
                     
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredEntries.map((entry) => (
-                    <TableRow key={entry.id}>
-                      <TableCell className="py-2">
-                        <Checkbox
-                          checked={selectedLogs.includes(entry.id)}
-                          onCheckedChange={(checked) => handleSelectLog(entry.id, checked as boolean)}
-                        />
-                      </TableCell>
-                      <TableCell className="py-2 text-sm">{formatDate(entry.entry_date)}</TableCell>
-                      <TableCell className="py-2 text-sm font-medium">{getEmployeeName(entry.user_id)}</TableCell>
-                      <TableCell className="py-2 text-sm font-medium">{getProjectName(entry.project_id)}</TableCell>
-                      <TableCell className="py-2 text-sm">{getTaskName(entry.task_id)}</TableCell>
-                      <TableCell className="py-2">{getActivityBadge(entry.activity_type)}</TableCell>
-                      <TableCell className="py-2 text-sm text-muted-foreground max-w-[200px] truncate">
-                        {entry.description}
-                      </TableCell>
-                      <TableCell className="py-2">{getStatusBadge(entry.status)}</TableCell>
-                      <TableCell className="py-2 text-sm text-right font-medium">
-                        {entry.logged_hours}h
-                        {entry.is_billable && entry.billable_hours !== entry.logged_hours && (
-                          <span className="text-muted-foreground ml-1">
-                            ({entry.billable_hours}b)
-                          </span>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                    <Table className="min-w-[900px]">
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-10">
+                            <Checkbox
+                              checked={group.entries.every(e => selectedLogs.includes(e.id))}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedLogs(prev => [...new Set([...prev, ...group.entries.map(e => e.id)])]);
+                                } else {
+                                  setSelectedLogs(prev => prev.filter(id => !group.entries.map(e => e.id).includes(id)));
+                                }
+                              }}
+                            />
+                          </TableHead>
+                          <TableHead className="text-sm">Project</TableHead>
+                          <TableHead className="text-sm">Task</TableHead>
+                          <TableHead className="text-sm">Activity</TableHead>
+                          <TableHead className="text-sm">Employee</TableHead>
+                          <TableHead className="text-sm text-right">Hours</TableHead>
+                          <TableHead className="text-sm">Status</TableHead>
+                          <TableHead className="text-sm">Description</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {group.entries.map((entry) => (
+                          <TableRow key={entry.id}>
+                            <TableCell className="py-2">
+                              <Checkbox
+                                checked={selectedLogs.includes(entry.id)}
+                                onCheckedChange={(checked) => handleSelectLog(entry.id, checked as boolean)}
+                              />
+                            </TableCell>
+                            <TableCell className="py-2 text-sm font-medium">{getProjectName(entry.project_id)}</TableCell>
+                            <TableCell className="py-2 text-sm">{getTaskName(entry.task_id)}</TableCell>
+                            <TableCell className="py-2">{getActivityBadge(entry.activity_type)}</TableCell>
+                            <TableCell className="py-2 text-sm font-medium">{getEmployeeName(entry.user_id)}</TableCell>
+                            <TableCell className="py-2 text-sm text-right font-medium">
+                              {entry.logged_hours}h
+                              {entry.is_billable && entry.billable_hours !== entry.logged_hours && (
+                                <span className="text-muted-foreground ml-1">
+                                  ({entry.billable_hours}b)
+                                </span>
+                              )}
+                            </TableCell>
+                            <TableCell className="py-2">{getStatusBadge(entry.status)}</TableCell>
+                            <TableCell className="py-2 text-sm text-muted-foreground max-w-[250px] truncate">
+                              {entry.description}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                ))}
               </div>
             )}
           </CardContent>
