@@ -20,6 +20,7 @@ import { Download } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
+import { useNavigate } from "react-router-dom";
 
 // Mock data for project summary
 const projectSummaryData = [
@@ -152,10 +153,20 @@ const projectSummaryData = [
 ];
 
 const ProjectSummary = () => {
+  const navigate = useNavigate();
   const [selectedProject, setSelectedProject] = useState<string>("all");
 
   const handleExport = () => {
     toast.success("Exporting project summary to Excel...");
+  };
+
+  const handleCountClick = (projectName: string, status: string, count: number) => {
+    if (count === 0) return;
+    // Navigate to tasks with project and status filters
+    const params = new URLSearchParams();
+    params.set("project", projectName);
+    params.set("status", status);
+    navigate(`/tasks?${params.toString()}`);
   };
 
   const filteredData =
@@ -238,47 +249,89 @@ const ProjectSummary = () => {
                       <TableCell className="text-xs py-2 font-semibold bg-primary/5 sticky left-0 z-10">
                         {project.project}
                       </TableCell>
-                      <TableCell className="text-center text-xs py-2">
-                        {project.hold > 0 && <span className="font-medium">{project.hold}</span>}
+                      <TableCell 
+                        className={`text-center text-xs py-2 ${project.hold > 0 ? 'cursor-pointer hover:bg-muted/50' : ''}`}
+                        onClick={() => handleCountClick(project.project, "hold", project.hold)}
+                      >
+                        {project.hold > 0 && <span className="font-medium text-primary hover:underline">{project.hold}</span>}
                       </TableCell>
-                      <TableCell className="text-center text-xs py-2">
-                        {project.open > 0 && <span className="font-medium">{project.open}</span>}
+                      <TableCell 
+                        className={`text-center text-xs py-2 ${project.open > 0 ? 'cursor-pointer hover:bg-muted/50' : ''}`}
+                        onClick={() => handleCountClick(project.project, "open", project.open)}
+                      >
+                        {project.open > 0 && <span className="font-medium text-primary hover:underline">{project.open}</span>}
                       </TableCell>
-                      <TableCell className="text-center text-xs py-2">
-                        {project.analysis > 0 && <span className="font-medium">{project.analysis}</span>}
+                      <TableCell 
+                        className={`text-center text-xs py-2 ${project.analysis > 0 ? 'cursor-pointer hover:bg-muted/50' : ''}`}
+                        onClick={() => handleCountClick(project.project, "analysis", project.analysis)}
+                      >
+                        {project.analysis > 0 && <span className="font-medium text-primary hover:underline">{project.analysis}</span>}
                       </TableCell>
-                      <TableCell className="text-center text-xs py-2">
-                        {project.analysisCompleted > 0 && <span className="font-medium">{project.analysisCompleted}</span>}
+                      <TableCell 
+                        className={`text-center text-xs py-2 ${project.analysisCompleted > 0 ? 'cursor-pointer hover:bg-muted/50' : ''}`}
+                        onClick={() => handleCountClick(project.project, "analysis_completed", project.analysisCompleted)}
+                      >
+                        {project.analysisCompleted > 0 && <span className="font-medium text-primary hover:underline">{project.analysisCompleted}</span>}
                       </TableCell>
-                      <TableCell className="text-center text-xs py-2">
-                        {project.analysisApproved > 0 && <span className="font-medium">{project.analysisApproved}</span>}
+                      <TableCell 
+                        className={`text-center text-xs py-2 ${project.analysisApproved > 0 ? 'cursor-pointer hover:bg-muted/50' : ''}`}
+                        onClick={() => handleCountClick(project.project, "analysis_approved", project.analysisApproved)}
+                      >
+                        {project.analysisApproved > 0 && <span className="font-medium text-primary hover:underline">{project.analysisApproved}</span>}
                       </TableCell>
-                      <TableCell className="text-center text-xs py-2">
-                        {project.assignToDevelopment > 0 && <span className="font-medium">{project.assignToDevelopment}</span>}
+                      <TableCell 
+                        className={`text-center text-xs py-2 ${project.assignToDevelopment > 0 ? 'cursor-pointer hover:bg-muted/50' : ''}`}
+                        onClick={() => handleCountClick(project.project, "assign_to_development", project.assignToDevelopment)}
+                      >
+                        {project.assignToDevelopment > 0 && <span className="font-medium text-primary hover:underline">{project.assignToDevelopment}</span>}
                       </TableCell>
-                      <TableCell className="text-center text-xs py-2">
-                        {project.unitTesting > 0 && <span className="font-medium">{project.unitTesting}</span>}
+                      <TableCell 
+                        className={`text-center text-xs py-2 ${project.unitTesting > 0 ? 'cursor-pointer hover:bg-muted/50' : ''}`}
+                        onClick={() => handleCountClick(project.project, "unit_testing", project.unitTesting)}
+                      >
+                        {project.unitTesting > 0 && <span className="font-medium text-primary hover:underline">{project.unitTesting}</span>}
                       </TableCell>
-                      <TableCell className="text-center text-xs py-2">
-                        {project.baReview > 0 && <span className="font-medium">{project.baReview}</span>}
+                      <TableCell 
+                        className={`text-center text-xs py-2 ${project.baReview > 0 ? 'cursor-pointer hover:bg-muted/50' : ''}`}
+                        onClick={() => handleCountClick(project.project, "ba_review", project.baReview)}
+                      >
+                        {project.baReview > 0 && <span className="font-medium text-primary hover:underline">{project.baReview}</span>}
                       </TableCell>
-                      <TableCell className="text-center text-xs py-2">
-                        {project.assignedToQA > 0 && <span className="font-medium">{project.assignedToQA}</span>}
+                      <TableCell 
+                        className={`text-center text-xs py-2 ${project.assignedToQA > 0 ? 'cursor-pointer hover:bg-muted/50' : ''}`}
+                        onClick={() => handleCountClick(project.project, "assigned_to_qa", project.assignedToQA)}
+                      >
+                        {project.assignedToQA > 0 && <span className="font-medium text-primary hover:underline">{project.assignedToQA}</span>}
                       </TableCell>
-                      <TableCell className="text-center text-xs py-2">
-                        {project.qaVerified > 0 && <span className="font-medium">{project.qaVerified}</span>}
+                      <TableCell 
+                        className={`text-center text-xs py-2 ${project.qaVerified > 0 ? 'cursor-pointer hover:bg-muted/50' : ''}`}
+                        onClick={() => handleCountClick(project.project, "qa_verified", project.qaVerified)}
+                      >
+                        {project.qaVerified > 0 && <span className="font-medium text-primary hover:underline">{project.qaVerified}</span>}
                       </TableCell>
-                      <TableCell className="text-center text-xs py-2">
-                        {project.qcCompleted > 0 && <span className="font-medium">{project.qcCompleted}</span>}
+                      <TableCell 
+                        className={`text-center text-xs py-2 ${project.qcCompleted > 0 ? 'cursor-pointer hover:bg-muted/50' : ''}`}
+                        onClick={() => handleCountClick(project.project, "qc_completed", project.qcCompleted)}
+                      >
+                        {project.qcCompleted > 0 && <span className="font-medium text-primary hover:underline">{project.qcCompleted}</span>}
                       </TableCell>
-                      <TableCell className="text-center text-xs py-2">
-                        {project.preproductionDeployment > 0 && <span className="font-medium">{project.preproductionDeployment}</span>}
+                      <TableCell 
+                        className={`text-center text-xs py-2 ${project.preproductionDeployment > 0 ? 'cursor-pointer hover:bg-muted/50' : ''}`}
+                        onClick={() => handleCountClick(project.project, "preproduction_deployment", project.preproductionDeployment)}
+                      >
+                        {project.preproductionDeployment > 0 && <span className="font-medium text-primary hover:underline">{project.preproductionDeployment}</span>}
                       </TableCell>
-                      <TableCell className="text-center text-xs py-2">
-                        {project.productionDeployment > 0 && <span className="font-medium">{project.productionDeployment}</span>}
+                      <TableCell 
+                        className={`text-center text-xs py-2 ${project.productionDeployment > 0 ? 'cursor-pointer hover:bg-muted/50' : ''}`}
+                        onClick={() => handleCountClick(project.project, "production_deployment", project.productionDeployment)}
+                      >
+                        {project.productionDeployment > 0 && <span className="font-medium text-primary hover:underline">{project.productionDeployment}</span>}
                       </TableCell>
-                      <TableCell className="text-center text-xs py-2">
-                        {project.closed > 0 && <span className="font-medium">{project.closed}</span>}
+                      <TableCell 
+                        className={`text-center text-xs py-2 ${project.closed > 0 ? 'cursor-pointer hover:bg-muted/50' : ''}`}
+                        onClick={() => handleCountClick(project.project, "closed", project.closed)}
+                      >
+                        {project.closed > 0 && <span className="font-medium text-primary hover:underline">{project.closed}</span>}
                       </TableCell>
                     </TableRow>
                   ))}

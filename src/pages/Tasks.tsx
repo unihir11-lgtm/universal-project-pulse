@@ -25,7 +25,8 @@ import {
 } from "@/components/ui/tooltip";
 import { toast } from "sonner";
 import { format, differenceInDays, parseISO } from "date-fns";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -106,6 +107,8 @@ const getTaskPath = (task: Task, allTasks: Task[]): string[] => {
 };
 
 const Tasks = () => {
+  const [searchParams] = useSearchParams();
+  
   // All tasks state (using mock data)
   const [allTasks] = useState<Task[]>(mockTasks);
 
@@ -123,6 +126,19 @@ const Tasks = () => {
   const [filterAssignee, setFilterAssignee] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [expandedTasks, setExpandedTasks] = useState<Set<number>>(new Set());
+
+  // Apply URL params as filters on mount
+  useEffect(() => {
+    const projectParam = searchParams.get("project");
+    const statusParam = searchParams.get("status");
+    
+    if (projectParam) {
+      setFilterProject(projectParam);
+    }
+    if (statusParam) {
+      setFilterStatus(statusParam);
+    }
+  }, [searchParams]);
 
   // Edit dialog state
   const [editDialogOpen, setEditDialogOpen] = useState(false);
