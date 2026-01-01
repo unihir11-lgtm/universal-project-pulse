@@ -90,19 +90,49 @@ const EmployeeDashboard = () => {
     { id: 4, date: "2024-01-14", project: "E-Commerce Platform", task: "Testing", description: "Bug fixes and code review", hours: 0.55, category: "Testing" },
   ];
 
-  // Activity Log Data (Time Entry History) - 10 entries
+  // Activity Log Data (Time Entry History) - 10 entries with parseable dates
   const activityLogData = [
-    { id: 1, date: "20-12-2024", employee: "Rahul Sharma", project: "E-Commerce Platform", task: "Payment Integration", activity: "Development", description: "Implemented payment gat...", status: "approved", hours: "6h" },
-    { id: 2, date: "20-12-2024", employee: "Priya Patel", project: "E-Commerce Platform", task: "Stripe Setup", activity: "Development", description: "Configured Stripe webhooks", status: "pending", hours: "4h" },
-    { id: 3, date: "19-12-2024", employee: "Rahul Sharma", project: "Mobile Banking App", task: "User Authentication", activity: "Development", description: "Built authentication flow", status: "approved", hours: "8h" },
-    { id: 4, date: "19-12-2024", employee: "Amit Kumar", project: "Mobile Banking App", task: "-", activity: "Meeting", description: "Sprint planning with client", status: "approved", hours: "2h" },
-    { id: 5, date: "18-12-2024", employee: "Priya Patel", project: "CRM System", task: "Contact Management", activity: "Design", description: "Designed contact manage...", status: "approved", hours: "5h" },
-    { id: 6, date: "18-12-2024", employee: "Sneha Gupta", project: "E-Commerce Platform", task: "Shopping Cart", activity: "Development", description: "Shopping cart state manag...", status: "pending", hours: "7h" },
-    { id: 7, date: "17-12-2024", employee: "Amit Kumar", project: "Internal Tools", task: "Build Pipeline", activity: "Admin", description: "CI/CD pipeline optimization", status: "approved", hours: "3h" },
-    { id: 8, date: "17-12-2024", employee: "Rahul Sharma", project: "CRM System", task: "-", activity: "Meeting", description: "Requirements gathering se...", status: "approved", hours: "1.5h" },
-    { id: 9, date: "16-12-2024", employee: "Priya Patel", project: "E-Commerce Platform", task: "Product Catalog", activity: "Development", description: "Product catalog search feat...", status: "approved", hours: "6h" },
-    { id: 10, date: "16-12-2024", employee: "Sneha Gupta", project: "Mobile Banking App", task: "Transaction History", activity: "Development", description: "Transaction history API inte...", status: "pending", hours: "4.5h" },
+    { id: 1, date: "2024-12-20", employee: "Rahul Sharma", project: "E-Commerce Platform", task: "Payment Integration", activity: "Development", description: "Implemented payment gat...", status: "approved", hours: 6 },
+    { id: 2, date: "2024-12-20", employee: "Priya Patel", project: "E-Commerce Platform", task: "Stripe Setup", activity: "Development", description: "Configured Stripe webhooks", status: "pending", hours: 4 },
+    { id: 3, date: "2024-12-19", employee: "Rahul Sharma", project: "Mobile Banking App", task: "User Authentication", activity: "Development", description: "Built authentication flow", status: "approved", hours: 8 },
+    { id: 4, date: "2024-12-19", employee: "Amit Kumar", project: "Mobile Banking App", task: "-", activity: "Meeting", description: "Sprint planning with client", status: "approved", hours: 2 },
+    { id: 5, date: "2024-12-18", employee: "Priya Patel", project: "CRM System", task: "Contact Management", activity: "Design", description: "Designed contact manage...", status: "approved", hours: 5 },
+    { id: 6, date: "2024-12-18", employee: "Sneha Gupta", project: "E-Commerce Platform", task: "Shopping Cart", activity: "Development", description: "Shopping cart state manag...", status: "pending", hours: 7 },
+    { id: 7, date: "2024-12-17", employee: "Amit Kumar", project: "Internal Tools", task: "Build Pipeline", activity: "Admin", description: "CI/CD pipeline optimization", status: "approved", hours: 3 },
+    { id: 8, date: "2024-12-17", employee: "Rahul Sharma", project: "CRM System", task: "-", activity: "Meeting", description: "Requirements gathering se...", status: "approved", hours: 1.5 },
+    { id: 9, date: "2024-12-16", employee: "Priya Patel", project: "E-Commerce Platform", task: "Product Catalog", activity: "Development", description: "Product catalog search feat...", status: "approved", hours: 6 },
+    { id: 10, date: "2024-12-16", employee: "Sneha Gupta", project: "Mobile Banking App", task: "Transaction History", activity: "Development", description: "Transaction history API inte...", status: "pending", hours: 4.5 },
   ];
+
+  // Group activity log by date
+  const groupedActivityLog = (() => {
+    const groups: Record<string, { entries: typeof activityLogData; totalHours: number }> = {};
+    
+    activityLogData.forEach(entry => {
+      const date = entry.date;
+      if (!groups[date]) {
+        groups[date] = { entries: [], totalHours: 0 };
+      }
+      groups[date].entries.push(entry);
+      groups[date].totalHours += entry.hours;
+    });
+    
+    // Sort dates in descending order
+    const sortedDates = Object.keys(groups).sort((a, b) => b.localeCompare(a));
+    
+    return sortedDates.map(date => ({
+      date,
+      entries: groups[date].entries,
+      totalHours: groups[date].totalHours,
+    }));
+  })();
+
+  // Format hours to HH:MM format
+  const formatHoursToHHMM = (hours: number) => {
+    const h = Math.floor(hours);
+    const m = Math.round((hours - h) * 60);
+    return `${h.toString().padStart(2, '0')} Hrs. ${m.toString().padStart(2, '0')} Min`;
+  };
 
   // Attendance Log Data (Daily Attendance Report) - 10 entries
   const attendanceLogData = [
@@ -533,72 +563,81 @@ const EmployeeDashboard = () => {
                       className="w-full sm:w-[140px] h-7 text-xs"
                     />
                   </div>
-                  <Badge variant="secondary" className="text-xs w-fit">10 Records</Badge>
+                  <Badge variant="secondary" className="text-xs w-fit">{activityLogData.length} Records</Badge>
                 </div>
-                <div className="overflow-x-auto">
-                <Table className="min-w-[900px]">
-                  <TableHeader>
-                    <TableRow className="hover:bg-transparent">
-                      <TableHead className="text-xs">Date</TableHead>
-                      <TableHead className="text-xs">Employee</TableHead>
-                      <TableHead className="text-xs">Project</TableHead>
-                      <TableHead className="text-xs">Task</TableHead>
-                      <TableHead className="text-xs">Activity</TableHead>
-                      <TableHead className="text-xs">Description</TableHead>
-                      <TableHead className="text-xs">Status</TableHead>
-                      <TableHead className="text-xs">Hours</TableHead>
-                      <TableHead className="text-xs">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {activityLogData.map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell className="py-2 text-xs text-muted-foreground">{item.date}</TableCell>
-                        <TableCell className="py-2 text-xs font-medium">{item.employee}</TableCell>
-                        <TableCell className="py-2 text-xs text-primary">{item.project}</TableCell>
-                        <TableCell className="py-2 text-xs">{item.task}</TableCell>
-                        <TableCell className="py-2">
-                          <Badge 
-                            variant="outline" 
-                            className={`text-[10px] ${
-                              item.activity === 'Development' ? 'bg-primary/10 text-primary border-primary/20' :
-                              item.activity === 'Meeting' ? 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-900/30 dark:text-slate-400' :
-                              item.activity === 'Design' ? 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400' :
-                              item.activity === 'Admin' ? 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-900/30 dark:text-slate-400' :
-                              'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400'
-                            }`}
-                          >
-                            {item.activity}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="py-2 text-xs text-muted-foreground max-w-[180px] truncate">{item.description}</TableCell>
-                        <TableCell className="py-2">
-                          <Badge 
-                            variant="outline" 
-                            className={`text-[10px] ${
-                              item.status === 'approved' ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400' :
-                              item.status === 'pending' ? 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400' :
-                              'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400'
-                            }`}
-                          >
-                            {item.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="py-2 text-xs font-medium">{item.hours}</TableCell>
-                        <TableCell className="py-2">
-                          <div className="flex items-center gap-1">
-                            <Button variant="ghost" size="icon" className="h-7 w-7">
-                              <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
-                            </Button>
-                            <Button variant="ghost" size="icon" className="h-7 w-7">
-                              <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                <div className="overflow-x-auto space-y-4">
+                  {groupedActivityLog.map((group) => (
+                    <div key={group.date} className="border rounded-lg overflow-hidden">
+                      {/* Date Header Row */}
+                      <div className="bg-muted/50 px-4 py-2 border-b">
+                        <span className="font-semibold text-sm">
+                          {formatDate(group.date)} : Total - {formatHoursToHHMM(group.totalHours)}
+                        </span>
+                      </div>
+                      
+                      <Table className="min-w-[900px]">
+                        <TableHeader>
+                          <TableRow className="hover:bg-transparent">
+                            <TableHead className="text-xs">Project</TableHead>
+                            <TableHead className="text-xs">Task</TableHead>
+                            <TableHead className="text-xs">Activity</TableHead>
+                            <TableHead className="text-xs">Employee</TableHead>
+                            <TableHead className="text-xs text-right">Hours</TableHead>
+                            <TableHead className="text-xs">Status</TableHead>
+                            <TableHead className="text-xs">Description</TableHead>
+                            <TableHead className="text-xs">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {group.entries.map((item) => (
+                            <TableRow key={item.id}>
+                              <TableCell className="py-2 text-xs text-primary">{item.project}</TableCell>
+                              <TableCell className="py-2 text-xs">{item.task}</TableCell>
+                              <TableCell className="py-2">
+                                <Badge 
+                                  variant="outline" 
+                                  className={`text-[10px] ${
+                                    item.activity === 'Development' ? 'bg-primary/10 text-primary border-primary/20' :
+                                    item.activity === 'Meeting' ? 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-900/30 dark:text-slate-400' :
+                                    item.activity === 'Design' ? 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400' :
+                                    item.activity === 'Admin' ? 'bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-900/30 dark:text-slate-400' :
+                                    'bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400'
+                                  }`}
+                                >
+                                  {item.activity}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="py-2 text-xs font-medium">{item.employee}</TableCell>
+                              <TableCell className="py-2 text-xs font-medium text-right">{item.hours}h</TableCell>
+                              <TableCell className="py-2">
+                                <Badge 
+                                  variant="outline" 
+                                  className={`text-[10px] ${
+                                    item.status === 'approved' ? 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400' :
+                                    item.status === 'pending' ? 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400' :
+                                    'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400'
+                                  }`}
+                                >
+                                  {item.status}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="py-2 text-xs text-muted-foreground max-w-[180px] truncate">{item.description}</TableCell>
+                              <TableCell className="py-2">
+                                <div className="flex items-center gap-1">
+                                  <Button variant="ghost" size="icon" className="h-7 w-7">
+                                    <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+                                  </Button>
+                                  <Button variant="ghost" size="icon" className="h-7 w-7">
+                                    <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  ))}
                 </div>
               </TabsContent>
 
