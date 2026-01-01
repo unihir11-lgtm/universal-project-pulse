@@ -630,7 +630,6 @@ const EmployeeDashboard = () => {
                       <TableHead className="text-xs">Break</TableHead>
                       <TableHead className="text-xs">Productive</TableHead>
                       <TableHead className="text-xs">Status</TableHead>
-                      <TableHead className="text-xs">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -654,9 +653,6 @@ const EmployeeDashboard = () => {
                           >
                             {item.status}
                           </Badge>
-                        </TableCell>
-                        <TableCell className="py-2">
-                          <span className="text-xs text-muted-foreground">—</span>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -689,7 +685,6 @@ const EmployeeDashboard = () => {
                       <TableHead className="text-xs">Check-Out</TableHead>
                       <TableHead className="text-xs">Device</TableHead>
                       <TableHead className="text-xs">Location</TableHead>
-                      <TableHead className="text-xs">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -721,9 +716,6 @@ const EmployeeDashboard = () => {
                           >
                             {item.location}
                           </Badge>
-                        </TableCell>
-                        <TableCell className="py-2">
-                          <span className="text-xs text-muted-foreground">—</span>
                         </TableCell>
                       </TableRow>
                     ))}
