@@ -117,6 +117,12 @@ const Projects = () => {
   
   const [billingPeriod, setBillingPeriod] = useState<"today" | "week" | "month" | "quarter" | "year" | "all">("month");
   
+  // New states for Details, Edit, and Assign dialogs
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [assignDialogOpen, setAssignDialogOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  
   const [formData, setFormData] = useState({
     projectName: "",
     projectType: "external" as ProjectType,
@@ -286,6 +292,36 @@ const Projects = () => {
     toast.success(`Project converted to ${projectToConvert.projectType === "internal" ? "External" : "Internal"}`);
     setConvertDialogOpen(false);
     setProjectToConvert(null);
+  };
+
+  // Handlers for View Details, Edit, and Assign Employees
+  const handleViewDetails = (project: Project) => {
+    setSelectedProject(project);
+    setDetailsDialogOpen(true);
+  };
+
+  const handleEditProject = (project: Project) => {
+    setSelectedProject(project);
+    setEditDialogOpen(true);
+  };
+
+  const handleAssignEmployees = (project: Project) => {
+    setSelectedProject(project);
+    setAssignDialogOpen(true);
+  };
+
+  const handleSaveEdit = () => {
+    if (!selectedProject) return;
+    toast.success(`Project "${selectedProject.name}" updated successfully`);
+    setEditDialogOpen(false);
+    setSelectedProject(null);
+  };
+
+  const handleSaveAssignments = () => {
+    if (!selectedProject) return;
+    toast.success(`Employees assigned to "${selectedProject.name}"`);
+    setAssignDialogOpen(false);
+    setSelectedProject(null);
   };
 
   const getStatusVariant = (status: string) => {
@@ -855,9 +891,9 @@ const Projects = () => {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="bg-popover">
-                          <DropdownMenuItem>View Details</DropdownMenuItem>
-                          <DropdownMenuItem>Edit</DropdownMenuItem>
-                          <DropdownMenuItem>Assign Employees</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleViewDetails(project)}>View Details</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleEditProject(project)}>Edit</DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleAssignEmployees(project)}>Assign Employees</DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem 
                             onClick={() => {
@@ -925,6 +961,194 @@ const Projects = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* View Details Dialog */}
+      <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
+        <DialogContent className="max-w-2xl mx-2 md:mx-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-primary" />
+              Project Details
+            </DialogTitle>
+            <DialogDescription>
+              View detailed information about this project
+            </DialogDescription>
+          </DialogHeader>
+          {selectedProject && (
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Project Name</Label>
+                  <p className="font-medium">{selectedProject.name}</p>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Type</Label>
+                  <Badge variant={getProjectTypeVariant(selectedProject.projectType)}>
+                    {selectedProject.projectType === "external" ? "External" : "Internal"}
+                  </Badge>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Client</Label>
+                  <p className="font-medium">{selectedProject.client ?? "—"}</p>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Manager</Label>
+                  <p className="font-medium">{selectedProject.manager}</p>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Status</Label>
+                  <Badge variant={getStatusVariant(selectedProject.status)}>{selectedProject.status}</Badge>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Hours Logged</Label>
+                  <p className="font-medium">{selectedProject.hoursLogged}h</p>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Assigned Employees</Label>
+                  <p className="font-medium">{selectedProject.assignedEmployees}</p>
+                </div>
+                {isBillable(selectedProject) && (
+                  <>
+                    <div className="space-y-1">
+                      <Label className="text-xs text-muted-foreground">Billing Model</Label>
+                      <p className="font-medium">{selectedProject.billingModel ? BILLING_MODEL_LABELS[selectedProject.billingModel] : "—"}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs text-muted-foreground">Invoiced</Label>
+                      <p className="font-medium text-green-600">{formatCurrency(selectedProject.invoiced ?? 0, getProjectCurrency(selectedProject))}</p>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs text-muted-foreground">Billable Amount</Label>
+                      <p className="font-medium text-amber-600">{formatCurrency(selectedProject.billableAmount ?? 0, getProjectCurrency(selectedProject))}</p>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDetailsDialogOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Project Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="max-w-2xl mx-2 md:mx-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Pencil className="h-5 w-5 text-primary" />
+              Edit Project
+            </DialogTitle>
+            <DialogDescription>
+              Update project information
+            </DialogDescription>
+          </DialogHeader>
+          {selectedProject && (
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-name">Project Name</Label>
+                  <Input id="edit-name" defaultValue={selectedProject.name} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-client">Client</Label>
+                  <Input id="edit-client" defaultValue={selectedProject.client ?? ""} disabled={selectedProject.projectType === "internal"} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-manager">Manager</Label>
+                  <Select defaultValue={selectedProject.manager}>
+                    <SelectTrigger id="edit-manager">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="John Smith">John Smith</SelectItem>
+                      <SelectItem value="Sarah Johnson">Sarah Johnson</SelectItem>
+                      <SelectItem value="Michael Chen">Michael Chen</SelectItem>
+                      <SelectItem value="Emily Davis">Emily Davis</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-status">Status</Label>
+                  <Select defaultValue={selectedProject.status}>
+                    <SelectTrigger id="edit-status">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Active">Active</SelectItem>
+                      <SelectItem value="On Hold">On Hold</SelectItem>
+                      <SelectItem value="Completed">Completed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {isBillable(selectedProject) && (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-billing">Billing Model</Label>
+                      <Select defaultValue={selectedProject.billingModel}>
+                        <SelectTrigger id="edit-billing">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="hourly">Hourly</SelectItem>
+                          <SelectItem value="fixed">Fixed Price</SelectItem>
+                          <SelectItem value="milestone">Milestone-based</SelectItem>
+                          <SelectItem value="retainer">Retainer</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-rate">Billable Rate</Label>
+                      <Input id="edit-rate" type="number" defaultValue={selectedProject.billableRate ?? ""} />
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleSaveEdit}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Assign Employees Dialog */}
+      <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
+        <DialogContent className="max-w-lg mx-2 md:mx-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-primary" />
+              Assign Employees
+            </DialogTitle>
+            <DialogDescription>
+              {selectedProject ? `Select employees to assign to "${selectedProject.name}"` : "Select employees"}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4 max-h-[400px] overflow-y-auto">
+            {availableEmployees.map((employee) => (
+              <div key={employee.id} className="flex items-center gap-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                <Checkbox
+                  id={`assign-${employee.id}`}
+                  checked={selectedEmployees.includes(employee.id)}
+                  onCheckedChange={() => handleEmployeeToggle(employee.id)}
+                />
+                <label htmlFor={`assign-${employee.id}`} className="flex-1 cursor-pointer">
+                  <p className="font-medium text-sm">{employee.name}</p>
+                  <p className="text-xs text-muted-foreground">{employee.designation}</p>
+                </label>
+              </div>
+            ))}
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setAssignDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleSaveAssignments} disabled={selectedEmployees.length === 0}>
+              Assign ({selectedEmployees.length})
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 };
