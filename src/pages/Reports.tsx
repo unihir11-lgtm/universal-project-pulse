@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Download, FileBarChart, TrendingUp, Calendar, DollarSign, Clock, Eye, EyeOff } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -98,6 +99,7 @@ const Reports = () => {
   const [filterStartDate, setFilterStartDate] = useState("");
   const [filterEndDate, setFilterEndDate] = useState("");
   const [showCostData, setShowCostData] = useState(false);
+  const [selectedBillingEntries, setSelectedBillingEntries] = useState<string[]>([]);
   
   // Check if user can view cost/margin data (Finance/Admin only)
   const canViewCostData = hasPermission(["admin", "finance"]);
@@ -543,6 +545,18 @@ const Reports = () => {
           <Table className="min-w-[900px]">
             <TableHeader>
               <TableRow>
+                <TableHead className="w-12">
+                  <Checkbox
+                    checked={selectedBillingEntries.length === filteredBillingSummary.length && filteredBillingSummary.length > 0}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setSelectedBillingEntries(filteredBillingSummary.map(e => e.id));
+                      } else {
+                        setSelectedBillingEntries([]);
+                      }
+                    }}
+                  />
+                </TableHead>
                 <TableHead>User</TableHead>
                 <TableHead>Project</TableHead>
                 <TableHead>Activity</TableHead>
@@ -563,6 +577,18 @@ const Reports = () => {
             <TableBody>
               {filteredBillingSummary.map((entry) => (
                 <TableRow key={entry.id}>
+                  <TableCell>
+                    <Checkbox
+                      checked={selectedBillingEntries.includes(entry.id)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setSelectedBillingEntries(prev => [...prev, entry.id]);
+                        } else {
+                          setSelectedBillingEntries(prev => prev.filter(id => id !== entry.id));
+                        }
+                      }}
+                    />
+                  </TableCell>
                   <TableCell className="font-medium">{entry.userName}</TableCell>
                   <TableCell>{entry.projectName}</TableCell>
                   <TableCell>{getActivityBadge(entry.activityType)}</TableCell>
@@ -588,6 +614,7 @@ const Reports = () => {
               ))}
               {/* Totals Row */}
               <TableRow className="bg-muted/50 font-bold">
+                <TableCell></TableCell>
                 <TableCell>TOTAL</TableCell>
                 <TableCell></TableCell>
                 <TableCell></TableCell>
