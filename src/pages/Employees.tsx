@@ -122,6 +122,9 @@ const employees: Employee[] = [
 
 const Employees = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     firstName: "",
@@ -136,6 +139,13 @@ const Employees = () => {
     dateOfJoining: "",
     address: "",
     emergencyContact: "",
+  });
+  const [editFormData, setEditFormData] = useState({
+    name: "",
+    designation: "",
+    department: "",
+    biometricId: "",
+    status: "",
   });
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -159,6 +169,29 @@ const Employees = () => {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleViewDetails = (employee: Employee) => {
+    setSelectedEmployee(employee);
+    setDetailsDialogOpen(true);
+  };
+
+  const handleEditEmployee = (employee: Employee) => {
+    setSelectedEmployee(employee);
+    setEditFormData({
+      name: employee.name,
+      designation: employee.designation,
+      department: employee.department,
+      biometricId: employee.biometricId,
+      status: employee.status,
+    });
+    setEditDialogOpen(true);
+  };
+
+  const handleSaveEdit = () => {
+    toast.success(`${editFormData.name} updated successfully`);
+    setEditDialogOpen(false);
+    setSelectedEmployee(null);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -553,10 +586,10 @@ const Employees = () => {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="bg-popover">
-                              <DropdownMenuItem onClick={() => toast.info(`Viewing ${employee.name}'s details`)}>
+                              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleViewDetails(employee); }}>
                                 View Details
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => toast.info(`Editing ${employee.name}`)}>
+                              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleEditEmployee(employee); }}>
                                 Edit
                               </DropdownMenuItem>
                               <DropdownMenuItem 
@@ -576,6 +609,154 @@ const Employees = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* View Details Dialog */}
+        <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Employee Details</DialogTitle>
+              <DialogDescription>
+                View detailed information for this employee
+              </DialogDescription>
+            </DialogHeader>
+            {selectedEmployee && (
+              <div className="space-y-4 py-4">
+                <div className="flex items-center gap-4">
+                  <Avatar className="h-16 w-16">
+                    <AvatarFallback className="bg-primary/10 text-primary text-xl">
+                      {selectedEmployee.name.split(" ").map(n => n[0]).join("")}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <h3 className="font-semibold text-lg">{selectedEmployee.name}</h3>
+                    <p className="text-sm text-muted-foreground">{selectedEmployee.designation}</p>
+                  </div>
+                </div>
+                <div className="grid gap-3">
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="text-muted-foreground">Department</span>
+                    <span className="font-medium">{selectedEmployee.department}</span>
+                  </div>
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="text-muted-foreground">Biometric ID</span>
+                    <Badge variant="outline">{selectedEmployee.biometricId}</Badge>
+                  </div>
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="text-muted-foreground">Status</span>
+                    <Badge variant={selectedEmployee.status === "Active" ? "default" : "secondary"}>
+                      {selectedEmployee.status}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between py-2 border-b">
+                    <span className="text-muted-foreground">Joined Date</span>
+                    <span className="font-medium">{selectedEmployee.joinedDate}</span>
+                  </div>
+                  {selectedEmployee.editedBy && (
+                    <div className="flex justify-between py-2">
+                      <span className="text-muted-foreground">Last Edited</span>
+                      <span className="text-sm">{selectedEmployee.editedBy} • {selectedEmployee.editedAt}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Employee Dialog */}
+        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Edit Employee</DialogTitle>
+              <DialogDescription>
+                Update employee information
+              </DialogDescription>
+            </DialogHeader>
+            {selectedEmployee && (
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-name">Full Name</Label>
+                  <Input
+                    id="edit-name"
+                    value={editFormData.name}
+                    onChange={(e) => setEditFormData(prev => ({ ...prev, name: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-designation">Designation</Label>
+                  <Select
+                    value={editFormData.designation}
+                    onValueChange={(value) => setEditFormData(prev => ({ ...prev, designation: value }))}
+                  >
+                    <SelectTrigger id="edit-designation">
+                      <SelectValue placeholder="Select designation" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background">
+                      <SelectItem value="Senior Developer">Senior Developer</SelectItem>
+                      <SelectItem value="Developer">Developer</SelectItem>
+                      <SelectItem value="Junior Developer">Junior Developer</SelectItem>
+                      <SelectItem value="Project Manager">Project Manager</SelectItem>
+                      <SelectItem value="QA Engineer">QA Engineer</SelectItem>
+                      <SelectItem value="UI/UX Designer">UI/UX Designer</SelectItem>
+                      <SelectItem value="DevOps Engineer">DevOps Engineer</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-department">Department</Label>
+                  <Select
+                    value={editFormData.department}
+                    onValueChange={(value) => setEditFormData(prev => ({ ...prev, department: value }))}
+                  >
+                    <SelectTrigger id="edit-department">
+                      <SelectValue placeholder="Select department" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background">
+                      <SelectItem value="Engineering">Engineering</SelectItem>
+                      <SelectItem value="Design">Design</SelectItem>
+                      <SelectItem value="Quality Assurance">Quality Assurance</SelectItem>
+                      <SelectItem value="Management">Management</SelectItem>
+                      <SelectItem value="Human Resources">Human Resources</SelectItem>
+                      <SelectItem value="Sales">Sales</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-biometric">Biometric ID</Label>
+                  <Input
+                    id="edit-biometric"
+                    value={editFormData.biometricId}
+                    onChange={(e) => setEditFormData(prev => ({ ...prev, biometricId: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-status">Status</Label>
+                  <Select
+                    value={editFormData.status}
+                    onValueChange={(value) => setEditFormData(prev => ({ ...prev, status: value }))}
+                  >
+                    <SelectTrigger id="edit-status">
+                      <SelectValue placeholder="Select status" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background">
+                      <SelectItem value="Active">Active</SelectItem>
+                      <SelectItem value="On Leave">On Leave</SelectItem>
+                      <SelectItem value="Inactive">Inactive</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex justify-end gap-2 pt-4 border-t">
+                  <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleSaveEdit}>
+                    Save Changes
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardLayout>
   );
