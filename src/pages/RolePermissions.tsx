@@ -23,6 +23,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -459,6 +460,9 @@ const RolePermissions = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add New Permission Rule</DialogTitle>
+            <DialogDescription>
+              Configure a new permission rule by selecting document type, role, and permission level.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
