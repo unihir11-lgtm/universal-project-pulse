@@ -275,69 +275,6 @@ const Roles = () => {
               </CardContent>
             </Card>
 
-            {/* Permission Matrix Overview */}
-            <Card>
-              <CardHeader className="py-3 md:py-6">
-                <CardTitle className="text-sm md:text-base">Quick Permission Overview</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="grid gap-3 md:gap-4 grid-cols-1 md:grid-cols-2">
-                    <div className="p-4 border rounded-lg space-y-2">
-                      <h4 className="font-semibold text-foreground">Admin</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Full access to all modules and features
-                      </p>
-                      <div className="flex flex-wrap gap-1 pt-2">
-                        {modules.map((module) => (
-                          <Badge key={module.name} variant="default">
-                            {module.name}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="p-4 border rounded-lg space-y-2">
-                      <h4 className="font-semibold text-foreground">Manager</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Project and employee management access
-                      </p>
-                      <div className="flex flex-wrap gap-1 pt-2">
-                        <Badge variant="default">Dashboard</Badge>
-                        <Badge variant="default">Projects</Badge>
-                        <Badge variant="default">Employees</Badge>
-                        <Badge variant="default">Reports</Badge>
-                      </div>
-                    </div>
-
-                    <div className="p-4 border rounded-lg space-y-2">
-                      <h4 className="font-semibold text-foreground">Employee</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Limited access to personal features
-                      </p>
-                      <div className="flex flex-wrap gap-1 pt-2">
-                        <Badge variant="secondary">Dashboard</Badge>
-                        <Badge variant="secondary">Projects</Badge>
-                        <Badge variant="secondary">Attendance</Badge>
-                      </div>
-                    </div>
-
-                    <div className="p-4 border rounded-lg space-y-2">
-                      <h4 className="font-semibold text-foreground">HR</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Employee and attendance management
-                      </p>
-                      <div className="flex flex-wrap gap-1 pt-2">
-                        <Badge variant="outline">Dashboard</Badge>
-                        <Badge variant="outline">Employees</Badge>
-                        <Badge variant="outline">Attendance</Badge>
-                        <Badge variant="outline">Reports</Badge>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </TabsContent>
 
           {/* Designation Tab */}
