@@ -16,6 +16,7 @@ import {
   AlertTriangle,
   FileText,
   UsersRound,
+  Shield,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 
@@ -46,6 +47,7 @@ const menuItems = [
   { title: "Project Summary", url: "/project-summary", icon: ListChecks },
   { title: "Attendance", url: "/attendance", icon: UserCheck },
   { title: "Employee Check-in", url: "/employee-checkin", icon: ClipboardList },
+  { title: "Role List", url: "/roles", icon: Shield },
 ];
 
 export function AppSidebar() {
