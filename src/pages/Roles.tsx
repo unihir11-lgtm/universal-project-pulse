@@ -81,6 +81,10 @@ const Roles = () => {
   const [activeTab, setActiveTab] = useState("roles");
   const [designationDialogOpen, setDesignationDialogOpen] = useState(false);
   const [designationsList, setDesignationsList] = useState(designations);
+  const [rolesList, setRolesList] = useState(roles);
+  const [editingRole, setEditingRole] = useState<{ id: number; name: string; description: string } | null>(null);
+  const [roleName, setRoleName] = useState("");
+  const [roleDescription, setRoleDescription] = useState("");
 
   const handlePermissionToggle = (module: string, permission: string) => {
     setSelectedPermissions((prev) => {
@@ -96,10 +100,38 @@ const Roles = () => {
     });
   };
 
+  const handleOpenRoleDialog = (role?: { id: number; name: string; description: string }) => {
+    if (role) {
+      setEditingRole(role);
+      setRoleName(role.name);
+      setRoleDescription(role.description);
+    } else {
+      setEditingRole(null);
+      setRoleName("");
+      setRoleDescription("");
+    }
+    setDialogOpen(true);
+  };
+
   const handleSaveRole = () => {
-    toast.success("Role permissions saved successfully");
+    if (editingRole) {
+      setRolesList(prev =>
+        prev.map(r => r.id === editingRole.id ? { ...r, name: roleName, description: roleDescription } : r)
+      );
+      toast.success("Role updated successfully");
+    } else {
+      toast.success("Role created successfully");
+    }
     setDialogOpen(false);
+    setEditingRole(null);
+    setRoleName("");
+    setRoleDescription("");
     setSelectedPermissions({});
+  };
+
+  const handleDeleteRole = (id: number) => {
+    setRolesList(prev => prev.filter(r => r.id !== id));
+    toast.success("Role deleted successfully");
   };
 
   const handleSaveDesignation = () => {
@@ -146,30 +178,47 @@ const Roles = () => {
           {/* Roles Tab */}
           <TabsContent value="roles" className="space-y-4">
             <div className="flex justify-end">
-              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <Dialog open={dialogOpen} onOpenChange={(open) => {
+                setDialogOpen(open);
+                if (!open) {
+                  setEditingRole(null);
+                  setRoleName("");
+                  setRoleDescription("");
+                }
+              }}>
                 <DialogTrigger asChild>
-                  <Button className="gap-2 w-full sm:w-auto">
+                  <Button className="gap-2 w-full sm:w-auto" onClick={() => handleOpenRoleDialog()}>
                     <Plus className="h-4 w-4" />
                     Add Role
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-w-lg">
                   <DialogHeader>
-                    <DialogTitle>Create New Role</DialogTitle>
+                    <DialogTitle>{editingRole ? "Edit Role" : "Create New Role"}</DialogTitle>
                     <DialogDescription>
-                      Define permissions for this role
+                      {editingRole ? "Modify role details" : "Define permissions for this role"}
                     </DialogDescription>
                   </DialogHeader>
                   
                   <div className="space-y-6 py-4">
                     <div className="space-y-2">
                       <Label htmlFor="role-name">Role Name</Label>
-                      <Input id="role-name" placeholder="e.g., Project Manager" />
+                      <Input 
+                        id="role-name" 
+                        placeholder="e.g., Project Manager" 
+                        value={roleName}
+                        onChange={(e) => setRoleName(e.target.value)}
+                      />
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="role-description">Description</Label>
-                      <Input id="role-description" placeholder="Brief description of the role" />
+                      <Input 
+                        id="role-description" 
+                        placeholder="Brief description of the role" 
+                        value={roleDescription}
+                        onChange={(e) => setRoleDescription(e.target.value)}
+                      />
                     </div>
 
                     <div className="flex justify-end gap-2 pt-4">
@@ -177,7 +226,7 @@ const Roles = () => {
                         Cancel
                       </Button>
                       <Button onClick={handleSaveRole}>
-                        Create Role
+                        {editingRole ? "Save Changes" : "Create Role"}
                       </Button>
                     </div>
                   </div>
@@ -205,7 +254,7 @@ const Roles = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {roles.map((role) => (
+                      {rolesList.map((role) => (
                         <TableRow key={role.id}>
                           <TableCell className="font-medium">{role.name}</TableCell>
                           <TableCell className="text-muted-foreground">{role.description}</TableCell>
@@ -213,59 +262,22 @@ const Roles = () => {
                             <Badge variant="outline">{role.users} users</Badge>
                           </TableCell>
                           <TableCell className="text-right">
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <Button variant="outline" size="sm" className="gap-2">
-                                  <Edit className="h-3 w-3" />
-                                  Edit Permissions
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                                <DialogHeader>
-                                  <DialogTitle>Edit Role: {role.name}</DialogTitle>
-                                  <DialogDescription>
-                                    Modify permissions for this role
-                                  </DialogDescription>
-                                </DialogHeader>
-                                
-                                <div className="space-y-4 py-4">
-                                  <div className="border rounded-lg overflow-hidden">
-                                    <Table>
-                                      <TableHeader>
-                                        <TableRow>
-                                          <TableHead className="w-[200px]">Module</TableHead>
-                                          <TableHead>View</TableHead>
-                                          <TableHead>Add</TableHead>
-                                          <TableHead>Edit</TableHead>
-                                          <TableHead>Delete</TableHead>
-                                        </TableRow>
-                                      </TableHeader>
-                                      <TableBody>
-                                        {modules.map((module) => (
-                                          <TableRow key={module.name}>
-                                            <TableCell className="font-medium">{module.name}</TableCell>
-                                            {module.permissions.map((permission) => (
-                                              <TableCell key={permission}>
-                                                <Checkbox
-                                                  defaultChecked={role.name === "Admin"}
-                                                />
-                                              </TableCell>
-                                            ))}
-                                          </TableRow>
-                                        ))}
-                                      </TableBody>
-                                    </Table>
-                                  </div>
-
-                                  <div className="flex justify-end gap-2 pt-4">
-                                    <Button variant="outline">Cancel</Button>
-                                    <Button onClick={() => toast.success("Permissions updated")}>
-                                      Save Changes
-                                    </Button>
-                                  </div>
-                                </div>
-                              </DialogContent>
-                            </Dialog>
+                            <div className="flex items-center justify-end gap-2">
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => handleOpenRoleDialog(role)}
+                              >
+                                <Edit className="h-4 w-4 text-muted-foreground" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => handleDeleteRole(role.id)}
+                              >
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       ))}
