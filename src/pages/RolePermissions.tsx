@@ -58,7 +58,18 @@ const documentTypes = [
   "Report",
 ];
 
-const roles = ["Employee", "Manager", "Admin", "Finance", "Contributor"];
+const designations = [
+  "Super Admin",
+  "HR",
+  "Project Manager",
+  "Accountant",
+  "Business Analyst",
+  "Team Lead",
+  "Developer",
+  "QA Engineer",
+  "Designer",
+  "Support Executive",
+];
 
 const initialRules: PermissionRule[] = [
   {
@@ -258,9 +269,9 @@ const RolePermissions = () => {
             </SelectTrigger>
             <SelectContent className="bg-popover z-50">
               <SelectItem value="all">Roles</SelectItem>
-              {roles.map((role) => (
-                <SelectItem key={role} value={role}>
-                  {role}
+              {designations.map((designation) => (
+                <SelectItem key={designation} value={designation}>
+                  {designation}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -401,12 +412,12 @@ const RolePermissions = () => {
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select role" />
+                  <SelectValue placeholder="Select designation" />
                 </SelectTrigger>
                 <SelectContent>
-                  {roles.map((role) => (
-                    <SelectItem key={role} value={role}>
-                      {role}
+                  {designations.map((designation) => (
+                    <SelectItem key={designation} value={designation}>
+                      {designation}
                     </SelectItem>
                   ))}
                 </SelectContent>
