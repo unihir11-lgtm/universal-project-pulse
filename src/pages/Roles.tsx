@@ -172,41 +172,6 @@ const Roles = () => {
                       <Input id="role-description" placeholder="Brief description of the role" />
                     </div>
 
-                    <div className="space-y-4">
-                      <Label className="text-base font-semibold">Module Permissions</Label>
-                      
-                      <div className="border rounded-lg overflow-hidden">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead className="w-[200px]">Module</TableHead>
-                              <TableHead>View</TableHead>
-                              <TableHead>Add</TableHead>
-                              <TableHead>Edit</TableHead>
-                              <TableHead>Delete</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {modules.map((module) => (
-                              <TableRow key={module.name}>
-                                <TableCell className="font-medium">{module.name}</TableCell>
-                                {module.permissions.map((permission) => (
-                                  <TableCell key={permission}>
-                                    <Checkbox
-                                      checked={selectedPermissions[module.name]?.includes(permission)}
-                                      onCheckedChange={() =>
-                                        handlePermissionToggle(module.name, permission)
-                                      }
-                                    />
-                                  </TableCell>
-                                ))}
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </div>
-                    </div>
-
                     <div className="flex justify-end gap-2 pt-4">
                       <Button variant="outline" onClick={() => setDialogOpen(false)}>
                         Cancel
