@@ -51,12 +51,9 @@ interface PermissionRule {
 }
 
 const documentTypes = [
-  "Fiscal Year",
-  "Appointment",
-  "Activity Type",
-  "Employee",
   "Project",
   "Task",
+  "Employee",
   "Time Entry",
   "Report",
 ];
@@ -66,7 +63,7 @@ const roles = ["Employee", "Manager", "Admin", "Finance", "Contributor"];
 const initialRules: PermissionRule[] = [
   {
     id: "1",
-    documentType: "Fiscal Year",
+    documentType: "Project",
     role: "Employee",
     level: 0,
     onlyIfCreator: false,
@@ -86,7 +83,7 @@ const initialRules: PermissionRule[] = [
   },
   {
     id: "2",
-    documentType: "Appointment",
+    documentType: "Task",
     role: "Employee",
     level: 0,
     onlyIfCreator: false,
@@ -106,7 +103,7 @@ const initialRules: PermissionRule[] = [
   },
   {
     id: "3",
-    documentType: "Activity Type",
+    documentType: "Employee",
     role: "Employee",
     level: 0,
     onlyIfCreator: false,
