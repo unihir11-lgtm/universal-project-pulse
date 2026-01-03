@@ -141,7 +141,8 @@ const RolePermissions = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newRule, setNewRule] = useState({
     documentType: "",
-    role: "",
+    role: "Employee",
+    level: "0",
   });
 
   const handlePermissionChange = (
@@ -186,10 +187,10 @@ const RolePermissions = () => {
   };
 
   const handleAddRule = () => {
-    if (!newRule.documentType || !newRule.role) {
+    if (!newRule.documentType || !newRule.role || !newRule.level) {
       toast({
         title: "Error",
-        description: "Please select both document type and role.",
+        description: "Please fill in all required fields.",
         variant: "destructive",
       });
       return;
@@ -199,7 +200,7 @@ const RolePermissions = () => {
       id: Date.now().toString(),
       documentType: newRule.documentType,
       role: newRule.role,
-      level: 0,
+      level: parseInt(newRule.level),
       onlyIfCreator: false,
       permissions: {
         select: false,
@@ -217,7 +218,7 @@ const RolePermissions = () => {
     };
 
     setRules((prev) => [...prev, rule]);
-    setNewRule({ documentType: "", role: "" });
+    setNewRule({ documentType: "", role: "Employee", level: "0" });
     setIsDialogOpen(false);
     toast({
       title: "Rule added",
@@ -384,7 +385,9 @@ const RolePermissions = () => {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Document Type</Label>
+              <Label>
+                Document Type <span className="text-destructive">*</span>
+              </Label>
               <Select
                 value={newRule.documentType}
                 onValueChange={(value) =>
@@ -404,7 +407,9 @@ const RolePermissions = () => {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Role</Label>
+              <Label>
+                Role <span className="text-destructive">*</span>
+              </Label>
               <Select
                 value={newRule.role}
                 onValueChange={(value) =>
@@ -412,7 +417,7 @@ const RolePermissions = () => {
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select designation" />
+                  <SelectValue placeholder="Select role" />
                 </SelectTrigger>
                 <SelectContent>
                   {designations.map((designation) => (
@@ -423,12 +428,35 @@ const RolePermissions = () => {
                 </SelectContent>
               </Select>
             </div>
+            <div className="space-y-2">
+              <Label>
+                Permission Level <span className="text-destructive">*</span>
+              </Label>
+              <Select
+                value={newRule.level}
+                onValueChange={(value) =>
+                  setNewRule((prev) => ({ ...prev, level: value }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select level" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="0">0</SelectItem>
+                  <SelectItem value="1">1</SelectItem>
+                  <SelectItem value="2">2</SelectItem>
+                  <SelectItem value="3">3</SelectItem>
+                  <SelectItem value="4">4</SelectItem>
+                  <SelectItem value="5">5</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-sm text-muted-foreground">
+                Level 0 is for document level permissions, higher levels for field level permissions.
+              </p>
+            </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleAddRule}>Add Rule</Button>
+            <Button onClick={handleAddRule}>Add</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
