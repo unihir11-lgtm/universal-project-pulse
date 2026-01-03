@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Trash2, KeyRound } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -323,13 +323,7 @@ const RolePermissions = () => {
           <h1 className="text-2xl font-bold text-foreground">
             Role Permissions Manager
           </h1>
-          <div className="flex gap-2">
-            <Button variant="outline">
-              <KeyRound className="h-4 w-4 mr-2" />
-              Set User Permissions
-            </Button>
-            <Button onClick={() => setIsDialogOpen(true)}>+ Add A New Rule</Button>
-          </div>
+          <Button onClick={() => setIsDialogOpen(true)}>+ Add A New Rule</Button>
         </div>
 
         {/* Filter */}
