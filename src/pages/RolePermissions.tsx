@@ -129,6 +129,7 @@ const initialRules: PermissionRule[] = [
 const RolePermissions = () => {
   const [rules, setRules] = useState<PermissionRule[]>(initialRules);
   const [filterDocType, setFilterDocType] = useState<string>("all");
+  const [filterRole, setFilterRole] = useState<string>("all");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newRule, setNewRule] = useState({
     documentType: "",
@@ -216,10 +217,11 @@ const RolePermissions = () => {
     });
   };
 
-  const filteredRules =
-    filterDocType === "all"
-      ? rules
-      : rules.filter((rule) => rule.documentType === filterDocType);
+  const filteredRules = rules.filter((rule) => {
+    const matchesDocType = filterDocType === "all" || rule.documentType === filterDocType;
+    const matchesRole = filterRole === "all" || rule.role === filterRole;
+    return matchesDocType && matchesRole;
+  });
 
   return (
     <DashboardLayout>
@@ -239,19 +241,29 @@ const RolePermissions = () => {
         </div>
 
         {/* Filter */}
-        <div className="flex items-center gap-4 p-4 bg-muted/30 rounded-lg">
-          <Label className="text-muted-foreground whitespace-nowrap">
-            Document Type
-          </Label>
+        <div className="flex items-center gap-2 p-4 bg-muted/30 rounded-lg">
           <Select value={filterDocType} onValueChange={setFilterDocType}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="All Types" />
+            <SelectTrigger className="w-[180px] bg-background">
+              <SelectValue placeholder="Document Type" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
+            <SelectContent className="bg-popover z-50">
+              <SelectItem value="all">Document Type</SelectItem>
               {documentTypes.map((type) => (
                 <SelectItem key={type} value={type}>
                   {type}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={filterRole} onValueChange={setFilterRole}>
+            <SelectTrigger className="w-[150px] bg-background">
+              <SelectValue placeholder="Roles" />
+            </SelectTrigger>
+            <SelectContent className="bg-popover z-50">
+              <SelectItem value="all">Roles</SelectItem>
+              {roles.map((role) => (
+                <SelectItem key={role} value={role}>
+                  {role}
                 </SelectItem>
               ))}
             </SelectContent>
