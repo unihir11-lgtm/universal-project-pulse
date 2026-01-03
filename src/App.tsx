@@ -25,6 +25,7 @@ import TaskTimeReport from "./pages/TaskTimeReport";
 import DelayedTasks from "./pages/DelayedTasks";
 import ResourceAllocation from "./pages/ResourceAllocation";
 import EmployeeCheckin from "./pages/EmployeeCheckin";
+import RolePermissions from "./pages/RolePermissions";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -58,6 +59,7 @@ const App = () => (
             <Route path="/delayed-tasks" element={<DelayedTasks />} />
             <Route path="/resource-allocation" element={<ResourceAllocation />} />
             <Route path="/employee-checkin" element={<EmployeeCheckin />} />
+            <Route path="/role-permissions" element={<RolePermissions />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

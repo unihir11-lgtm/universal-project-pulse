@@ -17,6 +17,7 @@ import {
   FileText,
   UsersRound,
   Shield,
+  KeyRound,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 
@@ -48,6 +49,7 @@ const menuItems = [
   { title: "Attendance", url: "/attendance", icon: UserCheck },
   { title: "Employee Check-in", url: "/employee-checkin", icon: ClipboardList },
   { title: "Role List", url: "/roles", icon: Shield },
+  { title: "Role Permissions", url: "/role-permissions", icon: KeyRound },
 ];
 
 export function AppSidebar() {
