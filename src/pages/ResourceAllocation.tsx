@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
-import { format, startOfWeek, addWeeks, addDays } from "date-fns";
+import { format, startOfWeek, addWeeks, isSameWeek } from "date-fns";
 
 // Project colors for allocation bars
 const projectColors: Record<string, { bg: string; text: string }> = {
@@ -18,7 +18,12 @@ const projectColors: Record<string, { bg: string; text: string }> = {
   "Internal Tools": { bg: "bg-teal-500", text: "text-white" },
 };
 
-// Mock employee data with weekly allocations
+// Helper to create week date
+const createWeekDate = (year: number, month: number, day: number) => {
+  return startOfWeek(new Date(year, month, day), { weekStartsOn: 1 });
+};
+
+// Mock employee data with weekly allocations by specific weeks
 const mockEmployees = [
   {
     id: "1",
@@ -26,9 +31,11 @@ const mockEmployees = [
     designation: "Senior Engineer",
     department: "Engineering",
     initials: "SC",
-    allocations: [
-      { project: "Enterprise Platform", hours: 32 },
-      { project: "Mobile App v3", hours: 16 },
+    weeklyAllocations: [
+      { weekStart: createWeekDate(2025, 0, 13), allocations: [{ project: "Enterprise Platform", hours: 32 }, { project: "Mobile App v3", hours: 16 }] },
+      { weekStart: createWeekDate(2025, 0, 20), allocations: [{ project: "Enterprise Platform", hours: 28 }, { project: "Mobile App v3", hours: 12 }] },
+      { weekStart: createWeekDate(2025, 0, 27), allocations: [{ project: "Mobile App v3", hours: 40 }] },
+      { weekStart: createWeekDate(2025, 1, 3), allocations: [{ project: "Enterprise Platform", hours: 20 }] },
     ],
     isOverAllocated: true,
   },
@@ -38,9 +45,11 @@ const mockEmployees = [
     designation: "Tech Lead",
     department: "Engineering",
     initials: "MJ",
-    allocations: [
-      { project: "Enterprise Platform", hours: 40 },
-      { project: "Data Migration", hours: 8 },
+    weeklyAllocations: [
+      { weekStart: createWeekDate(2025, 0, 13), allocations: [{ project: "Enterprise Platform", hours: 40 }, { project: "Data Migration", hours: 8 }] },
+      { weekStart: createWeekDate(2025, 0, 20), allocations: [{ project: "Enterprise Platform", hours: 36 }] },
+      { weekStart: createWeekDate(2025, 0, 27), allocations: [{ project: "Data Migration", hours: 24 }, { project: "API Integration", hours: 16 }] },
+      { weekStart: createWeekDate(2025, 1, 3), allocations: [{ project: "Enterprise Platform", hours: 32 }] },
     ],
     isOverAllocated: true,
   },
@@ -50,8 +59,10 @@ const mockEmployees = [
     designation: "Designer",
     department: "Design",
     initials: "LW",
-    allocations: [
-      { project: "Mobile App v3", hours: 36 },
+    weeklyAllocations: [
+      { weekStart: createWeekDate(2025, 0, 13), allocations: [{ project: "Mobile App v3", hours: 36 }] },
+      { weekStart: createWeekDate(2025, 0, 20), allocations: [{ project: "Mobile App v3", hours: 32 }] },
+      { weekStart: createWeekDate(2025, 0, 27), allocations: [{ project: "Enterprise Platform", hours: 20 }, { project: "Mobile App v3", hours: 16 }] },
     ],
     isOverAllocated: false,
   },
@@ -61,9 +72,10 @@ const mockEmployees = [
     designation: "Engineer",
     department: "Engineering",
     initials: "JD",
-    allocations: [
-      { project: "Enterprise Platform", hours: 28 },
-      { project: "API Integration", hours: 12 },
+    weeklyAllocations: [
+      { weekStart: createWeekDate(2025, 0, 13), allocations: [{ project: "Enterprise Platform", hours: 28 }, { project: "API Integration", hours: 12 }] },
+      { weekStart: createWeekDate(2025, 0, 20), allocations: [{ project: "API Integration", hours: 40 }] },
+      { weekStart: createWeekDate(2025, 1, 3), allocations: [{ project: "Enterprise Platform", hours: 24 }, { project: "API Integration", hours: 8 }] },
     ],
     isOverAllocated: false,
   },
@@ -73,9 +85,11 @@ const mockEmployees = [
     designation: "PM",
     department: "Management",
     initials: "EW",
-    allocations: [
-      { project: "Mobile App v3", hours: 20 },
-      { project: "Data Migration", hours: 20 },
+    weeklyAllocations: [
+      { weekStart: createWeekDate(2025, 0, 13), allocations: [{ project: "Mobile App v3", hours: 20 }, { project: "Data Migration", hours: 20 }] },
+      { weekStart: createWeekDate(2025, 0, 20), allocations: [{ project: "Data Migration", hours: 30 }] },
+      { weekStart: createWeekDate(2025, 0, 27), allocations: [{ project: "Mobile App v3", hours: 16 }, { project: "Data Migration", hours: 16 }] },
+      { weekStart: createWeekDate(2025, 1, 3), allocations: [{ project: "Enterprise Platform", hours: 20 }] },
     ],
     isOverAllocated: false,
   },
@@ -85,9 +99,11 @@ const mockEmployees = [
     designation: "Senior Engineer",
     department: "Engineering",
     initials: "AT",
-    allocations: [
-      { project: "Data Migration", hours: 44 },
-      { project: "API Integration", hours: 8 },
+    weeklyAllocations: [
+      { weekStart: createWeekDate(2025, 0, 13), allocations: [{ project: "Data Migration", hours: 44 }, { project: "API Integration", hours: 8 }] },
+      { weekStart: createWeekDate(2025, 0, 20), allocations: [{ project: "Data Migration", hours: 40 }] },
+      { weekStart: createWeekDate(2025, 0, 27), allocations: [{ project: "API Integration", hours: 32 }] },
+      { weekStart: createWeekDate(2025, 1, 3), allocations: [{ project: "Data Migration", hours: 28 }, { project: "API Integration", hours: 12 }] },
     ],
     isOverAllocated: true,
   },
@@ -97,10 +113,14 @@ const mockEmployees = [
 const departments = [...new Set(mockEmployees.map(e => e.department))];
 
 // Get unique projects for legend
-const allProjects = [...new Set(mockEmployees.flatMap(e => e.allocations.map(a => a.project)))];
+const allProjects = [...new Set(mockEmployees.flatMap(e => 
+  e.weeklyAllocations.flatMap(w => w.allocations.map(a => a.project))
+))];
 
 const ResourceAllocation = () => {
-  const [currentWeekStart, setCurrentWeekStart] = useState(() => startOfWeek(new Date(), { weekStartsOn: 1 }));
+  const [currentWeekStart, setCurrentWeekStart] = useState(() => 
+    startOfWeek(new Date(2025, 0, 13), { weekStartsOn: 1 })
+  );
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [projectFilter, setProjectFilter] = useState("all");
 
@@ -114,7 +134,7 @@ const ResourceAllocation = () => {
     return mockEmployees.filter(employee => {
       const matchesDepartment = departmentFilter === "all" || employee.department === departmentFilter;
       const matchesProject = projectFilter === "all" || 
-        employee.allocations.some(a => a.project === projectFilter);
+        employee.weeklyAllocations.some(w => w.allocations.some(a => a.project === projectFilter));
       return matchesDepartment && matchesProject;
     });
   }, [departmentFilter, projectFilter]);
@@ -127,12 +147,16 @@ const ResourceAllocation = () => {
     setCurrentWeekStart(prev => addWeeks(prev, 1));
   };
 
-  const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
-  };
-
   const getProjectColor = (project: string) => {
     return projectColors[project] || { bg: "bg-gray-400", text: "text-white" };
+  };
+
+  // Get allocations for a specific employee and week
+  const getAllocationsForWeek = (employee: typeof mockEmployees[0], weekDate: Date) => {
+    const weekAllocation = employee.weeklyAllocations.find(w => 
+      isSameWeek(w.weekStart, weekDate, { weekStartsOn: 1 })
+    );
+    return weekAllocation?.allocations || [];
   };
 
   return (
@@ -226,28 +250,30 @@ const ResourceAllocation = () => {
                         </div>
                       </div>
                     </TableCell>
-                    {weeks.map((week, weekIndex) => (
-                      <TableCell key={weekIndex} className={`${weekIndex === 0 ? "bg-primary/5" : ""}`}>
-                        {weekIndex === 0 ? (
-                          <div className="space-y-1">
-                            {employee.allocations.map((allocation, allocIndex) => {
-                              const color = getProjectColor(allocation.project);
-                              // Calculate width based on hours (max 40h = 100%)
-                              const widthPercent = Math.min((allocation.hours / 40) * 100, 100);
-                              return (
-                                <div
-                                  key={allocIndex}
-                                  className={`${color.bg} ${color.text} text-xs font-medium px-2 py-1 rounded`}
-                                  style={{ width: `${widthPercent}%`, minWidth: '40px' }}
-                                >
-                                  {allocation.hours}h
-                                </div>
-                              );
-                            })}
-                          </div>
-                        ) : null}
-                      </TableCell>
-                    ))}
+                    {weeks.map((week, weekIndex) => {
+                      const allocations = getAllocationsForWeek(employee, week);
+                      return (
+                        <TableCell key={weekIndex} className={`${weekIndex === 0 ? "bg-primary/5" : ""}`}>
+                          {allocations.length > 0 && (
+                            <div className="space-y-1">
+                              {allocations.map((allocation, allocIndex) => {
+                                const color = getProjectColor(allocation.project);
+                                const widthPercent = Math.min((allocation.hours / 40) * 100, 100);
+                                return (
+                                  <div
+                                    key={allocIndex}
+                                    className={`${color.bg} ${color.text} text-xs font-medium px-2 py-1 rounded`}
+                                    style={{ width: `${widthPercent}%`, minWidth: '40px' }}
+                                  >
+                                    {allocation.hours}h
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </TableCell>
+                      );
+                    })}
                   </TableRow>
                 ))}
               </TableBody>
