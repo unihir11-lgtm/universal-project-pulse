@@ -14,6 +14,7 @@ import ProjectTemplates from "./pages/ProjectTemplates";
 import SpentHours from "./pages/SpentHours";
 import TodaysHours from "./pages/TodaysHours";
 import Reports from "./pages/Reports";
+import BillingSummary from "./pages/BillingSummary";
 import Attendance from "./pages/Attendance";
 import Settings from "./pages/Settings";
 import EditProfile from "./pages/EditProfile";
@@ -50,6 +51,7 @@ const App = () => (
             <Route path="/spent-hours" element={<SpentHours />} />
             <Route path="/todays-hours" element={<TodaysHours />} />
             <Route path="/reports" element={<Reports />} />
+            <Route path="/billing-summary" element={<BillingSummary />} />
             <Route path="/attendance" element={<Attendance />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/edit-profile" element={<EditProfile />} />
