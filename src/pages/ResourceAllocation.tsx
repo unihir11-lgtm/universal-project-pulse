@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { ChevronLeft, ChevronRight, AlertTriangle, Edit } from "lucide-react";
 import { format, startOfWeek, addWeeks, isSameWeek } from "date-fns";
 
 // Project colors for allocation bars (industry-standard project types)
@@ -165,12 +166,20 @@ const allProjects = [...new Set(mockEmployees.flatMap(e =>
   e.weeklyAllocations.flatMap(w => w.allocations.map(a => a.project))
 ))];
 
+interface SelectedAllocation {
+  employee: typeof mockEmployees[0];
+  weekDate: Date;
+  allocations: { project: string; hours: number }[];
+  totalHours: number;
+}
+
 const ResourceAllocation = () => {
   const [currentWeekStart, setCurrentWeekStart] = useState(() => 
     startOfWeek(new Date(2025, 0, 13), { weekStartsOn: 1 })
   );
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [projectFilter, setProjectFilter] = useState("all");
+  const [selectedAllocation, setSelectedAllocation] = useState<SelectedAllocation | null>(null);
 
   // Generate 6 weeks starting from current week
   const weeks = useMemo(() => {
@@ -206,6 +215,23 @@ const ResourceAllocation = () => {
     );
     return weekAllocation?.allocations || [];
   };
+
+  // Handle clicking on allocation bars
+  const handleAllocationClick = (employee: typeof mockEmployees[0], weekDate: Date) => {
+    const allocations = getAllocationsForWeek(employee, weekDate);
+    if (allocations.length > 0) {
+      const totalHours = allocations.reduce((sum, a) => sum + a.hours, 0);
+      setSelectedAllocation({
+        employee,
+        weekDate,
+        allocations,
+        totalHours,
+      });
+    }
+  };
+
+  const capacity = 40;
+  const overAllocation = selectedAllocation ? Math.max(0, selectedAllocation.totalHours - capacity) : 0;
 
   return (
     <DashboardLayout>
@@ -303,7 +329,10 @@ const ResourceAllocation = () => {
                       return (
                         <TableCell key={weekIndex} className={`${weekIndex === 0 ? "bg-primary/5" : ""}`}>
                           {allocations.length > 0 && (
-                            <div className="space-y-1">
+                            <div 
+                              className="space-y-1 cursor-pointer hover:opacity-80 transition-opacity"
+                              onClick={() => handleAllocationClick(employee, week)}
+                            >
                               {allocations.map((allocation, allocIndex) => {
                                 const color = getProjectColor(allocation.project);
                                 const widthPercent = Math.min((allocation.hours / 40) * 100, 100);
@@ -341,6 +370,70 @@ const ResourceAllocation = () => {
             );
           })}
         </div>
+
+        {/* Allocation Details Sheet */}
+        <Sheet open={!!selectedAllocation} onOpenChange={() => setSelectedAllocation(null)}>
+          <SheetContent className="w-[400px] sm:w-[450px]">
+            <SheetHeader>
+              <SheetTitle>Allocation Details</SheetTitle>
+            </SheetHeader>
+            
+            {selectedAllocation && (
+              <div className="mt-6 space-y-6">
+                <p className="text-muted-foreground">
+                  View and manage allocation for {selectedAllocation.employee.name}
+                </p>
+
+                {/* Total Allocated */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">Total Allocated</span>
+                    <span className={`font-semibold ${overAllocation > 0 ? 'text-destructive' : 'text-foreground'}`}>
+                      {selectedAllocation.totalHours}h / {capacity}h
+                    </span>
+                  </div>
+                  <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full transition-all ${overAllocation > 0 ? 'bg-destructive' : 'bg-primary'}`}
+                      style={{ width: `${Math.min((selectedAllocation.totalHours / capacity) * 100, 100)}%` }}
+                    />
+                  </div>
+                  {overAllocation > 0 && (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-destructive bg-destructive/10 rounded-full">
+                      <AlertTriangle className="h-3 w-3" />
+                      Over-allocated by {overAllocation}h
+                    </span>
+                  )}
+                </div>
+
+                {/* Project Breakdown */}
+                <div className="space-y-3">
+                  <h4 className="font-medium">Project Breakdown</h4>
+                  <div className="space-y-2">
+                    {selectedAllocation.allocations.map((allocation, index) => {
+                      const color = getProjectColor(allocation.project);
+                      return (
+                        <div key={index} className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className={`w-3 h-3 rounded-full ${color.bg}`} />
+                            <span className="text-sm">{allocation.project}</span>
+                          </div>
+                          <span className="text-sm font-medium">{allocation.hours}h</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Edit Button */}
+                <Button className="w-full gap-2">
+                  <Edit className="h-4 w-4" />
+                  Edit Allocation
+                </Button>
+              </div>
+            )}
+          </SheetContent>
+        </Sheet>
       </div>
     </DashboardLayout>
   );
