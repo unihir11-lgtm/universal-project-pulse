@@ -46,7 +46,7 @@ const menuItems = [
   { title: "Tasks", url: "/tasks", icon: ClipboardList },
   { title: "Resource Allocation", url: "/resource-allocation", icon: UsersRound },
   { title: "Spent Hours", url: "/spent-hours", icon: Clock },
-  { title: "Billing Summary", url: "/reports?tab=billing", icon: DollarSign },
+  { title: "Billing Summary", url: "/billing-summary", icon: DollarSign },
   { title: "Project Summary", url: "/project-summary", icon: ListChecks },
   { title: "Attendance", url: "/attendance", icon: UserCheck },
   { title: "Employee Check-in", url: "/employee-checkin", icon: ClipboardList },
