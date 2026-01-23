@@ -17,12 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { Download, RotateCcw, ChevronRight, FileText, Search } from "lucide-react";
+import { Download, RotateCcw, ChevronRight, ChevronDown, FileText, Search } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -430,54 +425,45 @@ const BillingSummary = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {Object.entries(groupedByClient).map(([client, entries]) => (
-                  <Collapsible 
-                    key={client} 
-                    open={expandedClients.includes(client)}
-                    onOpenChange={() => toggleClient(client)}
-                    asChild
-                  >
+                {Object.entries(groupedByClient).map(([client, entries]) => {
+                  const isExpanded = expandedClients.includes(client);
+                  return (
                     <>
-                      <CollapsibleTrigger asChild>
-                        <TableRow 
-                          className="cursor-pointer hover:bg-muted/50 font-medium"
-                          onClick={() => toggleClient(client)}
-                        >
-                          <TableCell>
-                            <ChevronRight 
-                              className={`h-4 w-4 transition-transform ${
-                                expandedClients.includes(client) ? "rotate-90" : ""
-                              }`}
-                            />
-                          </TableCell>
-                          <TableCell colSpan={canViewCostData ? 7 : 5}>
-                            {client} ({entries.length})
-                          </TableCell>
+                      <TableRow 
+                        key={`client-${client}`}
+                        className="cursor-pointer hover:bg-muted/50 font-medium"
+                        onClick={() => toggleClient(client)}
+                      >
+                        <TableCell>
+                          {isExpanded ? (
+                            <ChevronDown className="h-4 w-4" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4" />
+                          )}
+                        </TableCell>
+                        <TableCell colSpan={canViewCostData ? 7 : 5}>
+                          {client} ({entries.length})
+                        </TableCell>
+                      </TableRow>
+                      {isExpanded && entries.map(entry => (
+                        <TableRow key={entry.id} className="bg-muted/20">
+                          <TableCell></TableCell>
+                          <TableCell className="text-primary">{entry.projectName}</TableCell>
+                          <TableCell className="text-primary">{entry.employeeName}</TableCell>
+                          <TableCell className="text-right font-medium">{entry.billableHours}h</TableCell>
+                          <TableCell className="text-right text-muted-foreground">{entry.nonBillableHours}h</TableCell>
+                          <TableCell className="text-right text-success font-medium">${entry.billableValue.toLocaleString()}</TableCell>
+                          {canViewCostData && (
+                            <>
+                              <TableCell className="text-right">${entry.cost.toLocaleString()}</TableCell>
+                              <TableCell className="text-right text-success font-medium">{entry.margin}%</TableCell>
+                            </>
+                          )}
                         </TableRow>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent asChild>
-                        <>
-                          {entries.map(entry => (
-                            <TableRow key={entry.id} className="bg-muted/20">
-                              <TableCell></TableCell>
-                              <TableCell className="text-primary">{entry.projectName}</TableCell>
-                              <TableCell className="text-primary">{entry.employeeName}</TableCell>
-                              <TableCell className="text-right font-medium">{entry.billableHours}h</TableCell>
-                              <TableCell className="text-right text-muted-foreground">{entry.nonBillableHours}h</TableCell>
-                              <TableCell className="text-right text-success font-medium">${entry.billableValue.toLocaleString()}</TableCell>
-                              {canViewCostData && (
-                                <>
-                                  <TableCell className="text-right">${entry.cost.toLocaleString()}</TableCell>
-                                  <TableCell className="text-right text-success font-medium">{entry.margin}%</TableCell>
-                                </>
-                              )}
-                            </TableRow>
-                          ))}
-                        </>
-                      </CollapsibleContent>
+                      ))}
                     </>
-                  </Collapsible>
-                ))}
+                  );
+                })}
               </TableBody>
             </Table>
           </CardContent>
