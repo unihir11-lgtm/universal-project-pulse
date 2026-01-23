@@ -26,6 +26,7 @@ import DelayedTasks from "./pages/DelayedTasks";
 import ResourceAllocation from "./pages/ResourceAllocation";
 import EmployeeCheckin from "./pages/EmployeeCheckin";
 import RolePermissions from "./pages/RolePermissions";
+import ExecutiveDashboard from "./pages/ExecutiveDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/executive-dashboard" element={<ExecutiveDashboard />} />
             <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
             <Route path="/employees" element={<Employees />} />
             <Route path="/employee-rates" element={<EmployeeRates />} />

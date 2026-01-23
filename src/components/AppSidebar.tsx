@@ -18,6 +18,7 @@ import {
   UsersRound,
   Shield,
   KeyRound,
+  PieChart,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 
@@ -35,6 +36,7 @@ import {
 
 const menuItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+  { title: "Executive Dashboard", url: "/executive-dashboard", icon: PieChart },
   { title: "Employee Dashboard", url: "/employee-dashboard", icon: User },
   { title: "Employees", url: "/employees", icon: Users },
   { title: "Employee Rates", url: "/employee-rates", icon: BadgeDollarSign },
