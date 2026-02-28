@@ -214,51 +214,71 @@ const Sprints = () => {
     }));
   };
 
-  // Get total allocation for an employee across ALL active sprints in the same week
-  const getEmployeeWeeklyAllocation = (employeeId: string, sprintStartDate: string) => {
+  // Get total allocation for an employee across ALL sprints overlapping the same week
+  const getEmployeeWeeklyAllocation = (employeeId: string, sprintStartDate: string, sprintEndDate: string) => {
     let totalHours = 0;
+    const details: { sprintName: string; project: string; hours: number }[] = [];
     sprints.forEach((s) => {
-      if (s.startDate === sprintStartDate || (s.status === "Active" && s.startDate <= sprintStartDate && s.endDate >= sprintStartDate)) {
+      // Check if sprint week overlaps
+      const overlaps = s.startDate <= sprintEndDate && s.endDate >= sprintStartDate;
+      if (overlaps) {
+        let sprintHours = 0;
         s.tasks.filter((t) => t.assigneeId === employeeId).forEach((t) => {
+          sprintHours += t.estimatedHours;
           totalHours += t.estimatedHours;
         });
+        if (sprintHours > 0) {
+          details.push({ sprintName: s.name, project: s.project, hours: sprintHours });
+        }
       }
     });
-    return totalHours;
+    return { totalHours, details };
   };
 
-  // Allocation warnings when selecting tasks
-  const allocationWarnings = useMemo(() => {
-    if (selectedTaskIds.length === 0 || !targetSprint) return [];
+  // Full weekly capacity view for ALL employees when a target sprint is selected
+  const weeklyCapacityView = useMemo(() => {
+    if (!targetSprint) return [];
 
     const target = sprints.find((s) => `${s.name} - ${s.project}` === targetSprint);
     if (!target) return [];
 
-    const warnings: { employeeName: string; capacity: number; alreadyAllocated: number; newHours: number; }[] = [];
     const selectedTasks = taskQueue.filter((t) => selectedTaskIds.includes(t.id));
 
-    // Group selected tasks by assignee
-    const byAssignee = new Map<string, { name: string; hours: number }>();
+    // Build per-employee new hours from selection
+    const newHoursMap = new Map<string, number>();
     selectedTasks.forEach((t) => {
-      const ex = byAssignee.get(t.assigneeId) || { name: t.assigneeName, hours: 0 };
-      ex.hours += t.estimatedHours;
-      byAssignee.set(t.assigneeId, ex);
+      newHoursMap.set(t.assigneeId, (newHoursMap.get(t.assigneeId) || 0) + t.estimatedHours);
     });
 
-    byAssignee.forEach((data, empId) => {
-      const alreadyAllocated = getEmployeeWeeklyAllocation(empId, target.startDate);
-      if (alreadyAllocated + data.hours > WEEKLY_CAPACITY) {
-        warnings.push({
-          employeeName: data.name,
-          capacity: WEEKLY_CAPACITY,
-          alreadyAllocated,
-          newHours: data.hours,
-        });
-      }
+    return employeesData.map((emp) => {
+      const { totalHours: alreadyAllocated, details } = getEmployeeWeeklyAllocation(emp.id, target.startDate, target.endDate);
+      const newHours = newHoursMap.get(emp.id) || 0;
+      const totalAfter = alreadyAllocated + newHours;
+      return {
+        id: emp.id,
+        name: emp.name,
+        capacity: WEEKLY_CAPACITY,
+        alreadyAllocated,
+        newHours,
+        totalAfter,
+        remaining: WEEKLY_CAPACITY - totalAfter,
+        isOverAllocated: totalAfter > WEEKLY_CAPACITY,
+        details,
+      };
     });
+  }, [targetSprint, selectedTaskIds, sprints, taskQueue]);
 
-    return warnings;
-  }, [selectedTaskIds, targetSprint, sprints, taskQueue]);
+  // Allocation warnings derived from weeklyCapacityView
+  const allocationWarnings = useMemo(() => {
+    return weeklyCapacityView
+      .filter((e) => e.newHours > 0 && e.isOverAllocated)
+      .map((e) => ({
+        employeeName: e.name,
+        capacity: e.capacity,
+        alreadyAllocated: e.alreadyAllocated,
+        newHours: e.newHours,
+      }));
+  }, [weeklyCapacityView]);
 
   const filteredSprints = sprints.filter((sprint) => {
     const matchesProject = filterProject === "all" || sprint.project === filterProject;
@@ -601,6 +621,97 @@ const Sprints = () => {
               </Alert>
             )}
 
+            {/* Employee Weekly Capacity Panel — shows when target sprint is selected */}
+            {targetSprint && weeklyCapacityView.length > 0 && (
+              <div className="rounded-lg border bg-card p-3 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-semibold text-foreground">Employee Weekly Capacity</span>
+                  <Badge variant="outline" className="text-[10px]">
+                    Week of {formatDate(sprints.find((s) => `${s.name} - ${s.project}` === targetSprint)?.startDate || "")}
+                  </Badge>
+                </div>
+                <div className="overflow-x-auto">
+                  <Table className="min-w-[700px]">
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="text-xs py-1.5">Employee</TableHead>
+                        <TableHead className="text-xs py-1.5 text-center">Weekly Capacity</TableHead>
+                        <TableHead className="text-xs py-1.5 text-center">Already Allocated</TableHead>
+                        {selectedTaskIds.length > 0 && <TableHead className="text-xs py-1.5 text-center">New Tasks</TableHead>}
+                        <TableHead className="text-xs py-1.5 text-center">Remaining</TableHead>
+                        <TableHead className="text-xs py-1.5 w-40">Utilization</TableHead>
+                        <TableHead className="text-xs py-1.5">Breakdown</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {weeklyCapacityView
+                        .filter((e) => e.alreadyAllocated > 0 || e.newHours > 0)
+                        .map((emp) => {
+                          const pct = Math.round((emp.totalAfter / emp.capacity) * 100);
+                          return (
+                            <TableRow key={emp.id} className={emp.isOverAllocated ? "bg-destructive/5" : ""}>
+                              <TableCell className="text-sm py-1.5 font-medium">
+                                <div className="flex items-center gap-1.5">
+                                  <User className="h-3.5 w-3.5 text-muted-foreground" />
+                                  {emp.name}
+                                  {emp.isOverAllocated && <AlertTriangle className="h-3 w-3 text-destructive" />}
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-sm py-1.5 text-center font-mono">{emp.capacity}h</TableCell>
+                              <TableCell className="text-sm py-1.5 text-center font-mono font-semibold">{emp.alreadyAllocated}h</TableCell>
+                              {selectedTaskIds.length > 0 && (
+                                <TableCell className="text-sm py-1.5 text-center font-mono">
+                                  {emp.newHours > 0 ? (
+                                    <span className="text-primary font-semibold">+{emp.newHours}h</span>
+                                  ) : (
+                                    <span className="text-muted-foreground">—</span>
+                                  )}
+                                </TableCell>
+                              )}
+                              <TableCell className={`text-sm py-1.5 text-center font-mono font-semibold ${emp.remaining < 0 ? "text-destructive" : "text-foreground"}`}>
+                                {emp.remaining}h
+                              </TableCell>
+                              <TableCell className="py-1.5">
+                                <div className="flex items-center gap-2">
+                                  <Progress value={Math.min(pct, 100)} className={`h-2 flex-1 ${getProgressColor(pct)}`} />
+                                  <span className={`text-[10px] font-mono font-semibold min-w-[30px] text-right ${getUtilColor(pct)}`}>
+                                    {pct}%
+                                  </span>
+                                </div>
+                              </TableCell>
+                              <TableCell className="py-1.5">
+                                <div className="flex flex-wrap gap-1">
+                                  {emp.details.map((d, i) => (
+                                    <TooltipProvider key={i}>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <Badge variant="outline" className="text-[9px] cursor-default">{d.sprintName} ({d.hours}h)</Badge>
+                                        </TooltipTrigger>
+                                        <TooltipContent className="bg-background border text-xs">
+                                          {d.project} — {d.sprintName}: {d.hours}h
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </TooltipProvider>
+                                  ))}
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      {weeklyCapacityView.filter((e) => e.alreadyAllocated > 0 || e.newHours > 0).length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={7} className="text-center text-xs text-muted-foreground py-4">
+                            No employees allocated for this week yet.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            )}
+
             {/* Add to Sprint action bar */}
             <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border">
               <Select value={targetSprint} onValueChange={setTargetSprint}>
@@ -717,72 +828,66 @@ const Sprints = () => {
               </p>
             </CardHeader>
             <CardContent className="pt-0 space-y-4">
-              {/* Employee Capacity Summary Table */}
+              {/* Employee Weekly Capacity Summary — across ALL sprints this week */}
               <div className="overflow-x-auto">
-                <Table className="min-w-[700px]">
+                <Table className="min-w-[750px]">
                   <TableHeader>
                     <TableRow>
                       <TableHead className="text-xs py-2">Employee</TableHead>
-                      <TableHead className="text-xs py-2 text-center">Capacity (h)</TableHead>
-                      <TableHead className="text-xs py-2 text-center">Assigned (h)</TableHead>
-                      <TableHead className="text-xs py-2 text-center">Remaining (h)</TableHead>
-                      <TableHead className="text-xs py-2 w-48">Utilization</TableHead>
-                      <TableHead className="text-xs py-2">Assigned Tasks</TableHead>
+                      <TableHead className="text-xs py-2 text-center">Weekly Capacity</TableHead>
+                      <TableHead className="text-xs py-2 text-center">This Sprint</TableHead>
+                      <TableHead className="text-xs py-2 text-center">Total Week</TableHead>
+                      <TableHead className="text-xs py-2 text-center">Remaining</TableHead>
+                      <TableHead className="text-xs py-2 w-44">Utilization</TableHead>
+                      <TableHead className="text-xs py-2">Breakdown</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {(() => {
-                      const allocations = getEmployeeAllocationForSprint(viewingSprint);
-                      if (allocations.length === 0) {
+                      const sprintAllocations = getEmployeeAllocationForSprint(viewingSprint);
+                      if (sprintAllocations.length === 0) {
                         return (
                           <TableRow>
-                            <TableCell colSpan={6} className="text-center text-sm text-muted-foreground py-6">
+                            <TableCell colSpan={7} className="text-center text-sm text-muted-foreground py-6">
                               No tasks assigned to this sprint yet.
                             </TableCell>
                           </TableRow>
                         );
                       }
-                      return allocations.map((emp) => {
-                        const pct = Math.round((emp.assigned / emp.capacity) * 100);
+                      return sprintAllocations.map((emp) => {
+                        const { totalHours: weekTotal, details } = getEmployeeWeeklyAllocation(emp.id, viewingSprint.startDate, viewingSprint.endDate);
+                        const remaining = WEEKLY_CAPACITY - weekTotal;
+                        const pct = Math.round((weekTotal / WEEKLY_CAPACITY) * 100);
+                        const isOver = weekTotal > WEEKLY_CAPACITY;
                         return (
-                          <TableRow key={emp.id} className={emp.isOverAllocated ? "bg-destructive/5" : ""}>
+                          <TableRow key={emp.id} className={isOver ? "bg-destructive/5" : ""}>
                             <TableCell className="text-sm py-2 font-medium">
                               <div className="flex items-center gap-1.5">
                                 <Users className="h-3.5 w-3.5 text-muted-foreground" />
                                 {emp.name}
-                                {emp.isOverAllocated && (
-                                  <TooltipProvider>
-                                    <Tooltip>
-                                      <TooltipTrigger>
-                                        <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
-                                      </TooltipTrigger>
-                                      <TooltipContent className="bg-background border text-xs">
-                                        Over-allocated by {emp.assigned - emp.capacity}h
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </TooltipProvider>
-                                )}
+                                {isOver && <AlertTriangle className="h-3 w-3 text-destructive" />}
                               </div>
                             </TableCell>
-                            <TableCell className="text-sm py-2 text-center font-mono">{emp.capacity}</TableCell>
-                            <TableCell className={`text-sm py-2 text-center font-mono font-semibold ${emp.isOverAllocated ? "text-destructive" : ""}`}>
-                              {emp.assigned}
+                            <TableCell className="text-sm py-2 text-center font-mono">{WEEKLY_CAPACITY}h</TableCell>
+                            <TableCell className="text-sm py-2 text-center font-mono">{emp.assigned}h</TableCell>
+                            <TableCell className={`text-sm py-2 text-center font-mono font-semibold ${isOver ? "text-destructive" : ""}`}>
+                              {weekTotal}h
                             </TableCell>
-                            <TableCell className={`text-sm py-2 text-center font-mono ${emp.remaining < 0 ? "text-destructive font-semibold" : ""}`}>
-                              {emp.remaining}
+                            <TableCell className={`text-sm py-2 text-center font-mono font-semibold ${remaining < 0 ? "text-destructive" : ""}`}>
+                              {remaining}h
                             </TableCell>
                             <TableCell className="py-2">
                               <div className="flex items-center gap-2">
                                 <Progress value={Math.min(pct, 100)} className={`h-2 flex-1 ${getProgressColor(pct)}`} />
-                                <span className={`text-xs font-mono font-semibold min-w-[36px] text-right ${getUtilColor(pct)}`}>
+                                <span className={`text-[10px] font-mono font-semibold min-w-[30px] text-right ${getUtilColor(pct)}`}>
                                   {pct}%
                                 </span>
                               </div>
                             </TableCell>
                             <TableCell className="py-2">
                               <div className="flex flex-wrap gap-1">
-                                {emp.tasks.map((t, idx) => (
-                                  <Badge key={idx} variant="outline" className="text-[10px]">{t}</Badge>
+                                {details.map((d, i) => (
+                                  <Badge key={i} variant="outline" className="text-[9px]">{d.sprintName} · {d.project} ({d.hours}h)</Badge>
                                 ))}
                               </div>
                             </TableCell>
