@@ -574,7 +574,6 @@ const Sprints = () => {
                           <TableHead className="text-[11px] py-2">Employee Name</TableHead>
                           <TableHead className="text-[11px] py-2 text-center">Weekly Capacity</TableHead>
                           <TableHead className="text-[11px] py-2 text-center">Allocated Hours</TableHead>
-                          <TableHead className="text-[11px] py-2 text-center">Task Hours</TableHead>
                           <TableHead className="text-[11px] py-2 text-center">Remaining Hours</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -594,15 +593,6 @@ const Sprints = () => {
                               </TableCell>
                               <TableCell className="py-1.5 text-center text-xs">{WEEKLY_CAPACITY}h</TableCell>
                               <TableCell className="py-1.5 text-center text-xs font-medium">{allocatedHours}h</TableCell>
-                              <TableCell className="py-1.5 text-center">
-                                <Input
-                                  type="number"
-                                  min="0"
-                                  step="0.5"
-                                  placeholder="0"
-                                  className="h-7 w-20 text-xs text-center mx-auto"
-                                />
-                              </TableCell>
                               <TableCell className="py-1.5 text-center text-xs font-medium">{remaining}h</TableCell>
                             </TableRow>
                           );
