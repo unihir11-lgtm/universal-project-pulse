@@ -615,9 +615,7 @@ const Tasks = () => {
                             </TableCell>
                             <TableCell className="py-1.5 text-center text-xs">{weeklyCapacity}h</TableCell>
                             <TableCell className="py-1.5 text-center text-xs font-medium">
-                              <span className={isOverAllocated ? "text-destructive" : isNearCapacity ? "text-amber-600 dark:text-amber-400" : "text-foreground"}>
-                                {allocatedHours}h
-                              </span>
+                              {allocatedHours}h
                             </TableCell>
                             <TableCell className="py-1.5 text-center">
                               <Input
@@ -639,9 +637,7 @@ const Tasks = () => {
                               />
                             </TableCell>
                             <TableCell className="py-1.5 text-center text-xs font-medium">
-                              <span className={isOverAllocated ? "text-destructive font-semibold" : isNearCapacity ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400"}>
-                                {remainingHours}h
-                              </span>
+                              {remainingHours}h
                             </TableCell>
                           </TableRow>
                         );
