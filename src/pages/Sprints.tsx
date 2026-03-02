@@ -574,8 +574,11 @@ const Sprints = () => {
                         <TableRow className="bg-muted/40 hover:bg-muted/40">
                           <TableHead className="text-[11px] py-2 w-10"></TableHead>
                           <TableHead className="text-[11px] py-2">Task Name</TableHead>
+                          <TableHead className="text-[11px] py-2">Employee Name</TableHead>
+                          <TableHead className="text-[11px] py-2 text-center">Weekly Capacity</TableHead>
+                          <TableHead className="text-[11px] py-2 text-center">Allocated Hours</TableHead>
                           <TableHead className="text-[11px] py-2 text-center">Est. Hours</TableHead>
-                          <TableHead className="text-[11px] py-2">Priority</TableHead>
+                          <TableHead className="text-[11px] py-2 text-center">Remaining Hours</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -587,7 +590,7 @@ const Sprints = () => {
                           if (filteredTasks.length === 0) {
                             return (
                               <TableRow>
-                                <TableCell colSpan={4} className="text-center text-xs text-muted-foreground py-6">
+                                <TableCell colSpan={7} className="text-center text-xs text-muted-foreground py-6">
                                   {sprintProject ? `No tasks available for ${sprintProject}` : "Select a project to see available tasks"}
                                 </TableCell>
                               </TableRow>
@@ -595,68 +598,37 @@ const Sprints = () => {
                           }
 
                           return filteredTasks.map((task) => {
-                            const isSelected = sprintSelectedTaskIds.includes(task.id);
+                            const employee = employeesData.find(e => e.id === task.assigneeId);
                             const allocatedHours = startDate && endDate
                               ? getEmployeeWeeklyAllocation(task.assigneeId, startDate, endDate).totalHours
                               : 0;
                             const remaining = WEEKLY_CAPACITY - allocatedHours;
+                            const isSelected = sprintSelectedTaskIds.includes(task.id);
 
                             return (
-                              <>
-                                <TableRow key={task.id} className={isSelected ? "bg-primary/5" : ""}>
-                                  <TableCell className="py-1.5 text-center">
-                                    <Checkbox
-                                      className="h-3.5 w-3.5"
-                                      checked={isSelected}
-                                      onCheckedChange={(checked) => {
-                                        setSprintSelectedTaskIds(prev =>
-                                          checked ? [...prev, task.id] : prev.filter(id => id !== task.id)
-                                        );
-                                      }}
-                                    />
-                                  </TableCell>
-                                  <TableCell className="py-1.5">
-                                    <span className="text-xs font-medium">{task.name}</span>
-                                  </TableCell>
-                                  <TableCell className="py-1.5 text-center text-xs font-medium">{task.estimatedHours}h</TableCell>
-                                  <TableCell className="py-1.5">{getPriorityBadge(task.priority)}</TableCell>
-                                </TableRow>
-                                {/* Employee details row - shown when task is selected */}
-                                {isSelected && (
-                                  <TableRow key={`emp-${task.id}`} className="bg-muted/20">
-                                    <TableCell className="py-0"></TableCell>
-                                    <TableCell colSpan={3} className="py-2">
-                                      <div className="border rounded-md overflow-hidden ml-2">
-                                        <Table>
-                                          <TableHeader>
-                                            <TableRow className="bg-muted/30 hover:bg-muted/30">
-                                              <TableHead className="text-[10px] py-1.5">Employee Name</TableHead>
-                                              <TableHead className="text-[10px] py-1.5 text-center">Weekly Capacity</TableHead>
-                                              <TableHead className="text-[10px] py-1.5 text-center">Allocated Hours</TableHead>
-                                              <TableHead className="text-[10px] py-1.5 text-center">Remaining Hours</TableHead>
-                                            </TableRow>
-                                          </TableHeader>
-                                          <TableBody>
-                                            <TableRow>
-                                              <TableCell className="py-1.5">
-                                                <div className="flex items-center gap-1.5">
-                                                  <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center">
-                                                    <User className="h-2.5 w-2.5 text-primary" />
-                                                  </div>
-                                                  <span className="text-xs font-medium">{task.assigneeName}</span>
-                                                </div>
-                                              </TableCell>
-                                              <TableCell className="py-1.5 text-center text-xs">{WEEKLY_CAPACITY}h</TableCell>
-                                              <TableCell className="py-1.5 text-center text-xs font-medium">{allocatedHours}h</TableCell>
-                                              <TableCell className="py-1.5 text-center text-xs font-medium">{remaining}h</TableCell>
-                                            </TableRow>
-                                          </TableBody>
-                                        </Table>
-                                      </div>
-                                    </TableCell>
-                                  </TableRow>
-                                )}
-                              </>
+                              <TableRow key={task.id} className={isSelected ? "bg-primary/5" : ""}>
+                                <TableCell className="py-1.5 text-center">
+                                  <Checkbox
+                                    className="h-3.5 w-3.5"
+                                    checked={isSelected}
+                                    onCheckedChange={(checked) => {
+                                      setSprintSelectedTaskIds(prev =>
+                                        checked ? [...prev, task.id] : prev.filter(id => id !== task.id)
+                                      );
+                                    }}
+                                  />
+                                </TableCell>
+                                <TableCell className="py-1.5">
+                                  <span className="text-xs font-medium">{task.name}</span>
+                                </TableCell>
+                                <TableCell className="py-1.5">
+                                  <span className="text-xs">{task.assigneeName}</span>
+                                </TableCell>
+                                <TableCell className="py-1.5 text-center text-xs">{WEEKLY_CAPACITY}h</TableCell>
+                                <TableCell className="py-1.5 text-center text-xs font-medium">{allocatedHours}h</TableCell>
+                                <TableCell className="py-1.5 text-center text-xs font-medium">{task.estimatedHours}h</TableCell>
+                                <TableCell className="py-1.5 text-center text-xs font-medium">{remaining}h</TableCell>
+                              </TableRow>
                             );
                           });
                         })()}
