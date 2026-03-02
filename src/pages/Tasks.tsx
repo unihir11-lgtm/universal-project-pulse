@@ -118,6 +118,7 @@ const Tasks = () => {
   const [taskName, setTaskName] = useState("");
   const [estimatedHours, setEstimatedHours] = useState("");
   const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
+  const [employeeTaskHours, setEmployeeTaskHours] = useState<Record<string, string>>({});
   const [taskCategory, setTaskCategory] = useState<string>("");
   const [taskStatus, setTaskStatus] = useState<TaskStatus>("open");
   const [parentTaskId, setParentTaskId] = useState<string>("none");
@@ -276,6 +277,7 @@ const Tasks = () => {
     setTaskName("");
     setEstimatedHours("");
     setSelectedEmployees([]);
+    setEmployeeTaskHours({});
     setTaskCategory("");
     setTaskStatus("open");
     setParentTaskId("none");
@@ -583,6 +585,7 @@ const Tasks = () => {
                         <TableHead className="text-xs py-2">Employee Name</TableHead>
                         <TableHead className="text-xs py-2 text-center">Weekly Capacity</TableHead>
                         <TableHead className="text-xs py-2 text-center">Allocated Hours</TableHead>
+                        <TableHead className="text-xs py-2 text-center">Task Hours</TableHead>
                         <TableHead className="text-xs py-2 text-center">Remaining Hours</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -615,6 +618,25 @@ const Tasks = () => {
                               <span className={isOverAllocated ? "text-destructive" : isNearCapacity ? "text-amber-600 dark:text-amber-400" : "text-foreground"}>
                                 {allocatedHours}h
                               </span>
+                            </TableCell>
+                            <TableCell className="py-1.5 text-center">
+                              <Input
+                                type="number"
+                                min="0"
+                                step="0.5"
+                                max={remainingHours > 0 ? remainingHours : 0}
+                                placeholder="0"
+                                value={employeeTaskHours[employee.id] ?? ""}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  const numVal = parseFloat(val);
+                                  if (val === "" || (numVal >= 0 && numVal <= remainingHours)) {
+                                    setEmployeeTaskHours(prev => ({ ...prev, [employee.id]: val }));
+                                  }
+                                }}
+                                disabled={isOverAllocated}
+                                className="h-7 w-20 text-xs text-center mx-auto"
+                              />
                             </TableCell>
                             <TableCell className="py-1.5 text-center text-xs font-medium">
                               <span className={isOverAllocated ? "text-destructive font-semibold" : isNearCapacity ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400"}>
