@@ -715,70 +715,120 @@ const Sprints = () => {
           </CardHeader>
           <CardContent className="pt-0">
             <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent">
-                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2.5">Sprint</TableHead>
-                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2.5">Project</TableHead>
-                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2.5">Duration</TableHead>
-                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2.5 text-center">Tasks</TableHead>
-                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2.5 text-center">Hours</TableHead>
-                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2.5">Status</TableHead>
-                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2.5 text-center">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredSprints.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={7} className="text-center text-sm text-muted-foreground py-10">
-                        No sprints found. Create your first sprint to get started.
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredSprints.map((sprint) => {
-                      const totalHours = sprint.tasks.reduce((s, t) => s + t.estimatedHours, 0);
-                      return (
-                        <TableRow
-                          key={sprint.id}
-                          className="cursor-pointer group transition-colors"
-                          onClick={() => setViewingSprint(sprint)}
+              {filteredSprints.length === 0 ? (
+                <div className="text-center text-sm text-muted-foreground py-10">
+                  No sprints found. Create your first sprint to get started.
+                </div>
+              ) : (
+                <div className="border rounded-md overflow-hidden">
+                  {filteredSprints.map((sprint) => {
+                    const totalHours = sprint.tasks.reduce((s, t) => s + t.estimatedHours, 0);
+                    // Group tasks by unique employees
+                    const tasksByEmployee = new Map<string, { name: string; tasks: SprintTask[] }>();
+                    sprint.tasks.forEach((task) => {
+                      const existing = tasksByEmployee.get(task.assigneeId) || { name: task.assigneeName, tasks: [] };
+                      existing.tasks.push(task);
+                      tasksByEmployee.set(task.assigneeId, existing);
+                    });
+
+                    return (
+                      <div key={sprint.id} className="border-b last:border-b-0">
+                        {/* Sprint Header Row */}
+                        <div
+                          className="flex items-center justify-between gap-3 px-4 py-3 bg-muted/30 cursor-pointer group hover:bg-muted/50 transition-colors"
+                          onClick={() => setViewingSprint(viewingSprint?.id === sprint.id ? null : sprint)}
                         >
-                          <TableCell className="py-3">
-                            <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">{sprint.name}</span>
-                          </TableCell>
-                          <TableCell className="py-3">
-                            <span className="text-sm text-muted-foreground">{sprint.project}</span>
-                          </TableCell>
-                          <TableCell className="py-3">
-                            <div className="text-sm text-muted-foreground">
-                              <span>{formatDate(sprint.startDate)}</span>
-                              <span className="mx-1">–</span>
-                              <span>{formatDate(sprint.endDate)}</span>
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <div className="h-7 w-7 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
+                              <Calendar className="h-3.5 w-3.5 text-primary" />
                             </div>
-                          </TableCell>
-                          <TableCell className="py-3 text-center">
-                            <Badge variant="outline" className="text-[10px] font-mono">{sprint.tasks.length}</Badge>
-                          </TableCell>
-                          <TableCell className="py-3 text-center">
-                            <span className="text-sm font-mono font-semibold">{totalHours}h</span>
-                          </TableCell>
-                          <TableCell className="py-3">{getStatusBadge(sprint.status)}</TableCell>
-                          <TableCell className="py-3">
-                            <div className="flex items-center justify-center gap-0.5" onClick={(e) => e.stopPropagation()}>
-                              <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => handleEditSprint(sprint)}>
-                                <Edit className="h-3.5 w-3.5" />
-                              </Button>
-                              <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => handleDeleteSprint(sprint)}>
-                                <Trash2 className="h-3.5 w-3.5" />
-                              </Button>
+                            <div className="min-w-0">
+                              <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">{sprint.name}</span>
+                              <span className="text-xs text-muted-foreground ml-2">— {sprint.project}</span>
                             </div>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })
-                  )}
-                </TableBody>
-              </Table>
+                            <Badge variant="outline" className="text-[10px] font-mono shrink-0">
+                              {formatDate(sprint.startDate)} – {formatDate(sprint.endDate)}
+                            </Badge>
+                            <Badge variant="outline" className="text-[10px] shrink-0">
+                              <ListChecks className="h-3 w-3 mr-1" />
+                              {sprint.tasks.length} tasks
+                            </Badge>
+                            <Badge variant="outline" className="text-[10px] font-mono shrink-0">
+                              <Clock className="h-3 w-3 mr-1" />
+                              {totalHours}h
+                            </Badge>
+                            <Badge variant="outline" className="text-[10px] shrink-0">
+                              <Users className="h-3 w-3 mr-1" />
+                              {tasksByEmployee.size}
+                            </Badge>
+                            {getStatusBadge(sprint.status)}
+                          </div>
+                          <div className="flex items-center gap-0.5 shrink-0" onClick={(e) => e.stopPropagation()}>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => handleEditSprint(sprint)}>
+                              <Edit className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => handleDeleteSprint(sprint)}>
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* Expanded: Task-centric nested view */}
+                        {viewingSprint?.id === sprint.id && (
+                          <div className="px-4 py-2 space-y-1">
+                            {sprint.tasks.map((task) => {
+                              const { totalHours: empWeekAlloc } = getEmployeeWeeklyAllocation(task.assigneeId, sprint.startDate, sprint.endDate);
+                              const remaining = WEEKLY_CAPACITY - empWeekAlloc;
+
+                              return (
+                                <div key={task.id} className="border rounded-md overflow-hidden">
+                                  {/* Task Header */}
+                                  <div className="flex items-center gap-3 px-3 py-2 bg-muted/20">
+                                    <ListChecks className="h-3.5 w-3.5 text-muted-foreground" />
+                                    <span className="text-xs font-semibold text-foreground">{task.name}</span>
+                                    <Badge variant="outline" className="text-[10px]">{task.estimatedHours}h</Badge>
+                                    {getPriorityBadge(task.priority)}
+                                    {getStatusBadge(task.status)}
+                                  </div>
+                                  {/* Employee Detail Row */}
+                                  <div className="pl-8">
+                                    <Table>
+                                      <TableHeader>
+                                        <TableRow className="hover:bg-transparent border-0">
+                                          <TableHead className="text-[10px] py-1 h-auto">Employee</TableHead>
+                                          <TableHead className="text-[10px] py-1 h-auto text-center">Weekly Capacity</TableHead>
+                                          <TableHead className="text-[10px] py-1 h-auto text-center">Allocated Hours</TableHead>
+                                          <TableHead className="text-[10px] py-1 h-auto text-center">Remaining Hours</TableHead>
+                                        </TableRow>
+                                      </TableHeader>
+                                      <TableBody>
+                                        <TableRow className="border-0 hover:bg-muted/20">
+                                          <TableCell className="py-1">
+                                            <div className="flex items-center gap-1.5">
+                                              <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center">
+                                                <User className="h-2.5 w-2.5 text-primary" />
+                                              </div>
+                                              <span className="text-xs">{task.assigneeName}</span>
+                                              {remaining < 0 && <AlertTriangle className="h-3 w-3 text-destructive" />}
+                                            </div>
+                                          </TableCell>
+                                          <TableCell className="py-1 text-center text-xs">{WEEKLY_CAPACITY}h</TableCell>
+                                          <TableCell className="py-1 text-center text-xs font-medium">{empWeekAlloc}h</TableCell>
+                                          <TableCell className={`py-1 text-center text-xs font-medium ${remaining < 0 ? "text-destructive" : ""}`}>{remaining}h</TableCell>
+                                        </TableRow>
+                                      </TableBody>
+                                    </Table>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
