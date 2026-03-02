@@ -696,6 +696,7 @@ const Tasks = () => {
                     <TableHead className="text-xs py-2 text-center">Variance</TableHead>
                     <TableHead className="text-xs py-2 text-center">Logged</TableHead>
                     <TableHead className="text-xs py-2">Assignee</TableHead>
+                    <TableHead className="text-xs py-2 text-center">Hours</TableHead>
                     <TableHead className="text-xs py-2">Due Date</TableHead>
                     <TableHead className="text-xs py-2">Days Delayed</TableHead>
                     <TableHead className="text-xs py-2">Status</TableHead>
@@ -797,6 +798,15 @@ const Tasks = () => {
                           <TableCell className="text-sm py-2 text-center">{getVarianceDisplay(task.estimatedHours, task.loggedHours)}</TableCell>
                           <TableCell className="text-sm py-2 text-center">{task.loggedHours}h</TableCell>
                           <TableCell className="text-sm py-2">{task.primaryAssigneeName}</TableCell>
+                          <TableCell className="text-sm py-2 text-center">
+                            {task.estimatedHours ? (
+                              <span className={task.loggedHours > task.estimatedHours ? "text-destructive font-semibold" : task.loggedHours === task.estimatedHours ? "text-amber-600 dark:text-amber-400 font-medium" : "text-foreground"}>
+                                {task.loggedHours}h / {task.estimatedHours}h
+                              </span>
+                            ) : (
+                              <span className="text-muted-foreground">{task.loggedHours}h</span>
+                            )}
+                          </TableCell>
                           <TableCell className="text-sm py-2">{formatDueDate(task.dueDate)}</TableCell>
                           <TableCell className="text-sm py-2">{getDaysDelayedBadge(task.dueDate, task.status)}</TableCell>
                           <TableCell className="text-sm py-2">{getStatusBadge(task.status)}</TableCell>
@@ -869,6 +879,15 @@ const Tasks = () => {
                                 <TableCell className="text-sm py-2 text-center">{getVarianceDisplay(subtask.estimatedHours, subtask.loggedHours)}</TableCell>
                                 <TableCell className="text-sm py-2 text-center">{subtask.loggedHours}h</TableCell>
                                 <TableCell className="text-sm py-2">{subtask.primaryAssigneeName}</TableCell>
+                                <TableCell className="text-sm py-2 text-center">
+                                  {subtask.estimatedHours ? (
+                                    <span className={subtask.loggedHours > subtask.estimatedHours ? "text-destructive font-semibold" : subtask.loggedHours === subtask.estimatedHours ? "text-amber-600 dark:text-amber-400 font-medium" : "text-foreground"}>
+                                      {subtask.loggedHours}h / {subtask.estimatedHours}h
+                                    </span>
+                                  ) : (
+                                    <span className="text-muted-foreground">{subtask.loggedHours}h</span>
+                                  )}
+                                </TableCell>
                                 <TableCell className="text-sm py-2">{formatDueDate(subtask.dueDate)}</TableCell>
                                 <TableCell className="text-sm py-2">{getDaysDelayedBadge(subtask.dueDate, subtask.status)}</TableCell>
                                 <TableCell className="text-sm py-2">{getStatusBadge(subtask.status)}</TableCell>
@@ -901,6 +920,15 @@ const Tasks = () => {
                                   <TableCell className="text-sm py-2 text-center">{getVarianceDisplay(subSubtask.estimatedHours, subSubtask.loggedHours)}</TableCell>
                                   <TableCell className="text-sm py-2 text-center">{subSubtask.loggedHours}h</TableCell>
                                   <TableCell className="text-sm py-2">{subSubtask.primaryAssigneeName}</TableCell>
+                                  <TableCell className="text-sm py-2 text-center">
+                                    {subSubtask.estimatedHours ? (
+                                      <span className={subSubtask.loggedHours > subSubtask.estimatedHours ? "text-destructive font-semibold" : subSubtask.loggedHours === subSubtask.estimatedHours ? "text-amber-600 dark:text-amber-400 font-medium" : "text-foreground"}>
+                                        {subSubtask.loggedHours}h / {subSubtask.estimatedHours}h
+                                      </span>
+                                    ) : (
+                                      <span className="text-muted-foreground">{subSubtask.loggedHours}h</span>
+                                    )}
+                                  </TableCell>
                                   <TableCell className="text-sm py-2">{formatDueDate(subSubtask.dueDate)}</TableCell>
                                   <TableCell className="text-sm py-2">{getDaysDelayedBadge(subSubtask.dueDate, subSubtask.status)}</TableCell>
                                   <TableCell className="text-sm py-2">{getStatusBadge(subSubtask.status)}</TableCell>
