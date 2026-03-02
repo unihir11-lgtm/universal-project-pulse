@@ -181,6 +181,7 @@ const Sprints = () => {
 
   // Task queue state
   const [selectedTaskIds, setSelectedTaskIds] = useState<number[]>([]);
+  const [sprintSelectedTaskIds, setSprintSelectedTaskIds] = useState<number[]>([]);
   const [queueFilterProject, setQueueFilterProject] = useState("all");
   const [targetSprint, setTargetSprint] = useState("");
 
@@ -327,6 +328,7 @@ const Sprints = () => {
     setSprints((prev) => [...prev, newSprint]);
     toast.success(`Sprint "${sprintName}" created successfully!`);
     setSprintName(""); setSprintProject(""); setStartDate(""); setEndDate(""); setSprintStatus("");
+    setSprintSelectedTaskIds([]);
     setShowCreateForm(false);
   };
 
@@ -563,43 +565,81 @@ const Sprints = () => {
                   </div>
                 </div>
 
-                {/* Employee Assignment Table */}
+                {/* Task & Employee Assignment Table */}
                 <div className="space-y-2">
-                  <Label className="text-xs font-medium">Assign Employees *</Label>
+                  <Label className="text-xs font-medium">Select Tasks from Queue *</Label>
                   <div className="border rounded-md overflow-hidden">
                     <Table>
                       <TableHeader>
                         <TableRow className="bg-muted/40 hover:bg-muted/40">
                           <TableHead className="text-[11px] py-2 w-10"></TableHead>
+                          <TableHead className="text-[11px] py-2">Task Name</TableHead>
                           <TableHead className="text-[11px] py-2">Employee Name</TableHead>
                           <TableHead className="text-[11px] py-2 text-center">Weekly Capacity</TableHead>
                           <TableHead className="text-[11px] py-2 text-center">Allocated Hours</TableHead>
+                          <TableHead className="text-[11px] py-2 text-center">Est. Hours</TableHead>
                           <TableHead className="text-[11px] py-2 text-center">Remaining Hours</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {employeesData.map((employee) => {
-                          const allocatedHours = startDate && endDate
-                            ? getEmployeeWeeklyAllocation(employee.id, startDate, endDate).totalHours
-                            : 0;
-                          const remaining = WEEKLY_CAPACITY - allocatedHours;
-                          return (
-                            <TableRow key={employee.id}>
-                              <TableCell className="py-1.5 text-center">
-                                <Checkbox className="h-3.5 w-3.5" />
-                              </TableCell>
-                              <TableCell className="py-1.5">
-                                <span className="text-xs font-medium">{employee.name}</span>
-                              </TableCell>
-                              <TableCell className="py-1.5 text-center text-xs">{WEEKLY_CAPACITY}h</TableCell>
-                              <TableCell className="py-1.5 text-center text-xs font-medium">{allocatedHours}h</TableCell>
-                              <TableCell className="py-1.5 text-center text-xs font-medium">{remaining}h</TableCell>
-                            </TableRow>
-                          );
-                        })}
+                        {(() => {
+                          const filteredTasks = sprintProject
+                            ? taskQueue.filter(t => t.project === sprintProject)
+                            : taskQueue;
+                          
+                          if (filteredTasks.length === 0) {
+                            return (
+                              <TableRow>
+                                <TableCell colSpan={7} className="text-center text-xs text-muted-foreground py-6">
+                                  {sprintProject ? `No tasks available for ${sprintProject}` : "Select a project to see available tasks"}
+                                </TableCell>
+                              </TableRow>
+                            );
+                          }
+
+                          return filteredTasks.map((task) => {
+                            const employee = employeesData.find(e => e.id === task.assigneeId);
+                            const allocatedHours = startDate && endDate
+                              ? getEmployeeWeeklyAllocation(task.assigneeId, startDate, endDate).totalHours
+                              : 0;
+                            const remaining = WEEKLY_CAPACITY - allocatedHours;
+                            const isSelected = sprintSelectedTaskIds.includes(task.id);
+
+                            return (
+                              <TableRow key={task.id} className={isSelected ? "bg-primary/5" : ""}>
+                                <TableCell className="py-1.5 text-center">
+                                  <Checkbox
+                                    className="h-3.5 w-3.5"
+                                    checked={isSelected}
+                                    onCheckedChange={(checked) => {
+                                      setSprintSelectedTaskIds(prev =>
+                                        checked ? [...prev, task.id] : prev.filter(id => id !== task.id)
+                                      );
+                                    }}
+                                  />
+                                </TableCell>
+                                <TableCell className="py-1.5">
+                                  <span className="text-xs font-medium">{task.name}</span>
+                                </TableCell>
+                                <TableCell className="py-1.5">
+                                  <span className="text-xs">{task.assigneeName}</span>
+                                </TableCell>
+                                <TableCell className="py-1.5 text-center text-xs">{WEEKLY_CAPACITY}h</TableCell>
+                                <TableCell className="py-1.5 text-center text-xs font-medium">{allocatedHours}h</TableCell>
+                                <TableCell className="py-1.5 text-center text-xs font-medium">{task.estimatedHours}h</TableCell>
+                                <TableCell className="py-1.5 text-center text-xs font-medium">{remaining}h</TableCell>
+                              </TableRow>
+                            );
+                          });
+                        })()}
                       </TableBody>
                     </Table>
                   </div>
+                  {sprintSelectedTaskIds.length > 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      {sprintSelectedTaskIds.length} task(s) selected · {taskQueue.filter(t => sprintSelectedTaskIds.includes(t.id)).reduce((sum, t) => sum + t.estimatedHours, 0)}h total
+                    </p>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-3 pt-1">
