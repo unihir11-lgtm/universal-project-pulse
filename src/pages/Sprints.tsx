@@ -569,71 +569,91 @@ const Sprints = () => {
                 <div className="space-y-2">
                   <Label className="text-xs font-medium">Select Tasks from Queue *</Label>
                   <div className="border rounded-md overflow-hidden">
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="bg-muted/40 hover:bg-muted/40">
-                          <TableHead className="text-[11px] py-2 w-10"></TableHead>
-                          <TableHead className="text-[11px] py-2">Task Name</TableHead>
-                          <TableHead className="text-[11px] py-2">Employee Name</TableHead>
-                          <TableHead className="text-[11px] py-2 text-center">Weekly Capacity</TableHead>
-                          <TableHead className="text-[11px] py-2 text-center">Allocated Hours</TableHead>
-                          <TableHead className="text-[11px] py-2 text-center">Est. Hours</TableHead>
-                          <TableHead className="text-[11px] py-2 text-center">Remaining Hours</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {(() => {
-                          const filteredTasks = sprintProject
-                            ? taskQueue.filter(t => t.project === sprintProject)
-                            : taskQueue;
-                          
-                          if (filteredTasks.length === 0) {
-                            return (
-                              <TableRow>
-                                <TableCell colSpan={7} className="text-center text-xs text-muted-foreground py-6">
-                                  {sprintProject ? `No tasks available for ${sprintProject}` : "Select a project to see available tasks"}
-                                </TableCell>
-                              </TableRow>
-                            );
-                          }
+                    {(() => {
+                      const filteredTasks = sprintProject
+                        ? taskQueue.filter(t => t.project === sprintProject)
+                        : taskQueue;
 
-                          return filteredTasks.map((task) => {
-                            const employee = employeesData.find(e => e.id === task.assigneeId);
-                            const allocatedHours = startDate && endDate
-                              ? getEmployeeWeeklyAllocation(task.assigneeId, startDate, endDate).totalHours
-                              : 0;
-                            const remaining = WEEKLY_CAPACITY - allocatedHours;
-                            const isSelected = sprintSelectedTaskIds.includes(task.id);
+                      if (filteredTasks.length === 0) {
+                        return (
+                          <div className="text-center text-xs text-muted-foreground py-6">
+                            {sprintProject ? `No tasks available for ${sprintProject}` : "Select a project to see available tasks"}
+                          </div>
+                        );
+                      }
 
-                            return (
-                              <TableRow key={task.id} className={isSelected ? "bg-primary/5" : ""}>
-                                <TableCell className="py-1.5 text-center">
-                                  <Checkbox
-                                    className="h-3.5 w-3.5"
-                                    checked={isSelected}
-                                    onCheckedChange={(checked) => {
-                                      setSprintSelectedTaskIds(prev =>
-                                        checked ? [...prev, task.id] : prev.filter(id => id !== task.id)
-                                      );
-                                    }}
-                                  />
-                                </TableCell>
-                                <TableCell className="py-1.5">
-                                  <span className="text-xs font-medium">{task.name}</span>
-                                </TableCell>
-                                <TableCell className="py-1.5">
-                                  <span className="text-xs">{task.assigneeName}</span>
-                                </TableCell>
-                                <TableCell className="py-1.5 text-center text-xs">{WEEKLY_CAPACITY}h</TableCell>
-                                <TableCell className="py-1.5 text-center text-xs font-medium">{allocatedHours}h</TableCell>
-                                <TableCell className="py-1.5 text-center text-xs font-medium">{task.estimatedHours}h</TableCell>
-                                <TableCell className="py-1.5 text-center text-xs font-medium">{remaining}h</TableCell>
-                              </TableRow>
-                            );
-                          });
-                        })()}
-                      </TableBody>
-                    </Table>
+                      return filteredTasks.map((task) => {
+                        const isSelected = sprintSelectedTaskIds.includes(task.id);
+                        const employee = employeesData.find(e => e.id === task.assigneeId);
+                        const allocatedHours = startDate && endDate
+                          ? getEmployeeWeeklyAllocation(task.assigneeId, startDate, endDate).totalHours
+                          : 0;
+                        const remaining = WEEKLY_CAPACITY - allocatedHours;
+
+                        return (
+                          <div key={task.id} className={`border-b last:border-b-0 ${isSelected ? "bg-primary/5" : ""}`}>
+                            {/* Task Header Row */}
+                            <div className="flex items-center gap-3 px-4 py-2.5 bg-muted/30">
+                              <Checkbox
+                                className="h-3.5 w-3.5"
+                                checked={isSelected}
+                                onCheckedChange={(checked) => {
+                                  setSprintSelectedTaskIds(prev =>
+                                    checked ? [...prev, task.id] : prev.filter(id => id !== task.id)
+                                  );
+                                }}
+                              />
+                              <ListChecks className="h-3.5 w-3.5 text-muted-foreground" />
+                              <span className="text-xs font-semibold text-foreground">{task.name}</span>
+                              <Badge variant="outline" className="text-[10px] ml-1">{task.estimatedHours}h</Badge>
+                              {getPriorityBadge(task.priority)}
+                            </div>
+                            {/* Employee Detail Row */}
+                            <div className="px-4 py-2 pl-12">
+                              <Table>
+                                <TableHeader>
+                                  <TableRow className="hover:bg-transparent border-0">
+                                    <TableHead className="text-[10px] py-1 h-auto">Employee</TableHead>
+                                    <TableHead className="text-[10px] py-1 h-auto text-center">Weekly Capacity</TableHead>
+                                    <TableHead className="text-[10px] py-1 h-auto text-center">Allocated Hours</TableHead>
+                                    <TableHead className="text-[10px] py-1 h-auto text-center">Remaining Hours</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  <TableRow className="border-0 hover:bg-transparent">
+                                    <TableCell className="py-1.5">
+                                      <Select
+                                        value={task.assigneeId}
+                                        onValueChange={(value) => {
+                                          const emp = employeesData.find(e => e.id === value);
+                                          if (emp) {
+                                            setTaskQueue(prev => prev.map(t =>
+                                              t.id === task.id ? { ...t, assigneeId: value, assigneeName: emp.name } : t
+                                            ));
+                                          }
+                                        }}
+                                      >
+                                        <SelectTrigger className="h-7 text-xs w-44 bg-background">
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-background">
+                                          {employeesData.map(emp => (
+                                            <SelectItem key={emp.id} value={emp.id} className="text-xs">{emp.name}</SelectItem>
+                                          ))}
+                                        </SelectContent>
+                                      </Select>
+                                    </TableCell>
+                                    <TableCell className="py-1.5 text-center text-xs">{WEEKLY_CAPACITY}h</TableCell>
+                                    <TableCell className="py-1.5 text-center text-xs font-medium">{allocatedHours}h</TableCell>
+                                    <TableCell className={`py-1.5 text-center text-xs font-medium ${remaining < 0 ? "text-destructive" : ""}`}>{remaining}h</TableCell>
+                                  </TableRow>
+                                </TableBody>
+                              </Table>
+                            </div>
+                          </div>
+                        );
+                      });
+                    })()}
                   </div>
                   {sprintSelectedTaskIds.length > 0 && (
                     <p className="text-xs text-muted-foreground">
