@@ -562,12 +562,61 @@ const Sprints = () => {
                     </Select>
                   </div>
                 </div>
+
+                {/* Employee Assignment Table */}
+                <div className="space-y-2">
+                  <Label className="text-xs font-medium">Assign Employees *</Label>
+                  <div className="border rounded-md overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-muted/40 hover:bg-muted/40">
+                          <TableHead className="text-[11px] py-2 w-10"></TableHead>
+                          <TableHead className="text-[11px] py-2">Employee Name</TableHead>
+                          <TableHead className="text-[11px] py-2 text-center">Weekly Capacity</TableHead>
+                          <TableHead className="text-[11px] py-2 text-center">Allocated Hours</TableHead>
+                          <TableHead className="text-[11px] py-2 text-center">Task Hours</TableHead>
+                          <TableHead className="text-[11px] py-2 text-center">Remaining Hours</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {employeesData.map((employee) => {
+                          const allocatedHours = startDate && endDate
+                            ? getEmployeeWeeklyAllocation(employee.id, startDate, endDate).totalHours
+                            : 0;
+                          const remaining = WEEKLY_CAPACITY - allocatedHours;
+                          return (
+                            <TableRow key={employee.id}>
+                              <TableCell className="py-1.5 text-center">
+                                <Checkbox className="h-3.5 w-3.5" />
+                              </TableCell>
+                              <TableCell className="py-1.5">
+                                <span className="text-xs font-medium">{employee.name}</span>
+                              </TableCell>
+                              <TableCell className="py-1.5 text-center text-xs">{WEEKLY_CAPACITY}h</TableCell>
+                              <TableCell className="py-1.5 text-center text-xs font-medium">{allocatedHours}h</TableCell>
+                              <TableCell className="py-1.5 text-center">
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  step="0.5"
+                                  placeholder="0"
+                                  className="h-7 w-20 text-xs text-center mx-auto"
+                                />
+                              </TableCell>
+                              <TableCell className="py-1.5 text-center text-xs font-medium">{remaining}h</TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+
                 <div className="flex items-center gap-3 pt-1">
                   <Button type="submit" size="sm" className="gap-1.5">
                     <Plus className="h-3.5 w-3.5" />
                     Create Sprint
                   </Button>
-                  <span className="text-xs text-muted-foreground">Default duration: 1 week · {WEEKLY_CAPACITY}h capacity per employee</span>
                 </div>
               </form>
             </CardContent>
