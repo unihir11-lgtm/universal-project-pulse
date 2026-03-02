@@ -179,13 +179,10 @@ const Sprints = () => {
   const [filterProject, setFilterProject] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
 
-  // Task queue state
-  const [selectedTaskIds, setSelectedTaskIds] = useState<number[]>([]);
+  // Task selection for create sprint form
   const [sprintSelectedTaskIds, setSprintSelectedTaskIds] = useState<number[]>([]);
   // Multi-employee assignment per task: taskId -> employeeId[]
   const [taskEmployeeMap, setTaskEmployeeMap] = useState<Record<number, string[]>>({});
-  const [queueFilterProject, setQueueFilterProject] = useState("all");
-  const [targetSprint, setTargetSprint] = useState("");
 
   // Sprint detail view
   const [viewingSprint, setViewingSprint] = useState<Sprint | null>(null);
@@ -235,59 +232,11 @@ const Sprints = () => {
     return { totalHours, details };
   };
 
-  const weeklyCapacityView = useMemo(() => {
-    if (!targetSprint) return [];
-    const target = sprints.find((s) => `${s.name} - ${s.project}` === targetSprint);
-    if (!target) return [];
-    const selectedTasks = taskQueue.filter((t) => selectedTaskIds.includes(t.id));
-    const newHoursMap = new Map<string, number>();
-    selectedTasks.forEach((t) => {
-      newHoursMap.set(t.assigneeId, (newHoursMap.get(t.assigneeId) || 0) + t.estimatedHours);
-    });
-    return employeesData.map((emp) => {
-      const { totalHours: alreadyAllocated, details } = getEmployeeWeeklyAllocation(emp.id, target.startDate, target.endDate);
-      const newHours = newHoursMap.get(emp.id) || 0;
-      const totalAfter = alreadyAllocated + newHours;
-      return {
-        id: emp.id,
-        name: emp.name,
-        capacity: WEEKLY_CAPACITY,
-        alreadyAllocated,
-        newHours,
-        totalAfter,
-        remaining: WEEKLY_CAPACITY - totalAfter,
-        isOverAllocated: totalAfter > WEEKLY_CAPACITY,
-        details,
-      };
-    });
-  }, [targetSprint, selectedTaskIds, sprints, taskQueue]);
-
-  const allocationWarnings = useMemo(() => {
-    return weeklyCapacityView
-      .filter((e) => e.newHours > 0 && e.isOverAllocated)
-      .map((e) => ({
-        employeeName: e.name,
-        capacity: e.capacity,
-        alreadyAllocated: e.alreadyAllocated,
-        newHours: e.newHours,
-      }));
-  }, [weeklyCapacityView]);
-
   const filteredSprints = sprints.filter((sprint) => {
     const matchesProject = filterProject === "all" || sprint.project === filterProject;
     const matchesStatus = filterStatus === "all" || sprint.status === filterStatus;
     return matchesProject && matchesStatus;
   });
-
-  const filteredQueueTasks = taskQueue.filter((task) => {
-    return queueFilterProject === "all" || task.project === queueFilterProject;
-  });
-
-  const totalSelectedHours = taskQueue
-    .filter((t) => selectedTaskIds.includes(t.id))
-    .reduce((sum, t) => sum + t.estimatedHours, 0);
-
-  const activePlannedSprints = sprints.filter((s) => s.status === "Active" || s.status === "Planned");
 
   // Summary stats
   const totalSprintHours = sprints.reduce((sum, s) => sum + s.tasks.reduce((ts, t) => ts + t.estimatedHours, 0), 0);
@@ -334,37 +283,6 @@ const Sprints = () => {
     setShowCreateForm(false);
   };
 
-  const handleTaskSelect = (taskId: number, checked: boolean) => {
-    setSelectedTaskIds((prev) => (checked ? [...prev, taskId] : prev.filter((id) => id !== taskId)));
-  };
-
-  const handleSelectAll = (checked: boolean) => {
-    setSelectedTaskIds(checked ? filteredQueueTasks.map((t) => t.id) : []);
-  };
-
-  const handleAddToSprint = () => {
-    if (selectedTaskIds.length === 0) { toast.error("Please select at least one task"); return; }
-    if (!targetSprint) { toast.error("Please select a target sprint"); return; }
-    if (allocationWarnings.length > 0) {
-      const warnNames = allocationWarnings.map((w) => w.employeeName).join(", ");
-      toast.warning(`Over-allocation warning for: ${warnNames}. Tasks added anyway.`);
-    }
-    const target = sprints.find((s) => `${s.name} - ${s.project}` === targetSprint);
-    if (!target) return;
-    const selectedTasks = taskQueue.filter((t) => selectedTaskIds.includes(t.id));
-    const newSprintTasks: SprintTask[] = selectedTasks.map((t) => ({
-      id: t.id, name: t.name, project: t.project, assigneeId: t.assigneeId,
-      assigneeName: t.assigneeName, estimatedHours: t.estimatedHours, status: "Open", priority: t.priority,
-    }));
-    setSprints((prev) =>
-      prev.map((s) => s.id === target.id ? { ...s, tasks: [...s.tasks, ...newSprintTasks] } : s)
-    );
-    setTaskQueue((prev) => prev.filter((t) => !selectedTaskIds.includes(t.id)));
-    toast.success(`${selectedTaskIds.length} task(s) added to ${target.name}`);
-    setSelectedTaskIds([]);
-    setTargetSprint("");
-  };
-
   const handleEditSprint = (sprint: Sprint) => {
     setSelectedSprint(sprint);
     setEditFormData({ name: sprint.name, project: sprint.project, startDate: sprint.startDate, endDate: sprint.endDate, status: sprint.status });
@@ -387,14 +305,8 @@ const Sprints = () => {
   };
 
   const handleDeleteSprint = (sprint: Sprint) => {
-    const tasksToReturn: QueueTask[] = sprint.tasks.map((t) => ({
-      id: t.id, name: t.name, project: t.project, priority: t.priority,
-      assigneeId: t.assigneeId, assigneeName: t.assigneeName, estimatedHours: t.estimatedHours,
-      description: "", status: "Ready",
-    }));
-    setTaskQueue((prev) => [...prev, ...tasksToReturn]);
     setSprints((prev) => prev.filter((s) => s.id !== sprint.id));
-    toast.success(`Sprint "${sprint.name}" deleted. Tasks returned to queue.`);
+    toast.success(`Sprint "${sprint.name}" deleted.`);
   };
 
   // --- Badge helpers ---
@@ -833,239 +745,6 @@ const Sprints = () => {
           </CardContent>
         </Card>
 
-        {/* Task Queue */}
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between flex-wrap gap-3">
-              <div className="flex items-center gap-3">
-                <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-                  <div className="h-6 w-6 rounded bg-accent/15 flex items-center justify-center">
-                    <ListChecks className="h-3.5 w-3.5 text-accent" />
-                  </div>
-                  Task Queue
-                  <Badge variant="outline" className="text-[10px] ml-1">{taskQueue.length}</Badge>
-                </CardTitle>
-                {selectedTaskIds.length > 0 && (
-                  <div className="flex items-center gap-2">
-                    <Badge className="bg-primary/10 text-primary border-primary/20 text-[10px] font-semibold px-2.5 py-0.5">
-                      <CheckSquare className="h-3 w-3 mr-1" />
-                      {selectedTaskIds.length} selected
-                    </Badge>
-                    <Badge variant="outline" className="text-[10px] font-mono px-2.5 py-0.5">
-                      <Clock className="h-3 w-3 mr-1" />
-                      {totalSelectedHours}h
-                    </Badge>
-                  </div>
-                )}
-              </div>
-              <Select value={queueFilterProject} onValueChange={setQueueFilterProject}>
-                <SelectTrigger className="h-8 text-xs w-40 bg-background">
-                  <SelectValue placeholder="All Projects" />
-                </SelectTrigger>
-                <SelectContent className="bg-background">
-                  <SelectItem value="all">All Projects</SelectItem>
-                  {projectsData.map((p) => (<SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>))}
-                </SelectContent>
-              </Select>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-0 space-y-3">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent">
-                    <TableHead className="py-2.5 w-10">
-                      <Checkbox
-                        checked={filteredQueueTasks.length > 0 && filteredQueueTasks.every((t) => selectedTaskIds.includes(t.id))}
-                        onCheckedChange={(checked) => handleSelectAll(!!checked)}
-                      />
-                    </TableHead>
-                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2.5">Task</TableHead>
-                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2.5">Project</TableHead>
-                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2.5">Assignee</TableHead>
-                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2.5">Priority</TableHead>
-                    <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2.5 text-center">Hours</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredQueueTasks.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={6} className="text-center text-sm text-muted-foreground py-10">
-                        No tasks in queue. All tasks have been assigned to sprints.
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredQueueTasks.map((task) => {
-                      const isSelected = selectedTaskIds.includes(task.id);
-                      return (
-                        <TableRow key={task.id} className={`transition-colors ${isSelected ? "bg-primary/5" : ""}`}>
-                          <TableCell className="py-2.5">
-                            <Checkbox checked={isSelected} onCheckedChange={(checked) => handleTaskSelect(task.id, !!checked)} />
-                          </TableCell>
-                          <TableCell className="py-2.5">
-                            <div>
-                              <span className="text-sm font-medium text-foreground">{task.name}</span>
-                              <p className="text-[11px] text-muted-foreground mt-0.5">{task.description}</p>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-sm py-2.5 text-muted-foreground">{task.project}</TableCell>
-                          <TableCell className="text-sm py-2.5">
-                            <div className="flex items-center gap-1.5">
-                              <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center">
-                                <User className="h-3 w-3 text-primary" />
-                              </div>
-                              <span className="text-sm">{task.assigneeName}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="py-2.5">{getPriorityBadge(task.priority)}</TableCell>
-                          <TableCell className="py-2.5 text-center">
-                            <span className="text-sm font-mono font-semibold">{task.estimatedHours}h</span>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-
-            {/* Allocation Warnings */}
-            {allocationWarnings.length > 0 && (
-              <Alert variant="destructive" className="border-destructive/20 bg-destructive/5">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertTitle className="text-sm font-semibold">Over-Allocation Warning</AlertTitle>
-                <AlertDescription className="text-xs space-y-1.5 mt-1.5">
-                  {allocationWarnings.map((w, i) => (
-                    <div key={i} className="flex flex-col gap-0.5 p-2 rounded bg-destructive/5">
-                      <span className="font-semibold text-foreground">{w.employeeName}</span>
-                      <span className="text-muted-foreground">
-                        Capacity: {w.capacity}h · Allocated: {w.alreadyAllocated}h · New: +{w.newHours}h ·{" "}
-                        <span className="text-destructive font-semibold">
-                          Exceeds by {w.alreadyAllocated + w.newHours - w.capacity}h
-                        </span>
-                      </span>
-                    </div>
-                  ))}
-                </AlertDescription>
-              </Alert>
-            )}
-
-            {/* Employee Weekly Capacity Panel */}
-            {targetSprint && weeklyCapacityView.length > 0 && (
-              <div className="rounded-lg border bg-muted/30 p-4 space-y-3">
-                <div className="flex items-center gap-2">
-                  <div className="h-6 w-6 rounded bg-primary/10 flex items-center justify-center">
-                    <Users className="h-3.5 w-3.5 text-primary" />
-                  </div>
-                  <span className="text-sm font-semibold text-foreground">Employee Weekly Capacity</span>
-                  <Badge variant="outline" className="text-[10px]">
-                    Week of {formatDate(sprints.find((s) => `${s.name} - ${s.project}` === targetSprint)?.startDate || "")}
-                  </Badge>
-                </div>
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="hover:bg-transparent">
-                        <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2">Employee</TableHead>
-                        <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2 text-center">Capacity</TableHead>
-                        <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2 text-center">Allocated</TableHead>
-                        {selectedTaskIds.length > 0 && <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2 text-center">New</TableHead>}
-                        <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2 text-center">Remaining</TableHead>
-                        <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2 w-36">Utilization</TableHead>
-                        <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2">Breakdown</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {weeklyCapacityView
-                        .filter((e) => e.alreadyAllocated > 0 || e.newHours > 0)
-                        .map((emp) => {
-                          const pct = Math.round((emp.totalAfter / emp.capacity) * 100);
-                          return (
-                            <TableRow key={emp.id} className={emp.isOverAllocated ? "bg-destructive/5" : ""}>
-                              <TableCell className="py-2">
-                                <div className="flex items-center gap-2">
-                                  <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
-                                    <User className="h-3 w-3 text-primary" />
-                                  </div>
-                                  <span className="text-sm font-medium">{emp.name}</span>
-                                  {emp.isOverAllocated && <AlertTriangle className="h-3.5 w-3.5 text-destructive" />}
-                                </div>
-                              </TableCell>
-                              <TableCell className="text-sm py-2 text-center font-mono text-muted-foreground">{emp.capacity}h</TableCell>
-                              <TableCell className="text-sm py-2 text-center font-mono font-semibold">{emp.alreadyAllocated}h</TableCell>
-                              {selectedTaskIds.length > 0 && (
-                                <TableCell className="text-sm py-2 text-center font-mono">
-                                  {emp.newHours > 0 ? (
-                                    <span className="text-primary font-semibold">+{emp.newHours}h</span>
-                                  ) : (
-                                    <span className="text-muted-foreground">—</span>
-                                  )}
-                                </TableCell>
-                              )}
-                              <TableCell className={`text-sm py-2 text-center font-mono font-semibold ${emp.remaining < 0 ? "text-destructive" : ""}`}>
-                                {emp.remaining}h
-                              </TableCell>
-                              <TableCell className="py-2">
-                                <div className="flex items-center gap-2">
-                                  <Progress value={Math.min(pct, 100)} className={`h-1.5 flex-1 ${getProgressColor(pct)}`} />
-                                  <span className={`text-[10px] font-mono font-semibold min-w-[32px] text-right ${getUtilColor(pct)}`}>
-                                    {pct}%
-                                  </span>
-                                </div>
-                              </TableCell>
-                              <TableCell className="py-2">
-                                <div className="flex flex-wrap gap-1">
-                                  {emp.details.map((d, i) => (
-                                    <TooltipProvider key={i}>
-                                      <Tooltip>
-                                        <TooltipTrigger asChild>
-                                          <Badge variant="outline" className="text-[9px] cursor-default">{d.sprintName} ({d.hours}h)</Badge>
-                                        </TooltipTrigger>
-                                        <TooltipContent className="bg-background border text-xs">
-                                          {d.project} — {d.sprintName}: {d.hours}h
-                                        </TooltipContent>
-                                      </Tooltip>
-                                    </TooltipProvider>
-                                  ))}
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      {weeklyCapacityView.filter((e) => e.alreadyAllocated > 0 || e.newHours > 0).length === 0 && (
-                        <TableRow>
-                          <TableCell colSpan={7} className="text-center text-xs text-muted-foreground py-6">
-                            No employees allocated for this week yet.
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
-            )}
-
-            {/* Add to Sprint action bar */}
-            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30 border">
-              <Select value={targetSprint} onValueChange={setTargetSprint}>
-                <SelectTrigger className="h-9 text-sm w-56 bg-background">
-                  <SelectValue placeholder="Select target sprint" />
-                </SelectTrigger>
-                <SelectContent className="bg-background">
-                  {activePlannedSprints.map((s) => (
-                    <SelectItem key={s.id} value={`${s.name} - ${s.project}`}>
-                      {s.name} — {s.project} ({s.tasks.length} tasks)
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button className="gap-1.5 shadow-sm" onClick={handleAddToSprint} disabled={selectedTaskIds.length === 0}>
-                <ArrowRight className="h-4 w-4" />
-                Add {selectedTaskIds.length > 0 ? `${selectedTaskIds.length} Task${selectedTaskIds.length !== 1 ? "s" : ""}` : "Tasks"} to Sprint
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Sprint Dashboard */}
         {viewingSprint && (
