@@ -572,26 +572,60 @@ const Tasks = () => {
                 </div>
               </div>
 
-              {/* Employee Assignment */}
+              {/* Employee Assignment Table */}
               <div className="space-y-2">
                 <Label className="text-xs">Assign Employees *</Label>
-                <div className="grid grid-cols-3 md:grid-cols-6 gap-2 p-3 border rounded-md bg-muted/30">
-                  {employeesData.map((employee) => (
-                    <div key={employee.id} className="flex items-center space-x-1.5">
-                      <Checkbox
-                        id={`employee-${employee.id}`}
-                        checked={selectedEmployees.includes(employee.id)}
-                        onCheckedChange={() => handleEmployeeToggle(employee.id)}
-                        className="h-3.5 w-3.5"
-                      />
-                      <label
-                        htmlFor={`employee-${employee.id}`}
-                        className="text-xs font-medium leading-none cursor-pointer"
-                      >
-                        {employee.name}
-                      </label>
-                    </div>
-                  ))}
+                <div className="border rounded-md overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/40">
+                        <TableHead className="text-xs py-2 w-10"></TableHead>
+                        <TableHead className="text-xs py-2">Employee Name</TableHead>
+                        <TableHead className="text-xs py-2 text-center">Weekly Capacity</TableHead>
+                        <TableHead className="text-xs py-2 text-center">Allocated Hours</TableHead>
+                        <TableHead className="text-xs py-2 text-center">Remaining Hours</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {employeesData.map((employee) => {
+                        // Mock allocated hours per employee (in real app, calculate from sprint tasks)
+                        const allocatedHours = { "1": 25, "2": 32, "3": 18, "4": 40, "5": 10, "6": 28, "7": 35, "8": 22 }[employee.id] ?? 0;
+                        const weeklyCapacity = 40;
+                        const remainingHours = weeklyCapacity - allocatedHours;
+                        const isOverAllocated = remainingHours <= 0;
+                        const isNearCapacity = remainingHours > 0 && remainingHours <= 8;
+
+                        return (
+                          <TableRow key={employee.id} className={selectedEmployees.includes(employee.id) ? "bg-accent/10" : ""}>
+                            <TableCell className="py-1.5 text-center">
+                              <Checkbox
+                                id={`employee-${employee.id}`}
+                                checked={selectedEmployees.includes(employee.id)}
+                                onCheckedChange={() => handleEmployeeToggle(employee.id)}
+                                className="h-3.5 w-3.5"
+                              />
+                            </TableCell>
+                            <TableCell className="py-1.5">
+                              <label htmlFor={`employee-${employee.id}`} className="text-xs font-medium cursor-pointer">
+                                {employee.name}
+                              </label>
+                            </TableCell>
+                            <TableCell className="py-1.5 text-center text-xs">{weeklyCapacity}h</TableCell>
+                            <TableCell className="py-1.5 text-center text-xs font-medium">
+                              <span className={isOverAllocated ? "text-destructive" : isNearCapacity ? "text-amber-600 dark:text-amber-400" : "text-foreground"}>
+                                {allocatedHours}h
+                              </span>
+                            </TableCell>
+                            <TableCell className="py-1.5 text-center text-xs font-medium">
+                              <span className={isOverAllocated ? "text-destructive font-semibold" : isNearCapacity ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400"}>
+                                {remainingHours}h
+                              </span>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
                 </div>
                 {selectedEmployees.length > 0 && (
                   <p className="text-xs text-muted-foreground">
