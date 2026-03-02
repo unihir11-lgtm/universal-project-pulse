@@ -182,6 +182,8 @@ const Sprints = () => {
   // Task queue state
   const [selectedTaskIds, setSelectedTaskIds] = useState<number[]>([]);
   const [sprintSelectedTaskIds, setSprintSelectedTaskIds] = useState<number[]>([]);
+  // Multi-employee assignment per task: taskId -> employeeId[]
+  const [taskEmployeeMap, setTaskEmployeeMap] = useState<Record<number, string[]>>({});
   const [queueFilterProject, setQueueFilterProject] = useState("all");
   const [targetSprint, setTargetSprint] = useState("");
 
@@ -584,11 +586,7 @@ const Sprints = () => {
 
                       return filteredTasks.map((task) => {
                         const isSelected = sprintSelectedTaskIds.includes(task.id);
-                        const employee = employeesData.find(e => e.id === task.assigneeId);
-                        const allocatedHours = startDate && endDate
-                          ? getEmployeeWeeklyAllocation(task.assigneeId, startDate, endDate).totalHours
-                          : 0;
-                        const remaining = WEEKLY_CAPACITY - allocatedHours;
+                        const assignedEmployeeIds = taskEmployeeMap[task.id] || [task.assigneeId];
 
                         return (
                           <div key={task.id} className={`border-b last:border-b-0 ${isSelected ? "bg-primary/5" : ""}`}>
@@ -607,12 +605,17 @@ const Sprints = () => {
                               <span className="text-xs font-semibold text-foreground">{task.name}</span>
                               <Badge variant="outline" className="text-[10px] ml-1">{task.estimatedHours}h</Badge>
                               {getPriorityBadge(task.priority)}
+                              <Badge variant="outline" className="text-[10px] ml-auto">
+                                <Users className="h-3 w-3 mr-1" />
+                                {assignedEmployeeIds.length}
+                              </Badge>
                             </div>
-                            {/* Employee Detail Row */}
+                            {/* Employee Selection Grid */}
                             <div className="px-4 py-2 pl-12">
                               <Table>
                                 <TableHeader>
                                   <TableRow className="hover:bg-transparent border-0">
+                                    <TableHead className="text-[10px] py-1 h-auto w-8"></TableHead>
                                     <TableHead className="text-[10px] py-1 h-auto">Employee</TableHead>
                                     <TableHead className="text-[10px] py-1 h-auto text-center">Weekly Capacity</TableHead>
                                     <TableHead className="text-[10px] py-1 h-auto text-center">Allocated Hours</TableHead>
@@ -620,33 +623,39 @@ const Sprints = () => {
                                   </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                  <TableRow className="border-0 hover:bg-transparent">
-                                    <TableCell className="py-1.5">
-                                      <Select
-                                        value={task.assigneeId}
-                                        onValueChange={(value) => {
-                                          const emp = employeesData.find(e => e.id === value);
-                                          if (emp) {
-                                            setTaskQueue(prev => prev.map(t =>
-                                              t.id === task.id ? { ...t, assigneeId: value, assigneeName: emp.name } : t
-                                            ));
-                                          }
-                                        }}
-                                      >
-                                        <SelectTrigger className="h-7 text-xs w-44 bg-background">
-                                          <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent className="bg-background">
-                                          {employeesData.map(emp => (
-                                            <SelectItem key={emp.id} value={emp.id} className="text-xs">{emp.name}</SelectItem>
-                                          ))}
-                                        </SelectContent>
-                                      </Select>
-                                    </TableCell>
-                                    <TableCell className="py-1.5 text-center text-xs">{WEEKLY_CAPACITY}h</TableCell>
-                                    <TableCell className="py-1.5 text-center text-xs font-medium">{allocatedHours}h</TableCell>
-                                    <TableCell className={`py-1.5 text-center text-xs font-medium ${remaining < 0 ? "text-destructive" : ""}`}>{remaining}h</TableCell>
-                                  </TableRow>
+                                  {employeesData.map((emp) => {
+                                    const isEmpSelected = assignedEmployeeIds.includes(emp.id);
+                                    const allocatedHours = startDate && endDate
+                                      ? getEmployeeWeeklyAllocation(emp.id, startDate, endDate).totalHours
+                                      : 0;
+                                    const remaining = WEEKLY_CAPACITY - allocatedHours;
+
+                                    return (
+                                      <TableRow key={emp.id} className={`border-0 hover:bg-muted/20 ${isEmpSelected ? "bg-primary/5" : ""}`}>
+                                        <TableCell className="py-1 pr-0">
+                                          <Checkbox
+                                            className="h-3.5 w-3.5"
+                                            checked={isEmpSelected}
+                                            onCheckedChange={(checked) => {
+                                              setTaskEmployeeMap(prev => {
+                                                const current = prev[task.id] || [task.assigneeId];
+                                                const updated = checked
+                                                  ? [...current, emp.id]
+                                                  : current.filter(id => id !== emp.id);
+                                                return { ...prev, [task.id]: updated };
+                                              });
+                                            }}
+                                          />
+                                        </TableCell>
+                                        <TableCell className="py-1">
+                                          <span className="text-xs">{emp.name}</span>
+                                        </TableCell>
+                                        <TableCell className="py-1 text-center text-xs">{WEEKLY_CAPACITY}h</TableCell>
+                                        <TableCell className="py-1 text-center text-xs font-medium">{allocatedHours}h</TableCell>
+                                        <TableCell className={`py-1 text-center text-xs font-medium ${remaining < 0 ? "text-destructive" : ""}`}>{remaining}h</TableCell>
+                                      </TableRow>
+                                    );
+                                  })}
                                 </TableBody>
                               </Table>
                             </div>
