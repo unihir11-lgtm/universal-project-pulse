@@ -170,10 +170,8 @@ const groupDaysByWeek = (days: string[]): { weekLabel: string; days: string[] }[
 
 // Tasks already assigned to sprints
 const buildInitialSprints = (): Sprint[] => {
-  const sprint1Days = getWorkingDays("2025-02-24", "2025-02-28");
-  const sprint2Days = getWorkingDays("2025-03-03", "2025-03-07");
-  const sprint3Days = getWorkingDays("2025-02-24", "2025-02-28");
-  const sprint4Days = getWorkingDays("2025-03-10", "2025-03-28"); // 15 working days
+  const sprint2Days = getWorkingDays("2026-03-16", "2026-04-03"); // 15 working days
+  const sprint3Days = getWorkingDays("2026-02-24", "2026-03-14"); // 15 working days
 
   return [
     {
