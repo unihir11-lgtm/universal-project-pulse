@@ -245,20 +245,27 @@ const buildInitialSprints = (): Sprint[] => {
     },
     {
       id: 2, name: "Sprint 2", project: "Universal Software",
-      startDate: "2025-03-03", endDate: "2025-03-07", duration: "1 week", status: "Planned",
+      startDate: "2026-03-16", endDate: "2026-04-03", duration: "3 weeks", status: "Planned",
       tasks: [
-        { id: 201, name: "Search Feature", project: "Universal Software", estimatedHours: 20, status: "Open", priority: "High",
-          assignees: [{ employeeId: "e4", employeeName: "Priya Sharma", dayHours: distributeHours(20, sprint2Days) }] },
-        { id: 202, name: "Notification Service", project: "Universal Software", estimatedHours: 14, status: "Open", priority: "Medium",
-          assignees: [{ employeeId: "e5", employeeName: "Amit Singh", dayHours: distributeHours(14, sprint2Days) }] },
+        { id: 201, name: "Search Feature", project: "Universal Software", estimatedHours: 40, status: "Open", priority: "High",
+          assignees: [{ employeeId: "e4", employeeName: "Priya Sharma", dayHours: distributeHours(40, sprint2Days) }] },
+        { id: 202, name: "Notification Service", project: "Universal Software", estimatedHours: 30, status: "Open", priority: "Medium",
+          assignees: [{ employeeId: "e5", employeeName: "Amit Singh", dayHours: distributeHours(30, sprint2Days) }] },
+        { id: 203, name: "Data Export Module", project: "Universal Software", estimatedHours: 24, status: "Open", priority: "Low",
+          assignees: [{ employeeId: "e2", employeeName: "Ravi Kumar", dayHours: distributeHours(24, sprint2Days) }] },
       ],
     },
     {
       id: 3, name: "Sprint 1", project: "Super App",
-      startDate: "2025-02-24", endDate: "2025-02-28", duration: "1 week", status: "Active",
+      startDate: "2026-02-24", endDate: "2026-03-14", duration: "3 weeks", status: "Active",
       tasks: [
-        { id: 301, name: "Payment Gateway", project: "Super App", estimatedHours: 24, status: "In Progress", priority: "Critical",
-          assignees: [{ employeeId: "e4", employeeName: "Priya Sharma", dayHours: distributeHours(24, sprint3Days) }] },
+        { id: 301, name: "Payment Gateway", project: "Super App", estimatedHours: 48, status: "In Progress", priority: "Critical",
+          assignees: [
+            { employeeId: "e4", employeeName: "Priya Sharma", dayHours: distributeHours(28, sprint3Days) },
+            { employeeId: "e6", employeeName: "Sneha Reddy", dayHours: distributeHours(20, sprint3Days) },
+          ] },
+        { id: 302, name: "Push Notifications", project: "Super App", estimatedHours: 24, status: "Open", priority: "Medium",
+          assignees: [{ employeeId: "e5", employeeName: "Amit Singh", dayHours: distributeHours(24, sprint3Days) }] },
       ],
     },
     {
