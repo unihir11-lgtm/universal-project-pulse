@@ -43,7 +43,7 @@ const menuItems = [
   { title: "Projects", url: "/projects", icon: FolderKanban },
   { title: "Project Templates", url: "/project-templates", icon: FileText },
   { title: "Sprints", url: "/sprints", icon: Target },
-  { title: "Create Sprint", url: "/create-sprint", icon: Calendar },
+  
   { title: "Task Allocation", url: "/sprint-task-allocation", icon: ListChecks },
   { title: "Resource Report", url: "/sprint-resource-report", icon: BarChart3 },
   { title: "Tasks", url: "/tasks", icon: ClipboardList },
