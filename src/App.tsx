@@ -22,7 +22,7 @@ import Roles from "./pages/Roles";
 import ProjectSummary from "./pages/ProjectSummary";
 import Tasks from "./pages/Tasks";
 import Sprints from "./pages/Sprints";
-import CreateSprint from "./pages/CreateSprint";
+
 import SprintTaskAllocation from "./pages/SprintTaskAllocation";
 import SprintResourceReport from "./pages/SprintResourceReport";
 import TaskTimeReport from "./pages/TaskTimeReport";
@@ -62,7 +62,7 @@ const App = () => (
             <Route path="/project-summary" element={<ProjectSummary />} />
             <Route path="/tasks" element={<Tasks />} />
             <Route path="/sprints" element={<Sprints />} />
-            <Route path="/create-sprint" element={<CreateSprint />} />
+            
             <Route path="/sprint-task-allocation" element={<SprintTaskAllocation />} />
             <Route path="/sprint-resource-report" element={<SprintResourceReport />} />
             <Route path="/task-time-report" element={<TaskTimeReport />} />
