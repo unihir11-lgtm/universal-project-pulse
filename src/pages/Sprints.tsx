@@ -775,7 +775,7 @@ const Sprints = () => {
                 {/* Task & Employee Day-wise Assignment */}
                 <div className="space-y-2">
                   <Label className="text-xs font-medium">Select Tasks & Assign Day-wise Hours *</Label>
-                  <div className="border rounded-md overflow-hidden">
+                  <div className="space-y-2">
                     {(() => {
                       const filteredTasks = sprintProject
                         ? taskQueue.filter(t => t.project === sprintProject)
@@ -784,7 +784,7 @@ const Sprints = () => {
 
                       if (filteredTasks.length === 0) {
                         return (
-                          <div className="text-center text-xs text-muted-foreground py-6">
+                          <div className="text-center text-xs text-muted-foreground py-6 border rounded-md">
                             {sprintProject ? `No tasks available for ${sprintProject}` : "Select a project to see available tasks"}
                           </div>
                         );
@@ -795,16 +795,15 @@ const Sprints = () => {
                         const assignedEmployeeIds = taskEmployeeMap[task.id] || [task.assigneeId];
 
                         return (
-                          <div key={task.id} className={`border-b last:border-b-0 ${isSelected ? "bg-primary/5" : ""}`}>
-                            {/* Task Header Row */}
-                            <div className="flex items-center gap-3 px-4 py-2.5 bg-muted/30">
+                          <div key={task.id} className={`border rounded-md overflow-hidden ${isSelected ? "border-primary/30" : ""}`}>
+                            {/* Task Header */}
+                            <div className="flex items-center gap-3 px-3 py-2 bg-muted/20">
                               <Checkbox
                                 className="h-3.5 w-3.5"
                                 checked={isSelected}
                                 onCheckedChange={(checked) => {
                                   if (checked) {
                                     setSprintSelectedTaskIds(prev => [...prev, task.id]);
-                                    // Auto-distribute hours for default assignee
                                     if (startDate && endDate) {
                                       const days = getWorkingDays(startDate, endDate);
                                       const key = `${task.id}-${task.assigneeId}`;
@@ -820,17 +819,19 @@ const Sprints = () => {
                               />
                               <ListChecks className="h-3.5 w-3.5 text-muted-foreground" />
                               <span className="text-xs font-semibold text-foreground">{task.name}</span>
-                              <Badge variant="outline" className="text-[10px] ml-1">{task.estimatedHours}h</Badge>
+                              <Badge variant="outline" className="text-[10px]">{task.estimatedHours}h</Badge>
                               {getPriorityBadge(task.priority)}
-                              <Badge variant="outline" className="text-[10px] ml-auto">
-                                <Users className="h-3 w-3 mr-1" />
-                                {assignedEmployeeIds.length}
-                              </Badge>
+                              {isSelected && (
+                                <Badge variant="outline" className="text-[10px] ml-auto">
+                                  <Users className="h-3 w-3 mr-1" />
+                                  {assignedEmployeeIds.length}
+                                </Badge>
+                              )}
                             </div>
 
                             {/* Employee Day-wise Grid (shown when task is selected) */}
                             {isSelected && (
-                              <div className="px-4 py-2 pl-8">
+                              <div className="px-4 py-2 pl-6">
                                 {!startDate || !endDate ? (
                                   <p className="text-[10px] text-muted-foreground py-2">Set sprint start & end dates to see day-wise allocation</p>
                                 ) : (
@@ -882,7 +883,6 @@ const Sprints = () => {
                                           }));
                                         }}
                                         getDailyAllocation={(empId, day) => {
-                                          // Sum from other tasks in this create form + existing sprints
                                           let otherCreate = 0;
                                           Object.entries(createDayHours).forEach(([k, dh]) => {
                                             if (k.endsWith(`-${empId}`) && k !== `${task.id}-${empId}`) {
