@@ -22,7 +22,7 @@ import Roles from "./pages/Roles";
 import ProjectSummary from "./pages/ProjectSummary";
 import Tasks from "./pages/Tasks";
 import Sprints from "./pages/Sprints";
-import CreateSprint from "./pages/CreateSprint";
+
 import SprintTaskAllocation from "./pages/SprintTaskAllocation";
 import SprintResourceReport from "./pages/SprintResourceReport";
 import TaskTimeReport from "./pages/TaskTimeReport";
