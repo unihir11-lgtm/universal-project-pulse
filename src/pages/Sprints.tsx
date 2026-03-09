@@ -170,10 +170,8 @@ const groupDaysByWeek = (days: string[]): { weekLabel: string; days: string[] }[
 
 // Tasks already assigned to sprints
 const buildInitialSprints = (): Sprint[] => {
-  const sprint1Days = getWorkingDays("2025-02-24", "2025-02-28");
-  const sprint2Days = getWorkingDays("2025-03-03", "2025-03-07");
-  const sprint3Days = getWorkingDays("2025-02-24", "2025-02-28");
-  const sprint4Days = getWorkingDays("2025-03-10", "2025-03-28"); // 15 working days
+  const sprint2Days = getWorkingDays("2026-03-16", "2026-04-03"); // 15 working days
+  const sprint3Days = getWorkingDays("2026-02-24", "2026-03-14"); // 15 working days
 
   return [
     {
@@ -247,84 +245,91 @@ const buildInitialSprints = (): Sprint[] => {
     },
     {
       id: 2, name: "Sprint 2", project: "Universal Software",
-      startDate: "2025-03-03", endDate: "2025-03-07", duration: "1 week", status: "Planned",
+      startDate: "2026-03-16", endDate: "2026-04-03", duration: "3 weeks", status: "Planned",
       tasks: [
-        { id: 201, name: "Search Feature", project: "Universal Software", estimatedHours: 20, status: "Open", priority: "High",
-          assignees: [{ employeeId: "e4", employeeName: "Priya Sharma", dayHours: distributeHours(20, sprint2Days) }] },
-        { id: 202, name: "Notification Service", project: "Universal Software", estimatedHours: 14, status: "Open", priority: "Medium",
-          assignees: [{ employeeId: "e5", employeeName: "Amit Singh", dayHours: distributeHours(14, sprint2Days) }] },
+        { id: 201, name: "Search Feature", project: "Universal Software", estimatedHours: 40, status: "Open", priority: "High",
+          assignees: [{ employeeId: "e4", employeeName: "Priya Sharma", dayHours: distributeHours(40, sprint2Days) }] },
+        { id: 202, name: "Notification Service", project: "Universal Software", estimatedHours: 30, status: "Open", priority: "Medium",
+          assignees: [{ employeeId: "e5", employeeName: "Amit Singh", dayHours: distributeHours(30, sprint2Days) }] },
+        { id: 203, name: "Data Export Module", project: "Universal Software", estimatedHours: 24, status: "Open", priority: "Low",
+          assignees: [{ employeeId: "e2", employeeName: "Ravi Kumar", dayHours: distributeHours(24, sprint2Days) }] },
       ],
     },
     {
       id: 3, name: "Sprint 1", project: "Super App",
-      startDate: "2025-02-24", endDate: "2025-02-28", duration: "1 week", status: "Active",
+      startDate: "2026-02-24", endDate: "2026-03-14", duration: "3 weeks", status: "Active",
       tasks: [
-        { id: 301, name: "Payment Gateway", project: "Super App", estimatedHours: 24, status: "In Progress", priority: "Critical",
-          assignees: [{ employeeId: "e4", employeeName: "Priya Sharma", dayHours: distributeHours(24, sprint3Days) }] },
+        { id: 301, name: "Payment Gateway", project: "Super App", estimatedHours: 48, status: "In Progress", priority: "Critical",
+          assignees: [
+            { employeeId: "e4", employeeName: "Priya Sharma", dayHours: distributeHours(28, sprint3Days) },
+            { employeeId: "e6", employeeName: "Sneha Reddy", dayHours: distributeHours(20, sprint3Days) },
+          ] },
+        { id: 302, name: "Push Notifications", project: "Super App", estimatedHours: 24, status: "Open", priority: "Medium",
+          assignees: [{ employeeId: "e5", employeeName: "Amit Singh", dayHours: distributeHours(24, sprint3Days) }] },
       ],
     },
     {
       id: 4, name: "Release Sprint", project: "Go Live",
-      startDate: "2025-03-10", endDate: "2025-03-28", duration: "3 weeks", status: "Planned",
+      startDate: "2026-04-06", endDate: "2026-04-24", duration: "3 weeks", status: "Planned",
       tasks: [
         { id: 401, name: "CI/CD Pipeline Setup & Config", project: "Go Live", estimatedHours: 48, status: "In Progress", priority: "High",
           assignees: [
             { employeeId: "e3", employeeName: "Mehul Patel", dayHours: {
-              "2025-03-10": 6, "2025-03-11": 7, "2025-03-12": 5, "2025-03-13": 4, "2025-03-14": 3,
-              "2025-03-17": 2, "2025-03-18": 2, "2025-03-19": 1, "2025-03-20": 0, "2025-03-21": 0,
-              "2025-03-24": 0, "2025-03-25": 0, "2025-03-26": 0, "2025-03-27": 0, "2025-03-28": 0,
+              "2026-04-06": 6, "2026-04-07": 7, "2026-04-08": 5, "2026-04-09": 4, "2026-04-10": 3,
+              "2026-04-13": 2, "2026-04-14": 2, "2026-04-15": 1, "2026-04-16": 0, "2026-04-17": 0,
+              "2026-04-20": 0, "2026-04-21": 0, "2026-04-22": 0, "2026-04-23": 0, "2026-04-24": 0,
             }},
             { employeeId: "e1", employeeName: "John Doe", dayHours: {
-              "2025-03-10": 4, "2025-03-11": 4, "2025-03-12": 3, "2025-03-13": 3, "2025-03-14": 2,
-              "2025-03-17": 0, "2025-03-18": 0, "2025-03-19": 0, "2025-03-20": 0, "2025-03-21": 0,
-              "2025-03-24": 0, "2025-03-25": 0, "2025-03-26": 0, "2025-03-27": 0, "2025-03-28": 0,
+              "2026-04-06": 4, "2026-04-07": 4, "2026-04-08": 3, "2026-04-09": 3, "2026-04-10": 2,
+              "2026-04-13": 0, "2026-04-14": 0, "2026-04-15": 0, "2026-04-16": 0, "2026-04-17": 0,
+              "2026-04-20": 0, "2026-04-21": 0, "2026-04-22": 0, "2026-04-23": 0, "2026-04-24": 0,
             }},
           ] },
         { id: 402, name: "Performance & Load Testing", project: "Go Live", estimatedHours: 56, status: "Open", priority: "High",
           assignees: [
             { employeeId: "e5", employeeName: "Amit Singh", dayHours: {
-              "2025-03-10": 2, "2025-03-11": 2, "2025-03-12": 4, "2025-03-13": 4, "2025-03-14": 6,
-              "2025-03-17": 6, "2025-03-18": 6, "2025-03-19": 4, "2025-03-20": 2, "2025-03-21": 0,
-              "2025-03-24": 0, "2025-03-25": 0, "2025-03-26": 0, "2025-03-27": 0, "2025-03-28": 0,
+              "2026-04-06": 2, "2026-04-07": 2, "2026-04-08": 4, "2026-04-09": 4, "2026-04-10": 6,
+              "2026-04-13": 6, "2026-04-14": 6, "2026-04-15": 4, "2026-04-16": 2, "2026-04-17": 0,
+              "2026-04-20": 0, "2026-04-21": 0, "2026-04-22": 0, "2026-04-23": 0, "2026-04-24": 0,
             }},
             { employeeId: "e2", employeeName: "Ravi Kumar", dayHours: {
-              "2025-03-10": 0, "2025-03-11": 0, "2025-03-12": 0, "2025-03-13": 2, "2025-03-14": 4,
-              "2025-03-17": 4, "2025-03-18": 6, "2025-03-19": 6, "2025-03-20": 4, "2025-03-21": 2,
-              "2025-03-24": 0, "2025-03-25": 0, "2025-03-26": 0, "2025-03-27": 0, "2025-03-28": 0,
+              "2026-04-06": 0, "2026-04-07": 0, "2026-04-08": 0, "2026-04-09": 2, "2026-04-10": 4,
+              "2026-04-13": 4, "2026-04-14": 6, "2026-04-15": 6, "2026-04-16": 4, "2026-04-17": 2,
+              "2026-04-20": 0, "2026-04-21": 0, "2026-04-22": 0, "2026-04-23": 0, "2026-04-24": 0,
             }},
           ] },
         { id: 403, name: "Security Audit & Pen Testing", project: "Go Live", estimatedHours: 40, status: "Open", priority: "Critical",
           assignees: [
             { employeeId: "e6", employeeName: "Sneha Reddy", dayHours: {
-              "2025-03-10": 0, "2025-03-11": 0, "2025-03-12": 2, "2025-03-13": 4, "2025-03-14": 4,
-              "2025-03-17": 6, "2025-03-18": 6, "2025-03-19": 6, "2025-03-20": 4, "2025-03-21": 2,
-              "2025-03-24": 0, "2025-03-25": 0, "2025-03-26": 0, "2025-03-27": 0, "2025-03-28": 0,
+              "2026-04-06": 0, "2026-04-07": 0, "2026-04-08": 2, "2026-04-09": 4, "2026-04-10": 4,
+              "2026-04-13": 6, "2026-04-14": 6, "2026-04-15": 6, "2026-04-16": 4, "2026-04-17": 2,
+              "2026-04-20": 0, "2026-04-21": 0, "2026-04-22": 0, "2026-04-23": 0, "2026-04-24": 0,
             }},
           ] },
         { id: 404, name: "Production Deployment & Monitoring", project: "Go Live", estimatedHours: 36, status: "Open", priority: "Critical",
           assignees: [
             { employeeId: "e3", employeeName: "Mehul Patel", dayHours: {
-              "2025-03-10": 0, "2025-03-11": 0, "2025-03-12": 0, "2025-03-13": 0, "2025-03-14": 0,
-              "2025-03-17": 4, "2025-03-18": 4, "2025-03-19": 6, "2025-03-20": 6, "2025-03-21": 4,
-              "2025-03-24": 0, "2025-03-25": 0, "2025-03-26": 0, "2025-03-27": 0, "2025-03-28": 0,
+              "2026-04-06": 0, "2026-04-07": 0, "2026-04-08": 0, "2026-04-09": 0, "2026-04-10": 0,
+              "2026-04-13": 4, "2026-04-14": 4, "2026-04-15": 6, "2026-04-16": 6, "2026-04-17": 4,
+              "2026-04-20": 0, "2026-04-21": 0, "2026-04-22": 0, "2026-04-23": 0, "2026-04-24": 0,
             }},
             { employeeId: "e1", employeeName: "John Doe", dayHours: {
-              "2025-03-10": 0, "2025-03-11": 0, "2025-03-12": 0, "2025-03-13": 0, "2025-03-14": 0,
-              "2025-03-17": 0, "2025-03-18": 0, "2025-03-19": 0, "2025-03-20": 4, "2025-03-21": 6,
-              "2025-03-24": 2, "2025-03-25": 0, "2025-03-26": 0, "2025-03-27": 0, "2025-03-28": 0,
+              "2026-04-06": 0, "2026-04-07": 0, "2026-04-08": 0, "2026-04-09": 0, "2026-04-10": 0,
+              "2026-04-13": 0, "2026-04-14": 0, "2026-04-15": 0, "2026-04-16": 4, "2026-04-17": 6,
+              "2026-04-20": 2, "2026-04-21": 0, "2026-04-22": 0, "2026-04-23": 0, "2026-04-24": 0,
             }},
           ] },
         { id: 405, name: "UAT & Bug Fixes", project: "Go Live", estimatedHours: 44, status: "Open", priority: "High",
           assignees: [
             { employeeId: "e4", employeeName: "Priya Sharma", dayHours: {
-              "2025-03-10": 0, "2025-03-11": 0, "2025-03-12": 0, "2025-03-13": 0, "2025-03-14": 0,
-              "2025-03-17": 0, "2025-03-18": 0, "2025-03-19": 2, "2025-03-20": 4, "2025-03-21": 6,
-              "2025-03-24": 8, "2025-03-25": 8, "2025-03-26": 6, "2025-03-27": 4, "2025-03-28": 2,
+              "2026-04-06": 0, "2026-04-07": 0, "2026-04-08": 0, "2026-04-09": 0, "2026-04-10": 0,
+              "2026-04-13": 0, "2026-04-14": 0, "2026-04-15": 2, "2026-04-16": 4, "2026-04-17": 6,
+              "2026-04-20": 8, "2026-04-21": 8, "2026-04-22": 6, "2026-04-23": 4, "2026-04-24": 2,
             }},
             { employeeId: "e6", employeeName: "Sneha Reddy", dayHours: {
-              "2025-03-10": 0, "2025-03-11": 0, "2025-03-12": 0, "2025-03-13": 0, "2025-03-14": 0,
-              "2025-03-17": 0, "2025-03-18": 0, "2025-03-19": 0, "2025-03-20": 0, "2025-03-21": 0,
-              "2025-03-24": 4, "2025-03-25": 4, "2025-03-26": 0, "2025-03-27": 0, "2025-03-28": 0,
+              "2026-04-06": 0, "2026-04-07": 0, "2026-04-08": 0, "2026-04-09": 0, "2026-04-10": 0,
+              "2026-04-13": 0, "2026-04-14": 0, "2026-04-15": 0, "2026-04-16": 0, "2026-04-17": 0,
+              "2026-04-20": 4, "2026-04-21": 4, "2026-04-22": 0, "2026-04-23": 0, "2026-04-24": 0,
             }},
           ] },
       ],
