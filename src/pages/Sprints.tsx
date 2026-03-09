@@ -45,6 +45,29 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 // --- Constants ---
 const WEEKLY_CAPACITY = 40;
+const DAILY_CAPACITY = 8;
+
+// --- Helpers ---
+const getWorkingDays = (start: string, end: string): string[] => {
+  const days: string[] = [];
+  const cur = new Date(start);
+  const last = new Date(end);
+  while (cur <= last) {
+    if (cur.getDay() !== 0 && cur.getDay() !== 6) days.push(cur.toISOString().split("T")[0]);
+    cur.setDate(cur.getDate() + 1);
+  }
+  return days;
+};
+
+const formatDayLabel = (dateStr: string) => {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("en-GB", { weekday: "short", day: "2-digit", month: "short" });
+};
+
+const formatShortDay = (dateStr: string) => {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("en-GB", { weekday: "short", day: "2-digit" });
+};
 
 // --- Mock Data ---
 const projectsData = [
@@ -66,6 +89,12 @@ const employeesData = [
   { id: "e6", name: "Sneha Reddy", capacity: WEEKLY_CAPACITY },
 ];
 
+interface SprintTaskAssignee {
+  employeeId: string;
+  employeeName: string;
+  dayHours: Record<string, number>; // date -> hours
+}
+
 interface Sprint {
   id: number;
   name: string;
@@ -81,8 +110,7 @@ interface SprintTask {
   id: number;
   name: string;
   project: string;
-  assigneeId: string;
-  assigneeName: string;
+  assignees: SprintTaskAssignee[];
   estimatedHours: number;
   status: string;
   priority: string;
@@ -100,53 +128,63 @@ interface QueueTask {
   status: string;
 }
 
-// Tasks already assigned to sprints
-const initialSprintsData: Sprint[] = [
-  {
-    id: 1,
-    name: "Sprint 1",
-    project: "Universal Software",
-    startDate: "2025-02-24",
-    endDate: "2025-02-28",
-    duration: "1 week",
-    status: "Active",
-    tasks: [
-      { id: 101, name: "User Auth Flow", project: "Universal Software", assigneeId: "e1", assigneeName: "John Doe", estimatedHours: 16, status: "In Progress", priority: "High" },
-      { id: 102, name: "Dashboard API", project: "Universal Software", assigneeId: "e1", assigneeName: "John Doe", estimatedHours: 12, status: "Open", priority: "High" },
-      { id: 103, name: "Profile Page", project: "Universal Software", assigneeId: "e2", assigneeName: "Ravi Kumar", estimatedHours: 8, status: "In Progress", priority: "Medium" },
-      { id: 104, name: "Unit Tests", project: "Universal Software", assigneeId: "e2", assigneeName: "Ravi Kumar", estimatedHours: 12, status: "Open", priority: "Medium" },
-      { id: 105, name: "Report Module", project: "Universal Software", assigneeId: "e3", assigneeName: "Mehul Patel", estimatedHours: 20, status: "Open", priority: "High" },
-      { id: 106, name: "Bug Fixes", project: "Universal Software", assigneeId: "e3", assigneeName: "Mehul Patel", estimatedHours: 20, status: "Open", priority: "Low" },
-    ],
-  },
-  {
-    id: 2,
-    name: "Sprint 2",
-    project: "Universal Software",
-    startDate: "2025-03-03",
-    endDate: "2025-03-07",
-    duration: "1 week",
-    status: "Planned",
-    tasks: [
-      { id: 201, name: "Search Feature", project: "Universal Software", assigneeId: "e4", assigneeName: "Priya Sharma", estimatedHours: 20, status: "Open", priority: "High" },
-      { id: 202, name: "Notification Service", project: "Universal Software", assigneeId: "e5", assigneeName: "Amit Singh", estimatedHours: 14, status: "Open", priority: "Medium" },
-    ],
-  },
-  {
-    id: 3,
-    name: "Sprint 1",
-    project: "Super App",
-    startDate: "2025-02-24",
-    endDate: "2025-02-28",
-    duration: "1 week",
-    status: "Active",
-    tasks: [
-      { id: 301, name: "Payment Gateway", project: "Super App", assigneeId: "e4", assigneeName: "Priya Sharma", estimatedHours: 24, status: "In Progress", priority: "Critical" },
-    ],
-  },
-];
+// Helper to distribute hours evenly across working days
+const distributeHours = (hours: number, days: string[]): Record<string, number> => {
+  const r: Record<string, number> = {};
+  if (!days.length) return r;
+  const per = Math.floor(hours / days.length);
+  const rem = hours - per * days.length;
+  days.forEach((d, i) => { r[d] = per + (i < rem ? 1 : 0); });
+  return r;
+};
 
-// Task queue — tasks not yet in any sprint
+// Tasks already assigned to sprints
+const buildInitialSprints = (): Sprint[] => {
+  const sprint1Days = getWorkingDays("2025-02-24", "2025-02-28");
+  const sprint2Days = getWorkingDays("2025-03-03", "2025-03-07");
+  const sprint3Days = getWorkingDays("2025-02-24", "2025-02-28");
+
+  return [
+    {
+      id: 1, name: "Sprint 1", project: "Universal Software",
+      startDate: "2025-02-24", endDate: "2025-02-28", duration: "1 week", status: "Active",
+      tasks: [
+        { id: 101, name: "User Auth Flow", project: "Universal Software", estimatedHours: 16, status: "In Progress", priority: "High",
+          assignees: [{ employeeId: "e1", employeeName: "John Doe", dayHours: distributeHours(16, sprint1Days) }] },
+        { id: 102, name: "Dashboard API", project: "Universal Software", estimatedHours: 12, status: "Open", priority: "High",
+          assignees: [{ employeeId: "e1", employeeName: "John Doe", dayHours: distributeHours(12, sprint1Days) }] },
+        { id: 103, name: "Profile Page", project: "Universal Software", estimatedHours: 8, status: "In Progress", priority: "Medium",
+          assignees: [{ employeeId: "e2", employeeName: "Ravi Kumar", dayHours: distributeHours(8, sprint1Days) }] },
+        { id: 104, name: "Unit Tests", project: "Universal Software", estimatedHours: 12, status: "Open", priority: "Medium",
+          assignees: [{ employeeId: "e2", employeeName: "Ravi Kumar", dayHours: distributeHours(12, sprint1Days) }] },
+        { id: 105, name: "Report Module", project: "Universal Software", estimatedHours: 20, status: "Open", priority: "High",
+          assignees: [{ employeeId: "e3", employeeName: "Mehul Patel", dayHours: distributeHours(20, sprint1Days) }] },
+        { id: 106, name: "Bug Fixes", project: "Universal Software", estimatedHours: 20, status: "Open", priority: "Low",
+          assignees: [{ employeeId: "e3", employeeName: "Mehul Patel", dayHours: distributeHours(20, sprint1Days) }] },
+      ],
+    },
+    {
+      id: 2, name: "Sprint 2", project: "Universal Software",
+      startDate: "2025-03-03", endDate: "2025-03-07", duration: "1 week", status: "Planned",
+      tasks: [
+        { id: 201, name: "Search Feature", project: "Universal Software", estimatedHours: 20, status: "Open", priority: "High",
+          assignees: [{ employeeId: "e4", employeeName: "Priya Sharma", dayHours: distributeHours(20, sprint2Days) }] },
+        { id: 202, name: "Notification Service", project: "Universal Software", estimatedHours: 14, status: "Open", priority: "Medium",
+          assignees: [{ employeeId: "e5", employeeName: "Amit Singh", dayHours: distributeHours(14, sprint2Days) }] },
+      ],
+    },
+    {
+      id: 3, name: "Sprint 1", project: "Super App",
+      startDate: "2025-02-24", endDate: "2025-02-28", duration: "1 week", status: "Active",
+      tasks: [
+        { id: 301, name: "Payment Gateway", project: "Super App", estimatedHours: 24, status: "In Progress", priority: "Critical",
+          assignees: [{ employeeId: "e4", employeeName: "Priya Sharma", dayHours: distributeHours(24, sprint3Days) }] },
+      ],
+    },
+  ];
+};
+
+// Task queue
 const initialTaskQueue: QueueTask[] = [
   { id: 1, name: "User Authentication Flow", project: "Universal Software", priority: "High", assigneeId: "e1", assigneeName: "John Doe", estimatedHours: 16, description: "Implement login/signup with JWT", status: "Ready" },
   { id: 2, name: "Dashboard API Integration", project: "Universal Software", priority: "High", assigneeId: "e4", assigneeName: "Priya Sharma", estimatedHours: 12, description: "Connect dashboard widgets to API", status: "Ready" },
@@ -172,7 +210,7 @@ const Sprints = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
 
   // Data state
-  const [sprints, setSprints] = useState<Sprint[]>(initialSprintsData);
+  const [sprints, setSprints] = useState<Sprint[]>(buildInitialSprints);
   const [taskQueue, setTaskQueue] = useState<QueueTask[]>(initialTaskQueue);
 
   // Filter state
@@ -183,6 +221,8 @@ const Sprints = () => {
   const [sprintSelectedTaskIds, setSprintSelectedTaskIds] = useState<number[]>([]);
   // Multi-employee assignment per task: taskId -> employeeId[]
   const [taskEmployeeMap, setTaskEmployeeMap] = useState<Record<number, string[]>>({});
+  // Day-wise hours for create form: "taskId-employeeId" -> { date: hours }
+  const [createDayHours, setCreateDayHours] = useState<Record<string, Record<string, number>>>({});
 
   // Sprint detail view
   const [viewingSprint, setViewingSprint] = useState<Sprint | null>(null);
@@ -194,42 +234,19 @@ const Sprints = () => {
 
   // --- Computed ---
 
-  const getEmployeeAllocationForSprint = (sprint: Sprint) => {
-    const allocationMap = new Map<string, { name: string; assigned: number; tasks: string[] }>();
-    sprint.tasks.forEach((task) => {
-      const existing = allocationMap.get(task.assigneeId) || { name: task.assigneeName, assigned: 0, tasks: [] };
-      existing.assigned += task.estimatedHours;
-      existing.tasks.push(task.name);
-      allocationMap.set(task.assigneeId, existing);
-    });
-    return Array.from(allocationMap.entries()).map(([id, data]) => ({
-      id,
-      name: data.name,
-      capacity: WEEKLY_CAPACITY,
-      assigned: data.assigned,
-      remaining: WEEKLY_CAPACITY - data.assigned,
-      tasks: data.tasks,
-      isOverAllocated: data.assigned > WEEKLY_CAPACITY,
-    }));
-  };
-
-  const getEmployeeWeeklyAllocation = (employeeId: string, sprintStartDate: string, sprintEndDate: string) => {
-    let totalHours = 0;
-    const details: { sprintName: string; project: string; hours: number }[] = [];
+  const getEmployeeDailyAllocationFromSprints = (employeeId: string, date: string, excludeSprintId?: number) => {
+    let total = 0;
     sprints.forEach((s) => {
-      const overlaps = s.startDate <= sprintEndDate && s.endDate >= sprintStartDate;
-      if (overlaps) {
-        let sprintHours = 0;
-        s.tasks.filter((t) => t.assigneeId === employeeId).forEach((t) => {
-          sprintHours += t.estimatedHours;
-          totalHours += t.estimatedHours;
+      if (excludeSprintId && s.id === excludeSprintId) return;
+      s.tasks.forEach((task) => {
+        task.assignees.forEach((a) => {
+          if (a.employeeId === employeeId && a.dayHours[date]) {
+            total += a.dayHours[date];
+          }
         });
-        if (sprintHours > 0) {
-          details.push({ sprintName: s.name, project: s.project, hours: sprintHours });
-        }
-      }
+      });
     });
-    return { totalHours, details };
+    return total;
   };
 
   const filteredSprints = sprints.filter((sprint) => {
@@ -245,12 +262,18 @@ const Sprints = () => {
     const checked = new Set<string>();
     let count = 0;
     sprints.forEach((s) => {
-      s.tasks.forEach((t) => {
-        if (!checked.has(t.assigneeId + s.startDate)) {
-          checked.add(t.assigneeId + s.startDate);
-          const { totalHours } = getEmployeeWeeklyAllocation(t.assigneeId, s.startDate, s.endDate);
-          if (totalHours > WEEKLY_CAPACITY) count++;
-        }
+      const days = getWorkingDays(s.startDate, s.endDate);
+      s.tasks.forEach((task) => {
+        task.assignees.forEach((a) => {
+          days.forEach((day) => {
+            const key = `${a.employeeId}-${day}`;
+            if (!checked.has(key)) {
+              checked.add(key);
+              const totalForDay = getEmployeeDailyAllocationFromSprints(a.employeeId, day);
+              if (totalForDay > DAILY_CAPACITY) count++;
+            }
+          });
+        });
       });
     });
     return count;
@@ -266,6 +289,31 @@ const Sprints = () => {
     if (!endDate) { toast.error("Please select end date"); return; }
     if (!sprintStatus) { toast.error("Please select sprint status"); return; }
 
+    const selectedTasks = taskQueue.filter(t => sprintSelectedTaskIds.includes(t.id));
+    const workingDays = getWorkingDays(startDate, endDate);
+
+    const sprintTasks: SprintTask[] = selectedTasks.map(task => {
+      const empIds = taskEmployeeMap[task.id] || [task.assigneeId];
+      return {
+        id: task.id,
+        name: task.name,
+        project: task.project,
+        estimatedHours: task.estimatedHours,
+        status: task.status,
+        priority: task.priority,
+        assignees: empIds.map(empId => {
+          const emp = employeesData.find(e => e.id === empId);
+          const key = `${task.id}-${empId}`;
+          const dayHours = createDayHours[key] || distributeHours(task.estimatedHours, workingDays);
+          return {
+            employeeId: empId,
+            employeeName: emp?.name || "Unknown",
+            dayHours,
+          };
+        }),
+      };
+    });
+
     const newSprint: Sprint = {
       id: Date.now(),
       name: sprintName,
@@ -274,12 +322,14 @@ const Sprints = () => {
       endDate,
       duration: "1 week",
       status: sprintStatus,
-      tasks: [],
+      tasks: sprintTasks,
     };
     setSprints((prev) => [...prev, newSprint]);
     toast.success(`Sprint "${sprintName}" created successfully!`);
     setSprintName(""); setSprintProject(""); setStartDate(""); setEndDate(""); setSprintStatus("");
     setSprintSelectedTaskIds([]);
+    setTaskEmployeeMap({});
+    setCreateDayHours({});
     setShowCreateForm(false);
   };
 
@@ -309,6 +359,42 @@ const Sprints = () => {
     toast.success(`Sprint "${sprint.name}" deleted.`);
   };
 
+  const handleUpdateSprintDayHours = (sprintId: number, taskId: number, employeeId: string, day: string, hours: number) => {
+    setSprints(prev => prev.map(s => {
+      if (s.id !== sprintId) return s;
+      return {
+        ...s,
+        tasks: s.tasks.map(t => {
+          if (t.id !== taskId) return t;
+          return {
+            ...t,
+            assignees: t.assignees.map(a => {
+              if (a.employeeId !== employeeId) return a;
+              return { ...a, dayHours: { ...a.dayHours, [day]: hours } };
+            }),
+          };
+        }),
+      };
+    }));
+    // Update viewingSprint as well
+    setViewingSprint(prev => {
+      if (!prev || prev.id !== sprintId) return prev;
+      return {
+        ...prev,
+        tasks: prev.tasks.map(t => {
+          if (t.id !== taskId) return t;
+          return {
+            ...t,
+            assignees: t.assignees.map(a => {
+              if (a.employeeId !== employeeId) return a;
+              return { ...a, dayHours: { ...a.dayHours, [day]: hours } };
+            }),
+          };
+        }),
+      };
+    });
+  };
+
   // --- Badge helpers ---
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -336,17 +422,99 @@ const Sprints = () => {
     return date.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
   };
 
-  const getUtilColor = (pct: number) => {
-    if (pct > 100) return "text-destructive";
-    if (pct >= 80) return "text-[hsl(var(--warning))]";
-    if (pct >= 50) return "text-foreground";
-    return "text-[hsl(var(--success))]";
-  };
+  // --- Day-wise Employee Grid Component ---
+  const DayWiseEmployeeGrid = ({
+    employees,
+    workingDays,
+    dayHoursMap,
+    onUpdateHours,
+    getDailyAllocation,
+    readOnly = false,
+  }: {
+    employees: { id: string; name: string }[];
+    workingDays: string[];
+    dayHoursMap: Record<string, Record<string, number>>; // employeeId -> { date -> hours }
+    onUpdateHours: (employeeId: string, day: string, hours: number) => void;
+    getDailyAllocation: (employeeId: string, day: string) => number;
+    readOnly?: boolean;
+  }) => {
+    if (workingDays.length === 0) {
+      return <p className="text-[10px] text-muted-foreground py-2 px-4">No working days in selected range</p>;
+    }
 
-  const getProgressColor = (pct: number) => {
-    if (pct > 100) return "[&>div]:bg-destructive";
-    if (pct >= 80) return "[&>div]:bg-[hsl(var(--warning))]";
-    return "[&>div]:bg-primary";
+    return (
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent border-0">
+              <TableHead className="text-[10px] py-1.5 h-auto whitespace-nowrap sticky left-0 bg-background z-10 min-w-[120px]">Employee</TableHead>
+              {workingDays.map(day => (
+                <TableHead key={day} className="text-[10px] py-1.5 h-auto text-center whitespace-nowrap min-w-[80px]">
+                  {formatShortDay(day)}
+                </TableHead>
+              ))}
+              <TableHead className="text-[10px] py-1.5 h-auto text-center whitespace-nowrap min-w-[60px] font-semibold">Total</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {employees.map((emp) => {
+              const empDayHours = dayHoursMap[emp.id] || {};
+              const totalAssigned = Object.values(empDayHours).reduce((s, h) => s + h, 0);
+
+              return (
+                <TableRow key={emp.id} className="border-0 hover:bg-muted/20">
+                  <TableCell className="py-1 sticky left-0 bg-background z-10">
+                    <div className="flex items-center gap-1.5">
+                      <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                        <User className="h-2.5 w-2.5 text-primary" />
+                      </div>
+                      <span className="text-xs whitespace-nowrap">{emp.name}</span>
+                    </div>
+                  </TableCell>
+                  {workingDays.map(day => {
+                    const thisHours = empDayHours[day] || 0;
+                    const otherAllocation = getDailyAllocation(emp.id, day);
+                    const remaining = DAILY_CAPACITY - otherAllocation - thisHours;
+
+                    return (
+                      <TableCell key={day} className="py-1 px-1 text-center">
+                        <div className="flex flex-col items-center gap-0.5">
+                          {readOnly ? (
+                            <span className={`text-xs font-semibold ${thisHours > 0 ? "text-foreground" : "text-muted-foreground"}`}>
+                              {thisHours}h
+                            </span>
+                          ) : (
+                            <Input
+                              type="number"
+                              min={0}
+                              max={DAILY_CAPACITY}
+                              value={thisHours || ""}
+                              placeholder="0"
+                              onChange={(e) => {
+                                const val = Math.max(0, Number(e.target.value) || 0);
+                                onUpdateHours(emp.id, day, val);
+                              }}
+                              className="h-7 w-14 text-[11px] text-center p-0 mx-auto"
+                            />
+                          )}
+                          <span className={`text-[9px] leading-none ${remaining < 0 ? "text-destructive font-semibold" : "text-muted-foreground"}`}>
+                            {remaining < 0 && <AlertTriangle className="h-2.5 w-2.5 inline mr-0.5" />}
+                            {remaining}h left
+                          </span>
+                        </div>
+                      </TableCell>
+                    );
+                  })}
+                  <TableCell className="py-1 text-center">
+                    <span className="text-xs font-bold">{totalAssigned}h</span>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+    );
   };
 
   return (
@@ -479,14 +647,15 @@ const Sprints = () => {
                   </div>
                 </div>
 
-                {/* Task & Employee Assignment Table */}
+                {/* Task & Employee Day-wise Assignment */}
                 <div className="space-y-2">
-                  <Label className="text-xs font-medium">Select Tasks from Queue *</Label>
+                  <Label className="text-xs font-medium">Select Tasks & Assign Day-wise Hours *</Label>
                   <div className="border rounded-md overflow-hidden">
                     {(() => {
                       const filteredTasks = sprintProject
                         ? taskQueue.filter(t => t.project === sprintProject)
                         : taskQueue;
+                      const workingDays = startDate && endDate ? getWorkingDays(startDate, endDate) : [];
 
                       if (filteredTasks.length === 0) {
                         return (
@@ -522,55 +691,77 @@ const Sprints = () => {
                                 {assignedEmployeeIds.length}
                               </Badge>
                             </div>
-                            {/* Employee Selection Grid */}
-                            <div className="px-4 py-2 pl-12">
-                              <Table>
-                                <TableHeader>
-                                  <TableRow className="hover:bg-transparent border-0">
-                                    <TableHead className="text-[10px] py-1 h-auto w-8"></TableHead>
-                                    <TableHead className="text-[10px] py-1 h-auto">Employee</TableHead>
-                                    <TableHead className="text-[10px] py-1 h-auto text-center">Weekly Capacity</TableHead>
-                                    <TableHead className="text-[10px] py-1 h-auto text-center">Allocated Hours</TableHead>
-                                    <TableHead className="text-[10px] py-1 h-auto text-center">Remaining Hours</TableHead>
-                                  </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                  {employeesData.map((emp) => {
-                                    const isEmpSelected = assignedEmployeeIds.includes(emp.id);
-                                    const allocatedHours = startDate && endDate
-                                      ? getEmployeeWeeklyAllocation(emp.id, startDate, endDate).totalHours
-                                      : 0;
-                                    const remaining = WEEKLY_CAPACITY - allocatedHours;
 
-                                    return (
-                                      <TableRow key={emp.id} className={`border-0 hover:bg-muted/20 ${isEmpSelected ? "bg-primary/5" : ""}`}>
-                                        <TableCell className="py-1 pr-0">
-                                          <Checkbox
-                                            className="h-3.5 w-3.5"
-                                            checked={isEmpSelected}
-                                            onCheckedChange={(checked) => {
-                                              setTaskEmployeeMap(prev => {
-                                                const current = prev[task.id] || [task.assigneeId];
-                                                const updated = checked
-                                                  ? [...current, emp.id]
-                                                  : current.filter(id => id !== emp.id);
-                                                return { ...prev, [task.id]: updated };
-                                              });
-                                            }}
-                                          />
-                                        </TableCell>
-                                        <TableCell className="py-1">
-                                          <span className="text-xs">{emp.name}</span>
-                                        </TableCell>
-                                        <TableCell className="py-1 text-center text-xs">{WEEKLY_CAPACITY}h</TableCell>
-                                        <TableCell className="py-1 text-center text-xs font-medium">{allocatedHours}h</TableCell>
-                                        <TableCell className={`py-1 text-center text-xs font-medium ${remaining < 0 ? "text-destructive" : ""}`}>{remaining}h</TableCell>
-                                      </TableRow>
-                                    );
-                                  })}
-                                </TableBody>
-                              </Table>
-                            </div>
+                            {/* Employee Day-wise Grid (shown when task is selected) */}
+                            {isSelected && (
+                              <div className="px-4 py-2 pl-8">
+                                {!startDate || !endDate ? (
+                                  <p className="text-[10px] text-muted-foreground py-2">Set sprint start & end dates to see day-wise allocation</p>
+                                ) : (
+                                  <>
+                                    {/* Employee selection checkboxes */}
+                                    <div className="flex flex-wrap gap-2 mb-2">
+                                      {employeesData.map(emp => {
+                                        const isEmpSelected = assignedEmployeeIds.includes(emp.id);
+                                        return (
+                                          <label key={emp.id} className={`flex items-center gap-1.5 px-2 py-1 rounded-md border text-xs cursor-pointer transition-colors ${isEmpSelected ? "bg-primary/10 border-primary/30" : "bg-muted/20 border-border"}`}>
+                                            <Checkbox
+                                              className="h-3 w-3"
+                                              checked={isEmpSelected}
+                                              onCheckedChange={(checked) => {
+                                                setTaskEmployeeMap(prev => {
+                                                  const current = prev[task.id] || [task.assigneeId];
+                                                  const updated = checked
+                                                    ? [...current, emp.id]
+                                                    : current.filter(id => id !== emp.id);
+                                                  return { ...prev, [task.id]: updated };
+                                                });
+                                              }}
+                                            />
+                                            {emp.name}
+                                          </label>
+                                        );
+                                      })}
+                                    </div>
+
+                                    {/* Day-wise grid for selected employees */}
+                                    {assignedEmployeeIds.length > 0 && (
+                                      <DayWiseEmployeeGrid
+                                        employees={assignedEmployeeIds.map(id => {
+                                          const emp = employeesData.find(e => e.id === id);
+                                          return { id, name: emp?.name || "Unknown" };
+                                        })}
+                                        workingDays={workingDays}
+                                        dayHoursMap={Object.fromEntries(
+                                          assignedEmployeeIds.map(empId => [
+                                            empId,
+                                            createDayHours[`${task.id}-${empId}`] || {},
+                                          ])
+                                        )}
+                                        onUpdateHours={(empId, day, hours) => {
+                                          const key = `${task.id}-${empId}`;
+                                          setCreateDayHours(prev => ({
+                                            ...prev,
+                                            [key]: { ...(prev[key] || {}), [day]: hours },
+                                          }));
+                                        }}
+                                        getDailyAllocation={(empId, day) => {
+                                          // Sum from other tasks in this create form + existing sprints
+                                          let otherCreate = 0;
+                                          Object.entries(createDayHours).forEach(([k, dh]) => {
+                                            if (k.endsWith(`-${empId}`) && k !== `${task.id}-${empId}`) {
+                                              otherCreate += (dh[day] || 0);
+                                            }
+                                          });
+                                          const fromSprints = getEmployeeDailyAllocationFromSprints(empId, day);
+                                          return otherCreate + fromSprints;
+                                        }}
+                                      />
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                            )}
                           </div>
                         );
                       });
@@ -578,7 +769,7 @@ const Sprints = () => {
                   </div>
                   {sprintSelectedTaskIds.length > 0 && (
                     <p className="text-xs text-muted-foreground">
-                      {sprintSelectedTaskIds.length} task(s) selected · {taskQueue.filter(t => sprintSelectedTaskIds.includes(t.id)).reduce((sum, t) => sum + t.estimatedHours, 0)}h total
+                      {sprintSelectedTaskIds.length} task(s) selected · {taskQueue.filter(t => sprintSelectedTaskIds.includes(t.id)).reduce((sum, t) => sum + t.estimatedHours, 0)}h total estimated
                     </p>
                   )}
                 </div>
@@ -635,22 +826,19 @@ const Sprints = () => {
                 <div className="border rounded-md overflow-hidden">
                   {filteredSprints.map((sprint) => {
                     const totalHours = sprint.tasks.reduce((s, t) => s + t.estimatedHours, 0);
-                    // Group tasks by unique employees
-                    const tasksByEmployee = new Map<string, { name: string; tasks: SprintTask[] }>();
-                    sprint.tasks.forEach((task) => {
-                      const existing = tasksByEmployee.get(task.assigneeId) || { name: task.assigneeName, tasks: [] };
-                      existing.tasks.push(task);
-                      tasksByEmployee.set(task.assigneeId, existing);
-                    });
+                    const uniqueEmployees = new Set<string>();
+                    sprint.tasks.forEach(t => t.assignees.forEach(a => uniqueEmployees.add(a.employeeId)));
+                    const workingDays = getWorkingDays(sprint.startDate, sprint.endDate);
+                    const isExpanded = viewingSprint?.id === sprint.id;
 
                     return (
                       <div key={sprint.id} className="border-b last:border-b-0">
                         {/* Sprint Header Row */}
                         <div
                           className="flex items-center justify-between gap-3 px-4 py-3 bg-muted/30 cursor-pointer group hover:bg-muted/50 transition-colors"
-                          onClick={() => setViewingSprint(viewingSprint?.id === sprint.id ? null : sprint)}
+                          onClick={() => setViewingSprint(isExpanded ? null : sprint)}
                         >
-                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className="flex items-center gap-3 flex-1 min-w-0 flex-wrap">
                             <div className="h-7 w-7 rounded-md bg-primary/10 flex items-center justify-center shrink-0">
                               <Calendar className="h-3.5 w-3.5 text-primary" />
                             </div>
@@ -671,7 +859,7 @@ const Sprints = () => {
                             </Badge>
                             <Badge variant="outline" className="text-[10px] shrink-0">
                               <Users className="h-3 w-3 mr-1" />
-                              {tasksByEmployee.size}
+                              {uniqueEmployees.size}
                             </Badge>
                             {getStatusBadge(sprint.status)}
                           </div>
@@ -685,55 +873,51 @@ const Sprints = () => {
                           </div>
                         </div>
 
-                        {/* Expanded: Task-centric nested view */}
-                        {viewingSprint?.id === sprint.id && (
-                          <div className="px-4 py-2 space-y-1">
-                            {sprint.tasks.map((task) => {
-                              const { totalHours: empWeekAlloc } = getEmployeeWeeklyAllocation(task.assigneeId, sprint.startDate, sprint.endDate);
-                              const remaining = WEEKLY_CAPACITY - empWeekAlloc;
-
-                              return (
-                                <div key={task.id} className="border rounded-md overflow-hidden">
-                                  {/* Task Header */}
-                                  <div className="flex items-center gap-3 px-3 py-2 bg-muted/20">
-                                    <ListChecks className="h-3.5 w-3.5 text-muted-foreground" />
-                                    <span className="text-xs font-semibold text-foreground">{task.name}</span>
-                                    <Badge variant="outline" className="text-[10px]">{task.estimatedHours}h</Badge>
-                                    {getPriorityBadge(task.priority)}
-                                    {getStatusBadge(task.status)}
-                                  </div>
-                                  {/* Employee Detail Row */}
-                                  <div className="pl-8">
-                                    <Table>
-                                      <TableHeader>
-                                        <TableRow className="hover:bg-transparent border-0">
-                                          <TableHead className="text-[10px] py-1 h-auto">Employee</TableHead>
-                                          <TableHead className="text-[10px] py-1 h-auto text-center">Weekly Capacity</TableHead>
-                                          <TableHead className="text-[10px] py-1 h-auto text-center">Allocated Hours</TableHead>
-                                          <TableHead className="text-[10px] py-1 h-auto text-center">Remaining Hours</TableHead>
-                                        </TableRow>
-                                      </TableHeader>
-                                      <TableBody>
-                                        <TableRow className="border-0 hover:bg-muted/20">
-                                          <TableCell className="py-1">
-                                            <div className="flex items-center gap-1.5">
-                                              <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center">
-                                                <User className="h-2.5 w-2.5 text-primary" />
-                                              </div>
-                                              <span className="text-xs">{task.assigneeName}</span>
-                                              {remaining < 0 && <AlertTriangle className="h-3 w-3 text-destructive" />}
-                                            </div>
-                                          </TableCell>
-                                          <TableCell className="py-1 text-center text-xs">{WEEKLY_CAPACITY}h</TableCell>
-                                          <TableCell className="py-1 text-center text-xs font-medium">{empWeekAlloc}h</TableCell>
-                                          <TableCell className={`py-1 text-center text-xs font-medium ${remaining < 0 ? "text-destructive" : ""}`}>{remaining}h</TableCell>
-                                        </TableRow>
-                                      </TableBody>
-                                    </Table>
-                                  </div>
+                        {/* Expanded: Task-centric with day-wise employee grid */}
+                        {isExpanded && (
+                          <div className="px-4 py-2 space-y-2">
+                            {sprint.tasks.map((task) => (
+                              <div key={task.id} className="border rounded-md overflow-hidden">
+                                {/* Task Header */}
+                                <div className="flex items-center gap-3 px-3 py-2 bg-muted/20">
+                                  <ListChecks className="h-3.5 w-3.5 text-muted-foreground" />
+                                  <span className="text-xs font-semibold text-foreground">{task.name}</span>
+                                  <Badge variant="outline" className="text-[10px]">{task.estimatedHours}h</Badge>
+                                  {getPriorityBadge(task.priority)}
+                                  {getStatusBadge(task.status)}
+                                  <Badge variant="outline" className="text-[10px] ml-auto">
+                                    <Users className="h-3 w-3 mr-1" />
+                                    {task.assignees.length}
+                                  </Badge>
                                 </div>
-                              );
-                            })}
+                                {/* Day-wise employee grid */}
+                                <div className="pl-6 py-1">
+                                  <DayWiseEmployeeGrid
+                                    employees={task.assignees.map(a => ({ id: a.employeeId, name: a.employeeName }))}
+                                    workingDays={workingDays}
+                                    dayHoursMap={Object.fromEntries(
+                                      task.assignees.map(a => [a.employeeId, a.dayHours])
+                                    )}
+                                    onUpdateHours={(empId, day, hours) => {
+                                      handleUpdateSprintDayHours(sprint.id, task.id, empId, day, hours);
+                                    }}
+                                    getDailyAllocation={(empId, day) => {
+                                      // Get allocation from OTHER tasks/sprints for this employee on this day
+                                      let total = 0;
+                                      sprints.forEach(s => {
+                                        s.tasks.forEach(t => {
+                                          if (s.id === sprint.id && t.id === task.id) return; // exclude current
+                                          t.assignees.forEach(a => {
+                                            if (a.employeeId === empId) total += (a.dayHours[day] || 0);
+                                          });
+                                        });
+                                      });
+                                      return total;
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            ))}
                           </div>
                         )}
                       </div>
@@ -744,149 +928,6 @@ const Sprints = () => {
             </div>
           </CardContent>
         </Card>
-
-
-        {/* Sprint Dashboard */}
-        {viewingSprint && (
-          <Card className="border-primary/15 shadow-md">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <BarChart3 className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-sm font-semibold">
-                      {viewingSprint.name} — {viewingSprint.project}
-                    </CardTitle>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {formatDate(viewingSprint.startDate)} – {formatDate(viewingSprint.endDate)} · {viewingSprint.tasks.length} tasks · {viewingSprint.duration}
-                    </p>
-                  </div>
-                </div>
-                <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setViewingSprint(null)}>
-                  <X className="h-3.5 w-3.5" />
-                  Close
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-0 space-y-5">
-              {/* Employee Capacity Table */}
-              <div>
-                <h3 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Team Capacity</h3>
-                <div className="overflow-x-auto rounded-lg border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-muted/30 hover:bg-muted/30">
-                        <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2.5">Employee</TableHead>
-                        <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2.5 text-center">Capacity</TableHead>
-                        <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2.5 text-center">This Sprint</TableHead>
-                        <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2.5 text-center">Total Week</TableHead>
-                        <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2.5 text-center">Remaining</TableHead>
-                        <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2.5 w-40">Utilization</TableHead>
-                        <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2.5">Breakdown</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {(() => {
-                        const sprintAllocations = getEmployeeAllocationForSprint(viewingSprint);
-                        if (sprintAllocations.length === 0) {
-                          return (
-                            <TableRow>
-                              <TableCell colSpan={7} className="text-center text-sm text-muted-foreground py-8">
-                                No tasks assigned to this sprint yet.
-                              </TableCell>
-                            </TableRow>
-                          );
-                        }
-                        return sprintAllocations.map((emp) => {
-                          const { totalHours: weekTotal, details } = getEmployeeWeeklyAllocation(emp.id, viewingSprint.startDate, viewingSprint.endDate);
-                          const remaining = WEEKLY_CAPACITY - weekTotal;
-                          const pct = Math.round((weekTotal / WEEKLY_CAPACITY) * 100);
-                          const isOver = weekTotal > WEEKLY_CAPACITY;
-                          return (
-                            <TableRow key={emp.id} className={isOver ? "bg-destructive/5" : ""}>
-                              <TableCell className="py-2.5">
-                                <div className="flex items-center gap-2">
-                                  <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center">
-                                    <User className="h-3 w-3 text-primary" />
-                                  </div>
-                                  <span className="text-sm font-medium">{emp.name}</span>
-                                  {isOver && <AlertTriangle className="h-3.5 w-3.5 text-destructive" />}
-                                </div>
-                              </TableCell>
-                              <TableCell className="text-sm py-2.5 text-center font-mono text-muted-foreground">{WEEKLY_CAPACITY}h</TableCell>
-                              <TableCell className="text-sm py-2.5 text-center font-mono font-semibold">{emp.assigned}h</TableCell>
-                              <TableCell className={`text-sm py-2.5 text-center font-mono font-semibold ${isOver ? "text-destructive" : ""}`}>
-                                {weekTotal}h
-                              </TableCell>
-                              <TableCell className={`text-sm py-2.5 text-center font-mono font-semibold ${remaining < 0 ? "text-destructive" : ""}`}>
-                                {remaining}h
-                              </TableCell>
-                              <TableCell className="py-2.5">
-                                <div className="flex items-center gap-2">
-                                  <Progress value={Math.min(pct, 100)} className={`h-1.5 flex-1 ${getProgressColor(pct)}`} />
-                                  <span className={`text-[10px] font-mono font-semibold min-w-[32px] text-right ${getUtilColor(pct)}`}>
-                                    {pct}%
-                                  </span>
-                                </div>
-                              </TableCell>
-                              <TableCell className="py-2.5">
-                                <div className="flex flex-wrap gap-1">
-                                  {details.map((d, i) => (
-                                    <Badge key={i} variant="outline" className="text-[9px]">{d.sprintName} · {d.project} ({d.hours}h)</Badge>
-                                  ))}
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        });
-                      })()}
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
-
-              {/* Tasks in this sprint */}
-              <div>
-                <h3 className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Sprint Tasks</h3>
-                <div className="overflow-x-auto rounded-lg border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-muted/30 hover:bg-muted/30">
-                        <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2.5">Task</TableHead>
-                        <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2.5">Assignee</TableHead>
-                        <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2.5">Priority</TableHead>
-                        <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2.5 text-center">Hours</TableHead>
-                        <TableHead className="text-[11px] font-semibold uppercase tracking-wider py-2.5">Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {viewingSprint.tasks.map((task) => (
-                        <TableRow key={task.id}>
-                          <TableCell className="text-sm py-2.5 font-medium">{task.name}</TableCell>
-                          <TableCell className="py-2.5">
-                            <div className="flex items-center gap-1.5">
-                              <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center">
-                                <User className="h-2.5 w-2.5 text-primary" />
-                              </div>
-                              <span className="text-sm text-muted-foreground">{task.assigneeName}</span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="py-2.5">{getPriorityBadge(task.priority)}</TableCell>
-                          <TableCell className="py-2.5 text-center">
-                            <span className="text-sm font-mono font-semibold">{task.estimatedHours}h</span>
-                          </TableCell>
-                          <TableCell className="py-2.5">{getStatusBadge(task.status)}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         {/* Edit Sprint Dialog */}
         <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
