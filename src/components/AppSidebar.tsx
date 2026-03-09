@@ -45,7 +45,7 @@ const menuItems = [
   { title: "Sprints", url: "/sprints", icon: Target },
   
   { title: "Task Allocation", url: "/sprint-task-allocation", icon: ListChecks },
-  { title: "Resource Report", url: "/sprint-resource-report", icon: BarChart3 },
+  
   { title: "Tasks", url: "/tasks", icon: ClipboardList },
   { title: "Resource Allocation", url: "/resource-allocation", icon: UsersRound },
   { title: "Spent Hours", url: "/spent-hours", icon: Clock },
