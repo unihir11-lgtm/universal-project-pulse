@@ -802,9 +802,20 @@ const Sprints = () => {
                                 className="h-3.5 w-3.5"
                                 checked={isSelected}
                                 onCheckedChange={(checked) => {
-                                  setSprintSelectedTaskIds(prev =>
-                                    checked ? [...prev, task.id] : prev.filter(id => id !== task.id)
-                                  );
+                                  if (checked) {
+                                    setSprintSelectedTaskIds(prev => [...prev, task.id]);
+                                    // Auto-distribute hours for default assignee
+                                    if (startDate && endDate) {
+                                      const days = getWorkingDays(startDate, endDate);
+                                      const key = `${task.id}-${task.assigneeId}`;
+                                      setCreateDayHours(prev => ({
+                                        ...prev,
+                                        [key]: prev[key] || distributeHours(task.estimatedHours, days),
+                                      }));
+                                    }
+                                  } else {
+                                    setSprintSelectedTaskIds(prev => prev.filter(id => id !== task.id));
+                                  }
                                 }}
                               />
                               <ListChecks className="h-3.5 w-3.5 text-muted-foreground" />
