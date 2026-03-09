@@ -44,7 +44,7 @@ const menuItems = [
   { title: "Project Templates", url: "/project-templates", icon: FileText },
   { title: "Sprints", url: "/sprints", icon: Target },
   
-  { title: "Task Allocation", url: "/sprint-task-allocation", icon: ListChecks },
+  { title: "Sprint Report Employee Wise", url: "/sprint-task-allocation", icon: ListChecks },
   
   { title: "Tasks", url: "/tasks", icon: ClipboardList },
   { title: "Resource Allocation", url: "/resource-allocation", icon: UsersRound },
