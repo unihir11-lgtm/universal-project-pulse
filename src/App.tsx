@@ -24,7 +24,7 @@ import Tasks from "./pages/Tasks";
 import Sprints from "./pages/Sprints";
 
 import SprintTaskAllocation from "./pages/SprintTaskAllocation";
-import SprintResourceReport from "./pages/SprintResourceReport";
+
 import TaskTimeReport from "./pages/TaskTimeReport";
 import DelayedTasks from "./pages/DelayedTasks";
 import ResourceAllocation from "./pages/ResourceAllocation";
