@@ -181,17 +181,32 @@ const buildInitialSprints = (): Sprint[] => {
       startDate: "2025-02-24", endDate: "2025-02-28", duration: "1 week", status: "Active",
       tasks: [
         { id: 101, name: "User Auth Flow", project: "Universal Software", estimatedHours: 16, status: "In Progress", priority: "High",
-          assignees: [{ employeeId: "e1", employeeName: "John Doe", dayHours: distributeHours(16, sprint1Days) }] },
+          assignees: [
+            { employeeId: "e1", employeeName: "John Doe", dayHours: { "2025-02-24": 4, "2025-02-25": 3, "2025-02-26": 3, "2025-02-27": 3, "2025-02-28": 3 } },
+            { employeeId: "e4", employeeName: "Priya Sharma", dayHours: { "2025-02-24": 2, "2025-02-25": 2, "2025-02-26": 2, "2025-02-27": 2, "2025-02-28": 2 } },
+          ] },
         { id: 102, name: "Dashboard API", project: "Universal Software", estimatedHours: 12, status: "Open", priority: "High",
-          assignees: [{ employeeId: "e1", employeeName: "John Doe", dayHours: distributeHours(12, sprint1Days) }] },
+          assignees: [
+            { employeeId: "e1", employeeName: "John Doe", dayHours: { "2025-02-24": 3, "2025-02-25": 3, "2025-02-26": 2, "2025-02-27": 2, "2025-02-28": 2 } },
+          ] },
         { id: 103, name: "Profile Page", project: "Universal Software", estimatedHours: 8, status: "In Progress", priority: "Medium",
-          assignees: [{ employeeId: "e2", employeeName: "Ravi Kumar", dayHours: distributeHours(8, sprint1Days) }] },
+          assignees: [
+            { employeeId: "e2", employeeName: "Ravi Kumar", dayHours: { "2025-02-24": 2, "2025-02-25": 2, "2025-02-26": 2, "2025-02-27": 1, "2025-02-28": 1 } },
+          ] },
         { id: 104, name: "Unit Tests", project: "Universal Software", estimatedHours: 12, status: "Open", priority: "Medium",
-          assignees: [{ employeeId: "e2", employeeName: "Ravi Kumar", dayHours: distributeHours(12, sprint1Days) }] },
+          assignees: [
+            { employeeId: "e2", employeeName: "Ravi Kumar", dayHours: { "2025-02-24": 2, "2025-02-25": 3, "2025-02-26": 2, "2025-02-27": 3, "2025-02-28": 2 } },
+            { employeeId: "e5", employeeName: "Amit Singh", dayHours: { "2025-02-24": 2, "2025-02-25": 2, "2025-02-26": 2, "2025-02-27": 2, "2025-02-28": 2 } },
+          ] },
         { id: 105, name: "Report Module", project: "Universal Software", estimatedHours: 20, status: "Open", priority: "High",
-          assignees: [{ employeeId: "e3", employeeName: "Mehul Patel", dayHours: distributeHours(20, sprint1Days) }] },
+          assignees: [
+            { employeeId: "e3", employeeName: "Mehul Patel", dayHours: { "2025-02-24": 4, "2025-02-25": 4, "2025-02-26": 4, "2025-02-27": 4, "2025-02-28": 4 } },
+            { employeeId: "e6", employeeName: "Sneha Reddy", dayHours: { "2025-02-24": 3, "2025-02-25": 3, "2025-02-26": 2, "2025-02-27": 2, "2025-02-28": 2 } },
+          ] },
         { id: 106, name: "Bug Fixes", project: "Universal Software", estimatedHours: 20, status: "Open", priority: "Low",
-          assignees: [{ employeeId: "e3", employeeName: "Mehul Patel", dayHours: distributeHours(20, sprint1Days) }] },
+          assignees: [
+            { employeeId: "e3", employeeName: "Mehul Patel", dayHours: { "2025-02-24": 4, "2025-02-25": 4, "2025-02-26": 4, "2025-02-27": 4, "2025-02-28": 4 } },
+          ] },
       ],
     },
     {
