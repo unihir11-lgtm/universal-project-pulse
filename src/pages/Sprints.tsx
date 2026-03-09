@@ -488,17 +488,44 @@ const Sprints = () => {
       return <p className="text-[10px] text-muted-foreground py-2 px-4">No working days in selected range</p>;
     }
 
+    const weeks = groupDaysByWeek(workingDays);
+    const hasMultipleWeeks = weeks.length > 1;
+
     return (
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
+            {/* Week group header row (only if multiple weeks) */}
+            {hasMultipleWeeks && (
+              <TableRow className="hover:bg-transparent border-0">
+                <TableHead className="sticky left-0 bg-background z-10 min-w-[120px]" />
+                {weeks.map((week, wi) => (
+                  <TableHead
+                    key={wi}
+                    colSpan={week.days.length}
+                    className="text-[10px] py-1 h-auto text-center font-bold text-primary border-l border-r border-border/40"
+                  >
+                    {week.weekLabel}
+                    <span className="text-muted-foreground font-normal ml-1">
+                      ({formatShortDay(week.days[0])} – {formatShortDay(week.days[week.days.length - 1])})
+                    </span>
+                  </TableHead>
+                ))}
+                <TableHead className="min-w-[60px]" />
+              </TableRow>
+            )}
+            {/* Day columns header */}
             <TableRow className="hover:bg-transparent border-0">
               <TableHead className="text-[10px] py-1.5 h-auto whitespace-nowrap sticky left-0 bg-background z-10 min-w-[120px]">Employee</TableHead>
-              {workingDays.map(day => (
-                <TableHead key={day} className="text-[10px] py-1.5 h-auto text-center whitespace-nowrap min-w-[80px]">
-                  {formatShortDay(day)}
-                </TableHead>
-              ))}
+              {workingDays.map((day, i) => {
+                // Add left border at week boundaries
+                const isWeekStart = hasMultipleWeeks && i > 0 && weeks.some(w => w.days[0] === day);
+                return (
+                  <TableHead key={day} className={`text-[10px] py-1.5 h-auto text-center whitespace-nowrap min-w-[72px] ${isWeekStart ? "border-l border-border/40" : ""}`}>
+                    {formatShortDay(day)}
+                  </TableHead>
+                );
+              })}
               <TableHead className="text-[10px] py-1.5 h-auto text-center whitespace-nowrap min-w-[60px] font-semibold">Total</TableHead>
             </TableRow>
           </TableHeader>
@@ -517,13 +544,14 @@ const Sprints = () => {
                       <span className="text-xs whitespace-nowrap">{emp.name}</span>
                     </div>
                   </TableCell>
-                  {workingDays.map(day => {
+                  {workingDays.map((day, i) => {
                     const thisHours = empDayHours[day] || 0;
                     const otherAllocation = getDailyAllocation(emp.id, day);
                     const remaining = DAILY_CAPACITY - otherAllocation - thisHours;
+                    const isWeekStart = hasMultipleWeeks && i > 0 && weeks.some(w => w.days[0] === day);
 
                     return (
-                      <TableCell key={day} className="py-1 px-1 text-center">
+                      <TableCell key={day} className={`py-1 px-1 text-center ${isWeekStart ? "border-l border-border/40" : ""}`}>
                         <div className="flex flex-col items-center gap-0.5">
                           {readOnly ? (
                             <span className={`text-xs font-semibold ${thisHours > 0 ? "text-foreground" : "text-muted-foreground"}`}>
