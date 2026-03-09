@@ -24,8 +24,6 @@ import Tasks from "./pages/Tasks";
 import Sprints from "./pages/Sprints";
 
 import SprintTaskAllocation from "./pages/SprintTaskAllocation";
-import SprintResourceReport from "./pages/SprintResourceReport";
-import TaskTimeReport from "./pages/TaskTimeReport";
 import DelayedTasks from "./pages/DelayedTasks";
 import ResourceAllocation from "./pages/ResourceAllocation";
 import EmployeeCheckin from "./pages/EmployeeCheckin";
@@ -64,8 +62,7 @@ const App = () => (
             <Route path="/sprints" element={<Sprints />} />
             
             <Route path="/sprint-task-allocation" element={<SprintTaskAllocation />} />
-            <Route path="/sprint-resource-report" element={<SprintResourceReport />} />
-            <Route path="/task-time-report" element={<TaskTimeReport />} />
+            
             <Route path="/delayed-tasks" element={<DelayedTasks />} />
             <Route path="/resource-allocation" element={<ResourceAllocation />} />
             <Route path="/employee-checkin" element={<EmployeeCheckin />} />
