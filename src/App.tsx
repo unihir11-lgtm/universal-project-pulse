@@ -62,6 +62,9 @@ const App = () => (
             <Route path="/project-summary" element={<ProjectSummary />} />
             <Route path="/tasks" element={<Tasks />} />
             <Route path="/sprints" element={<Sprints />} />
+            <Route path="/create-sprint" element={<CreateSprint />} />
+            <Route path="/sprint-task-allocation" element={<SprintTaskAllocation />} />
+            <Route path="/sprint-resource-report" element={<SprintResourceReport />} />
             <Route path="/task-time-report" element={<TaskTimeReport />} />
             <Route path="/delayed-tasks" element={<DelayedTasks />} />
             <Route path="/resource-allocation" element={<ResourceAllocation />} />
