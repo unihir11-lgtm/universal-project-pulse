@@ -714,62 +714,6 @@ const Sprints = () => {
           </Button>
         </div>
 
-        {/* Summary Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-lg bg-primary/15 flex items-center justify-center">
-                  <Layers className="h-4.5 w-4.5 text-primary" />
-                </div>
-                <div>
-                  <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Total Sprints</p>
-                  <p className="text-xl font-bold text-foreground">{sprints.length}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-gradient-to-br from-[hsl(var(--info))]/5 to-[hsl(var(--info))]/10 border-[hsl(var(--info))]/20">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-lg bg-[hsl(var(--info))]/15 flex items-center justify-center">
-                  <Zap className="h-4.5 w-4.5 text-[hsl(var(--info))]" />
-                </div>
-                <div>
-                  <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Active</p>
-                  <p className="text-xl font-bold text-foreground">{activeSprints}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-gradient-to-br from-accent/5 to-accent/10 border-accent/20">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-lg bg-accent/15 flex items-center justify-center">
-                  <TrendingUp className="h-4.5 w-4.5 text-accent" />
-                </div>
-                <div>
-                  <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Total Hours</p>
-                  <p className="text-xl font-bold text-foreground">{totalSprintHours}h</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className={`bg-gradient-to-br ${overAllocatedCount > 0 ? "from-destructive/5 to-destructive/10 border-destructive/20" : "from-[hsl(var(--success))]/5 to-[hsl(var(--success))]/10 border-[hsl(var(--success))]/20"}`}>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <div className={`h-9 w-9 rounded-lg flex items-center justify-center ${overAllocatedCount > 0 ? "bg-destructive/15" : "bg-[hsl(var(--success))]/15"}`}>
-                  <AlertTriangle className={`h-4.5 w-4.5 ${overAllocatedCount > 0 ? "text-destructive" : "text-[hsl(var(--success))]"}`} />
-                </div>
-                <div>
-                  <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Over-Allocated</p>
-                  <p className="text-xl font-bold text-foreground">{overAllocatedCount}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
         {/* Create Sprint Form */}
         {showCreateForm && (
           <Card className="border-primary/20 shadow-md">
