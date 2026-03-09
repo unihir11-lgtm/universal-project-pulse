@@ -178,34 +178,70 @@ const buildInitialSprints = (): Sprint[] => {
   return [
     {
       id: 1, name: "Sprint 1", project: "Universal Software",
-      startDate: "2025-02-24", endDate: "2025-02-28", duration: "1 week", status: "Active",
+      startDate: "2026-02-24", endDate: "2026-03-14", duration: "3 weeks", status: "Active",
       tasks: [
-        { id: 101, name: "User Auth Flow", project: "Universal Software", estimatedHours: 16, status: "In Progress", priority: "High",
+        { id: 101, name: "User Auth Flow", project: "Universal Software", estimatedHours: 40, status: "In Progress", priority: "High",
           assignees: [
-            { employeeId: "e1", employeeName: "John Doe", dayHours: { "2025-02-24": 4, "2025-02-25": 3, "2025-02-26": 3, "2025-02-27": 3, "2025-02-28": 3 } },
-            { employeeId: "e4", employeeName: "Priya Sharma", dayHours: { "2025-02-24": 2, "2025-02-25": 2, "2025-02-26": 2, "2025-02-27": 2, "2025-02-28": 2 } },
+            { employeeId: "e1", employeeName: "John Doe", dayHours: {
+              "2026-02-24": 4, "2026-02-25": 4, "2026-02-26": 3, "2026-02-27": 3, "2026-02-28": 2,
+              "2026-03-03": 2, "2026-03-04": 2, "2026-03-05": 1, "2026-03-06": 0, "2026-03-07": 0,
+              "2026-03-10": 0, "2026-03-11": 0, "2026-03-12": 0, "2026-03-13": 0, "2026-03-14": 0,
+            }},
+            { employeeId: "e4", employeeName: "Priya Sharma", dayHours: {
+              "2026-02-24": 3, "2026-02-25": 3, "2026-02-26": 2, "2026-02-27": 2, "2026-02-28": 2,
+              "2026-03-03": 2, "2026-03-04": 2, "2026-03-05": 2, "2026-03-06": 1, "2026-03-07": 0,
+              "2026-03-10": 0, "2026-03-11": 0, "2026-03-12": 0, "2026-03-13": 0, "2026-03-14": 0,
+            }},
           ] },
-        { id: 102, name: "Dashboard API", project: "Universal Software", estimatedHours: 12, status: "Open", priority: "High",
+        { id: 102, name: "Dashboard API", project: "Universal Software", estimatedHours: 30, status: "Open", priority: "High",
           assignees: [
-            { employeeId: "e1", employeeName: "John Doe", dayHours: { "2025-02-24": 3, "2025-02-25": 3, "2025-02-26": 2, "2025-02-27": 2, "2025-02-28": 2 } },
+            { employeeId: "e1", employeeName: "John Doe", dayHours: {
+              "2026-02-24": 0, "2026-02-25": 0, "2026-02-26": 2, "2026-02-27": 2, "2026-02-28": 3,
+              "2026-03-03": 3, "2026-03-04": 3, "2026-03-05": 4, "2026-03-06": 4, "2026-03-07": 3,
+              "2026-03-10": 2, "2026-03-11": 2, "2026-03-12": 2, "2026-03-13": 0, "2026-03-14": 0,
+            }},
           ] },
-        { id: 103, name: "Profile Page", project: "Universal Software", estimatedHours: 8, status: "In Progress", priority: "Medium",
+        { id: 103, name: "Profile Page", project: "Universal Software", estimatedHours: 24, status: "In Progress", priority: "Medium",
           assignees: [
-            { employeeId: "e2", employeeName: "Ravi Kumar", dayHours: { "2025-02-24": 2, "2025-02-25": 2, "2025-02-26": 2, "2025-02-27": 1, "2025-02-28": 1 } },
+            { employeeId: "e2", employeeName: "Ravi Kumar", dayHours: {
+              "2026-02-24": 3, "2026-02-25": 3, "2026-02-26": 2, "2026-02-27": 2, "2026-02-28": 2,
+              "2026-03-03": 2, "2026-03-04": 2, "2026-03-05": 2, "2026-03-06": 2, "2026-03-07": 2,
+              "2026-03-10": 1, "2026-03-11": 1, "2026-03-12": 0, "2026-03-13": 0, "2026-03-14": 0,
+            }},
           ] },
-        { id: 104, name: "Unit Tests", project: "Universal Software", estimatedHours: 12, status: "Open", priority: "Medium",
+        { id: 104, name: "Unit Tests", project: "Universal Software", estimatedHours: 36, status: "Open", priority: "Medium",
           assignees: [
-            { employeeId: "e2", employeeName: "Ravi Kumar", dayHours: { "2025-02-24": 2, "2025-02-25": 3, "2025-02-26": 2, "2025-02-27": 3, "2025-02-28": 2 } },
-            { employeeId: "e5", employeeName: "Amit Singh", dayHours: { "2025-02-24": 2, "2025-02-25": 2, "2025-02-26": 2, "2025-02-27": 2, "2025-02-28": 2 } },
+            { employeeId: "e2", employeeName: "Ravi Kumar", dayHours: {
+              "2026-02-24": 2, "2026-02-25": 2, "2026-02-26": 2, "2026-02-27": 2, "2026-02-28": 2,
+              "2026-03-03": 2, "2026-03-04": 2, "2026-03-05": 2, "2026-03-06": 2, "2026-03-07": 2,
+              "2026-03-10": 0, "2026-03-11": 0, "2026-03-12": 0, "2026-03-13": 0, "2026-03-14": 0,
+            }},
+            { employeeId: "e5", employeeName: "Amit Singh", dayHours: {
+              "2026-02-24": 2, "2026-02-25": 2, "2026-02-26": 2, "2026-02-27": 2, "2026-02-28": 2,
+              "2026-03-03": 1, "2026-03-04": 1, "2026-03-05": 1, "2026-03-06": 1, "2026-03-07": 0,
+              "2026-03-10": 0, "2026-03-11": 0, "2026-03-12": 0, "2026-03-13": 0, "2026-03-14": 0,
+            }},
           ] },
-        { id: 105, name: "Report Module", project: "Universal Software", estimatedHours: 20, status: "Open", priority: "High",
+        { id: 105, name: "Report Module", project: "Universal Software", estimatedHours: 48, status: "Open", priority: "High",
           assignees: [
-            { employeeId: "e3", employeeName: "Mehul Patel", dayHours: { "2025-02-24": 4, "2025-02-25": 4, "2025-02-26": 4, "2025-02-27": 4, "2025-02-28": 4 } },
-            { employeeId: "e6", employeeName: "Sneha Reddy", dayHours: { "2025-02-24": 3, "2025-02-25": 3, "2025-02-26": 2, "2025-02-27": 2, "2025-02-28": 2 } },
+            { employeeId: "e3", employeeName: "Mehul Patel", dayHours: {
+              "2026-02-24": 4, "2026-02-25": 4, "2026-02-26": 4, "2026-02-27": 4, "2026-02-28": 4,
+              "2026-03-03": 3, "2026-03-04": 3, "2026-03-05": 2, "2026-03-06": 2, "2026-03-07": 0,
+              "2026-03-10": 0, "2026-03-11": 0, "2026-03-12": 0, "2026-03-13": 0, "2026-03-14": 0,
+            }},
+            { employeeId: "e6", employeeName: "Sneha Reddy", dayHours: {
+              "2026-02-24": 3, "2026-02-25": 3, "2026-02-26": 3, "2026-02-27": 3, "2026-02-28": 2,
+              "2026-03-03": 2, "2026-03-04": 2, "2026-03-05": 0, "2026-03-06": 0, "2026-03-07": 0,
+              "2026-03-10": 0, "2026-03-11": 0, "2026-03-12": 0, "2026-03-13": 0, "2026-03-14": 0,
+            }},
           ] },
-        { id: 106, name: "Bug Fixes", project: "Universal Software", estimatedHours: 20, status: "Open", priority: "Low",
+        { id: 106, name: "Bug Fixes", project: "Universal Software", estimatedHours: 30, status: "Open", priority: "Low",
           assignees: [
-            { employeeId: "e3", employeeName: "Mehul Patel", dayHours: { "2025-02-24": 4, "2025-02-25": 4, "2025-02-26": 4, "2025-02-27": 4, "2025-02-28": 4 } },
+            { employeeId: "e3", employeeName: "Mehul Patel", dayHours: {
+              "2026-02-24": 0, "2026-02-25": 0, "2026-02-26": 0, "2026-02-27": 0, "2026-02-28": 0,
+              "2026-03-03": 3, "2026-03-04": 3, "2026-03-05": 4, "2026-03-06": 4, "2026-03-07": 4,
+              "2026-03-10": 4, "2026-03-11": 4, "2026-03-12": 4, "2026-03-13": 0, "2026-03-14": 0,
+            }},
           ] },
       ],
     },
