@@ -138,11 +138,42 @@ const distributeHours = (hours: number, days: string[]): Record<string, number> 
   return r;
 };
 
+// Group working days by week for display
+const groupDaysByWeek = (days: string[]): { weekLabel: string; days: string[] }[] => {
+  const weeks: { weekLabel: string; days: string[] }[] = [];
+  let currentWeek: string[] = [];
+  let currentWeekNum = -1;
+
+  days.forEach(day => {
+    const d = new Date(day);
+    const yearStart = new Date(d.getFullYear(), 0, 1);
+    const weekNum = Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + yearStart.getDay() + 1) / 7);
+
+    if (weekNum !== currentWeekNum) {
+      if (currentWeek.length > 0) {
+        weeks.push({
+          weekLabel: `Week ${weeks.length + 1}`,
+          days: currentWeek,
+        });
+      }
+      currentWeek = [day];
+      currentWeekNum = weekNum;
+    } else {
+      currentWeek.push(day);
+    }
+  });
+  if (currentWeek.length > 0) {
+    weeks.push({ weekLabel: `Week ${weeks.length + 1}`, days: currentWeek });
+  }
+  return weeks;
+};
+
 // Tasks already assigned to sprints
 const buildInitialSprints = (): Sprint[] => {
   const sprint1Days = getWorkingDays("2025-02-24", "2025-02-28");
   const sprint2Days = getWorkingDays("2025-03-03", "2025-03-07");
   const sprint3Days = getWorkingDays("2025-02-24", "2025-02-28");
+  const sprint4Days = getWorkingDays("2025-03-10", "2025-03-28"); // 15 working days
 
   return [
     {
@@ -179,6 +210,21 @@ const buildInitialSprints = (): Sprint[] => {
       tasks: [
         { id: 301, name: "Payment Gateway", project: "Super App", estimatedHours: 24, status: "In Progress", priority: "Critical",
           assignees: [{ employeeId: "e4", employeeName: "Priya Sharma", dayHours: distributeHours(24, sprint3Days) }] },
+      ],
+    },
+    {
+      id: 4, name: "Release Sprint", project: "Go Live",
+      startDate: "2025-03-10", endDate: "2025-03-28", duration: "3 weeks", status: "Planned",
+      tasks: [
+        { id: 401, name: "CI/CD Pipeline", project: "Go Live", estimatedHours: 40, status: "Open", priority: "High",
+          assignees: [
+            { employeeId: "e3", employeeName: "Mehul Patel", dayHours: distributeHours(24, sprint4Days) },
+            { employeeId: "e1", employeeName: "John Doe", dayHours: distributeHours(16, sprint4Days) },
+          ] },
+        { id: 402, name: "Performance Testing", project: "Go Live", estimatedHours: 30, status: "Open", priority: "High",
+          assignees: [{ employeeId: "e5", employeeName: "Amit Singh", dayHours: distributeHours(30, sprint4Days) }] },
+        { id: 403, name: "Security Audit", project: "Go Live", estimatedHours: 20, status: "Open", priority: "Critical",
+          assignees: [{ employeeId: "e6", employeeName: "Sneha Reddy", dayHours: distributeHours(20, sprint4Days) }] },
       ],
     },
   ];
