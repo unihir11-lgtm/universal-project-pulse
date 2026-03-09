@@ -216,15 +216,66 @@ const buildInitialSprints = (): Sprint[] => {
       id: 4, name: "Release Sprint", project: "Go Live",
       startDate: "2025-03-10", endDate: "2025-03-28", duration: "3 weeks", status: "Planned",
       tasks: [
-        { id: 401, name: "CI/CD Pipeline", project: "Go Live", estimatedHours: 40, status: "Open", priority: "High",
+        { id: 401, name: "CI/CD Pipeline Setup & Config", project: "Go Live", estimatedHours: 48, status: "In Progress", priority: "High",
           assignees: [
-            { employeeId: "e3", employeeName: "Mehul Patel", dayHours: distributeHours(24, sprint4Days) },
-            { employeeId: "e1", employeeName: "John Doe", dayHours: distributeHours(16, sprint4Days) },
+            { employeeId: "e3", employeeName: "Mehul Patel", dayHours: {
+              "2025-03-10": 6, "2025-03-11": 7, "2025-03-12": 5, "2025-03-13": 4, "2025-03-14": 3,
+              "2025-03-17": 2, "2025-03-18": 2, "2025-03-19": 1, "2025-03-20": 0, "2025-03-21": 0,
+              "2025-03-24": 0, "2025-03-25": 0, "2025-03-26": 0, "2025-03-27": 0, "2025-03-28": 0,
+            }},
+            { employeeId: "e1", employeeName: "John Doe", dayHours: {
+              "2025-03-10": 4, "2025-03-11": 4, "2025-03-12": 3, "2025-03-13": 3, "2025-03-14": 2,
+              "2025-03-17": 0, "2025-03-18": 0, "2025-03-19": 0, "2025-03-20": 0, "2025-03-21": 0,
+              "2025-03-24": 0, "2025-03-25": 0, "2025-03-26": 0, "2025-03-27": 0, "2025-03-28": 0,
+            }},
           ] },
-        { id: 402, name: "Performance Testing", project: "Go Live", estimatedHours: 30, status: "Open", priority: "High",
-          assignees: [{ employeeId: "e5", employeeName: "Amit Singh", dayHours: distributeHours(30, sprint4Days) }] },
-        { id: 403, name: "Security Audit", project: "Go Live", estimatedHours: 20, status: "Open", priority: "Critical",
-          assignees: [{ employeeId: "e6", employeeName: "Sneha Reddy", dayHours: distributeHours(20, sprint4Days) }] },
+        { id: 402, name: "Performance & Load Testing", project: "Go Live", estimatedHours: 56, status: "Open", priority: "High",
+          assignees: [
+            { employeeId: "e5", employeeName: "Amit Singh", dayHours: {
+              "2025-03-10": 2, "2025-03-11": 2, "2025-03-12": 4, "2025-03-13": 4, "2025-03-14": 6,
+              "2025-03-17": 6, "2025-03-18": 6, "2025-03-19": 4, "2025-03-20": 2, "2025-03-21": 0,
+              "2025-03-24": 0, "2025-03-25": 0, "2025-03-26": 0, "2025-03-27": 0, "2025-03-28": 0,
+            }},
+            { employeeId: "e2", employeeName: "Ravi Kumar", dayHours: {
+              "2025-03-10": 0, "2025-03-11": 0, "2025-03-12": 0, "2025-03-13": 2, "2025-03-14": 4,
+              "2025-03-17": 4, "2025-03-18": 6, "2025-03-19": 6, "2025-03-20": 4, "2025-03-21": 2,
+              "2025-03-24": 0, "2025-03-25": 0, "2025-03-26": 0, "2025-03-27": 0, "2025-03-28": 0,
+            }},
+          ] },
+        { id: 403, name: "Security Audit & Pen Testing", project: "Go Live", estimatedHours: 40, status: "Open", priority: "Critical",
+          assignees: [
+            { employeeId: "e6", employeeName: "Sneha Reddy", dayHours: {
+              "2025-03-10": 0, "2025-03-11": 0, "2025-03-12": 2, "2025-03-13": 4, "2025-03-14": 4,
+              "2025-03-17": 6, "2025-03-18": 6, "2025-03-19": 6, "2025-03-20": 4, "2025-03-21": 2,
+              "2025-03-24": 0, "2025-03-25": 0, "2025-03-26": 0, "2025-03-27": 0, "2025-03-28": 0,
+            }},
+          ] },
+        { id: 404, name: "Production Deployment & Monitoring", project: "Go Live", estimatedHours: 36, status: "Open", priority: "Critical",
+          assignees: [
+            { employeeId: "e3", employeeName: "Mehul Patel", dayHours: {
+              "2025-03-10": 0, "2025-03-11": 0, "2025-03-12": 0, "2025-03-13": 0, "2025-03-14": 0,
+              "2025-03-17": 4, "2025-03-18": 4, "2025-03-19": 6, "2025-03-20": 6, "2025-03-21": 4,
+              "2025-03-24": 0, "2025-03-25": 0, "2025-03-26": 0, "2025-03-27": 0, "2025-03-28": 0,
+            }},
+            { employeeId: "e1", employeeName: "John Doe", dayHours: {
+              "2025-03-10": 0, "2025-03-11": 0, "2025-03-12": 0, "2025-03-13": 0, "2025-03-14": 0,
+              "2025-03-17": 0, "2025-03-18": 0, "2025-03-19": 0, "2025-03-20": 4, "2025-03-21": 6,
+              "2025-03-24": 2, "2025-03-25": 0, "2025-03-26": 0, "2025-03-27": 0, "2025-03-28": 0,
+            }},
+          ] },
+        { id: 405, name: "UAT & Bug Fixes", project: "Go Live", estimatedHours: 44, status: "Open", priority: "High",
+          assignees: [
+            { employeeId: "e4", employeeName: "Priya Sharma", dayHours: {
+              "2025-03-10": 0, "2025-03-11": 0, "2025-03-12": 0, "2025-03-13": 0, "2025-03-14": 0,
+              "2025-03-17": 0, "2025-03-18": 0, "2025-03-19": 2, "2025-03-20": 4, "2025-03-21": 6,
+              "2025-03-24": 8, "2025-03-25": 8, "2025-03-26": 6, "2025-03-27": 4, "2025-03-28": 2,
+            }},
+            { employeeId: "e6", employeeName: "Sneha Reddy", dayHours: {
+              "2025-03-10": 0, "2025-03-11": 0, "2025-03-12": 0, "2025-03-13": 0, "2025-03-14": 0,
+              "2025-03-17": 0, "2025-03-18": 0, "2025-03-19": 0, "2025-03-20": 0, "2025-03-21": 0,
+              "2025-03-24": 4, "2025-03-25": 4, "2025-03-26": 0, "2025-03-27": 0, "2025-03-28": 0,
+            }},
+          ] },
       ],
     },
   ];
