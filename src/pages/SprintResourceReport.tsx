@@ -366,5 +366,4 @@ const SprintResourceReport = () => {
   );
 };
 
-import React from "react";
 export default SprintResourceReport;
