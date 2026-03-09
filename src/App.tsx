@@ -24,7 +24,7 @@ import Tasks from "./pages/Tasks";
 import Sprints from "./pages/Sprints";
 
 import SprintTaskAllocation from "./pages/SprintTaskAllocation";
-ayedTasks from "./pages/DelayedTasks";
+import DelayedTasks from "./pages/DelayedTasks";
 import ResourceAllocation from "./pages/ResourceAllocation";
 import EmployeeCheckin from "./pages/EmployeeCheckin";
 import RolePermissions from "./pages/RolePermissions";
