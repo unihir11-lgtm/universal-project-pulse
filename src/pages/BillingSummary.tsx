@@ -153,7 +153,7 @@ const BillingSummary = () => {
       actualCostRate: 45000 / STANDARD_HOURS, actualCost: 18 * (45000 / STANDARD_HOURS),
       expenseCost: 100, margin: 0, status: "ready",
     },
-  ].map(e => ({ ...e, margin: e.billableValue > 0 ? ((e.billableValue - e.actualCost - e.expenseCost) / e.billableValue * 100) : 0 })), []);
+  ].map(e => ({ ...e, margin: e.billableValue > 0 ? ((e.billableValue - e.actualCost - e.expenseCost) / e.billableValue * 100) : 0 })) as BillingEntry[], []);
 
   const filteredData = useMemo(() => {
     return mockBillingData.filter(entry => {
