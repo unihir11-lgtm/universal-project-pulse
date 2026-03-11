@@ -670,23 +670,6 @@ const ResourceAllocation = () => {
             </div>
           </CardContent>
         </Card>
-
-        {/* Project Legend */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Project Legend</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-3">
-              {Object.entries(projectColorMap).map(([project, color]) => (
-                <div key={project} className="flex items-center gap-2">
-                  <div className={`w-3 h-3 rounded ${color}`} />
-                  <span className="text-xs text-muted-foreground">{project}</span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </DashboardLayout>
   );
