@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      designation_rates: {
+        Row: {
+          created_at: string
+          currency: string
+          designation: string
+          id: string
+          is_active: boolean
+          monthly_salary: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          designation: string
+          id?: string
+          is_active?: boolean
+          monthly_salary?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          designation?: string
+          id?: string
+          is_active?: boolean
+          monthly_salary?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       employee_rates: {
         Row: {
           bill_rate: number
@@ -85,6 +115,47 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      project_expenses: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string
+          expense_date: string
+          id: string
+          project_id: string
+        }
+        Insert: {
+          amount?: number
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description: string
+          expense_date?: string
+          id?: string
+          project_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string
+          expense_date?: string
+          id?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_expenses_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       projects: {
         Row: {

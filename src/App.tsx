@@ -29,6 +29,7 @@ import ResourceAllocation from "./pages/ResourceAllocation";
 import EmployeeCheckin from "./pages/EmployeeCheckin";
 import RolePermissions from "./pages/RolePermissions";
 import ExecutiveDashboard from "./pages/ExecutiveDashboard";
+import DesignationMaster from "./pages/DesignationMaster";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -67,6 +68,7 @@ const App = () => (
             <Route path="/resource-allocation" element={<ResourceAllocation />} />
             <Route path="/employee-checkin" element={<EmployeeCheckin />} />
             <Route path="/role-permissions" element={<RolePermissions />} />
+            <Route path="/designation-master" element={<DesignationMaster />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
