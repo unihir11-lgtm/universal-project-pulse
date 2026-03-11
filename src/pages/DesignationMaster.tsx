@@ -102,7 +102,7 @@ const DesignationMaster = () => {
 
     setDialogOpen(false);
     setEditingId(null);
-    setForm({ designation: "", monthly_salary: "", currency: "USD" });
+    setForm({ designation: "", hourly_rate: "", currency: "USD" });
     fetchDesignations();
   };
 
