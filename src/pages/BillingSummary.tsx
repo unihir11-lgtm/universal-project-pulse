@@ -38,13 +38,6 @@ import {
   FileCheck,
   CalendarIcon
 } from "lucide-react";
-  DollarSign,
-  Percent,
-  Building2,
-  Receipt,
-  Calculator,
-  FileCheck
-} from "lucide-react";
 import { toast } from "sonner";
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
