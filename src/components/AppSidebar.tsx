@@ -19,6 +19,7 @@ import {
   Shield,
   KeyRound,
   PieChart,
+  Briefcase,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 

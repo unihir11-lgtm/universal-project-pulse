@@ -31,7 +31,6 @@ import RolePermissions from "./pages/RolePermissions";
 import ExecutiveDashboard from "./pages/ExecutiveDashboard";
 import DesignationMaster from "./pages/DesignationMaster";
 import NotFound from "./pages/NotFound";
-import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
