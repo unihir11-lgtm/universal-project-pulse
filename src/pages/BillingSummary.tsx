@@ -53,7 +53,7 @@ interface BillingEntry {
   employeeName: string;
   designation: string;
   billableHours: number;
-  nonBillableHours: number;
+  
   agreementRate: number; // client agreed bill_rate
   billableValue: number; // billableHours * agreementRate
   actualCostRate: number; // designation salary / 198
@@ -92,7 +92,7 @@ const BillingSummary = () => {
     {
       id: "1", client: "Acme Corp", projectId: "p1", projectName: "Enterprise Platform",
       employeeId: "e1", employeeName: "Sarah Chen", designation: "Senior Developer",
-      billableHours: 42, nonBillableHours: 8,
+      billableHours: 42,
       agreementRate: 200, billableValue: 8400,
       actualCostRate: 50000 / STANDARD_HOURS, actualCost: 42 * (50000 / STANDARD_HOURS),
       expenseCost: 500, margin: 0, status: "ready",
@@ -100,7 +100,7 @@ const BillingSummary = () => {
     {
       id: "2", client: "Acme Corp", projectId: "p1", projectName: "Enterprise Platform",
       employeeId: "e2", employeeName: "Mike Johnson", designation: "Developer",
-      billableHours: 38, nonBillableHours: 4,
+      billableHours: 38,
       agreementRate: 180, billableValue: 6840,
       actualCostRate: 40000 / STANDARD_HOURS, actualCost: 38 * (40000 / STANDARD_HOURS),
       expenseCost: 200, margin: 0, status: "ready",
@@ -108,7 +108,7 @@ const BillingSummary = () => {
     {
       id: "3", client: "Acme Corp", projectId: "p2", projectName: "Data Analytics",
       employeeId: "e3", employeeName: "Lisa Wang", designation: "Business Analyst",
-      billableHours: 32, nonBillableHours: 6,
+      billableHours: 32,
       agreementRate: 200, billableValue: 6400,
       actualCostRate: 45000 / STANDARD_HOURS, actualCost: 32 * (45000 / STANDARD_HOURS),
       expenseCost: 300, margin: 0, status: "pending",
@@ -116,7 +116,7 @@ const BillingSummary = () => {
     {
       id: "4", client: "TechStart Inc", projectId: "p3", projectName: "Mobile App",
       employeeId: "e1", employeeName: "Sarah Chen", designation: "Senior Developer",
-      billableHours: 45, nonBillableHours: 5,
+      billableHours: 45,
       agreementRate: 200, billableValue: 9000,
       actualCostRate: 50000 / STANDARD_HOURS, actualCost: 45 * (50000 / STANDARD_HOURS),
       expenseCost: 800, margin: 0, status: "ready",
@@ -124,7 +124,7 @@ const BillingSummary = () => {
     {
       id: "5", client: "TechStart Inc", projectId: "p4", projectName: "API Development",
       employeeId: "e4", employeeName: "David Lee", designation: "Team Lead",
-      billableHours: 28, nonBillableHours: 2,
+      billableHours: 28,
       agreementRate: 180, billableValue: 5040,
       actualCostRate: 55000 / STANDARD_HOURS, actualCost: 28 * (55000 / STANDARD_HOURS),
       expenseCost: 150, margin: 0, status: "review",
@@ -132,7 +132,7 @@ const BillingSummary = () => {
     {
       id: "6", client: "GlobalBank", projectId: "p5", projectName: "Banking Portal",
       employeeId: "e2", employeeName: "Mike Johnson", designation: "Developer",
-      billableHours: 52, nonBillableHours: 8,
+      billableHours: 52,
       agreementRate: 180, billableValue: 9360,
       actualCostRate: 40000 / STANDARD_HOURS, actualCost: 52 * (40000 / STANDARD_HOURS),
       expenseCost: 600, margin: 0, status: "ready",
@@ -140,7 +140,7 @@ const BillingSummary = () => {
     {
       id: "7", client: "GlobalBank", projectId: "p5", projectName: "Banking Portal",
       employeeId: "e5", employeeName: "Emily Brown", designation: "QA Engineer",
-      billableHours: 35, nonBillableHours: 5,
+      billableHours: 35,
       agreementRate: 180, billableValue: 6300,
       actualCostRate: 35000 / STANDARD_HOURS, actualCost: 35 * (35000 / STANDARD_HOURS),
       expenseCost: 250, margin: 0, status: "pending",
@@ -148,7 +148,7 @@ const BillingSummary = () => {
     {
       id: "8", client: "RetailMax", projectId: "p6", projectName: "E-Commerce Platform",
       employeeId: "e3", employeeName: "Lisa Wang", designation: "Business Analyst",
-      billableHours: 18, nonBillableHours: 2,
+      billableHours: 18,
       agreementRate: 200, billableValue: 3600,
       actualCostRate: 45000 / STANDARD_HOURS, actualCost: 18 * (45000 / STANDARD_HOURS),
       expenseCost: 100, margin: 0, status: "ready",
