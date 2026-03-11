@@ -211,8 +211,7 @@ const DesignationMaster = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Designation</TableHead>
-                  <TableHead className="text-right">Monthly Salary</TableHead>
-                  <TableHead className="text-right">Hourly Rate (÷{STANDARD_HOURS})</TableHead>
+                  <TableHead className="text-right">Hourly Rate</TableHead>
                   <TableHead className="text-center">Currency</TableHead>
                   <TableHead className="text-center">Status</TableHead>
                   <TableHead className="text-center">Actions</TableHead>
@@ -221,11 +220,11 @@ const DesignationMaster = () => {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">Loading...</TableCell>
+                    <TableCell colSpan={5} className="text-center text-muted-foreground py-8">Loading...</TableCell>
                   </TableRow>
                 ) : designations.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
                       No designations found. Add your first designation above.
                     </TableCell>
                   </TableRow>
@@ -233,7 +232,6 @@ const DesignationMaster = () => {
                   designations.map((d) => (
                     <TableRow key={d.id}>
                       <TableCell className="font-medium">{d.designation}</TableCell>
-                      <TableCell className="text-right">{d.monthly_salary.toLocaleString()}</TableCell>
                       <TableCell className="text-right font-semibold text-primary">
                         {(d.monthly_salary / STANDARD_HOURS).toFixed(2)}
                       </TableCell>
