@@ -3,6 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 import {
   Select,
   SelectContent,
@@ -31,7 +35,8 @@ import {
   Building2,
   Receipt,
   Calculator,
-  FileCheck
+  FileCheck,
+  CalendarIcon
 } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useEffect, useMemo } from "react";
@@ -70,7 +75,8 @@ const BillingSummary = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterPeriod, setFilterPeriod] = useState("month");
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [filterClient, setFilterClient] = useState("all");
   const [filterProject, setFilterProject] = useState("all");
   const [expandedClients, setExpandedClients] = useState<string[]>([]);
@@ -215,7 +221,7 @@ const BillingSummary = () => {
   };
 
   const handleReset = () => {
-    setSearchQuery(""); setFilterPeriod("month"); setFilterClient("all"); setFilterProject("all");
+    setSearchQuery(""); setStartDate(undefined); setEndDate(undefined); setFilterClient("all"); setFilterProject("all");
   };
 
   const handleExportCSV = () => {
@@ -396,17 +402,28 @@ const BillingSummary = () => {
                 <Input placeholder="Search employees, projects, clients..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9" />
               </div>
               <div className="flex flex-wrap items-center gap-3">
-                <Select value={filterPeriod} onValueChange={setFilterPeriod}>
-                  <SelectTrigger className="w-[140px]"><SelectValue placeholder="Period" /></SelectTrigger>
-                  <SelectContent className="bg-background">
-                    <SelectItem value="today">Today</SelectItem>
-                    <SelectItem value="week">This Week</SelectItem>
-                    <SelectItem value="month">This Month</SelectItem>
-                    <SelectItem value="quarter">This Quarter</SelectItem>
-                    <SelectItem value="year">This Year</SelectItem>
-                    <SelectItem value="all">All Time</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className={cn("w-[150px] justify-start text-left font-normal", !startDate && "text-muted-foreground")}>
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {startDate ? format(startDate, "dd/MM/yyyy") : "Start Date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar mode="single" selected={startDate} onSelect={setStartDate} initialFocus className={cn("p-3 pointer-events-auto")} />
+                  </PopoverContent>
+                </Popover>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" className={cn("w-[150px] justify-start text-left font-normal", !endDate && "text-muted-foreground")}>
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {endDate ? format(endDate, "dd/MM/yyyy") : "End Date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar mode="single" selected={endDate} onSelect={setEndDate} disabled={(date) => startDate ? date < startDate : false} initialFocus className={cn("p-3 pointer-events-auto")} />
+                  </PopoverContent>
+                </Popover>
                 <Select value={filterClient} onValueChange={setFilterClient}>
                   <SelectTrigger className="w-[150px]"><SelectValue placeholder="All Clients" /></SelectTrigger>
                   <SelectContent className="bg-background">
