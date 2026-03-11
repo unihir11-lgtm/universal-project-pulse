@@ -561,7 +561,7 @@ const ResourceAllocation = () => {
                                       ))}
                                     </div>
                                   )}
-                                  <span className={`text-xs font-semibold ${total > DAILY_CAPACITY ? "text-destructive" : total > 0 ? "text-foreground" : "text-muted-foreground"}`}>
+                                  <span className={`text-xs font-semibold ${getCellTextColor(total)}`}>
                                     {total > 0 ? `${total}h` : "—"}
                                   </span>
                                   {total > 0 && (
