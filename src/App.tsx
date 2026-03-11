@@ -69,6 +69,7 @@ const App = () => (
             <Route path="/resource-allocation" element={<ResourceAllocation />} />
             <Route path="/employee-checkin" element={<EmployeeCheckin />} />
             <Route path="/role-permissions" element={<RolePermissions />} />
+            <Route path="/designation-master" element={<DesignationMaster />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

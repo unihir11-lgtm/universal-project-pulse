@@ -54,6 +54,7 @@ const menuItems = [
   { title: "Attendance", url: "/attendance", icon: UserCheck },
   { title: "Employee Check-in", url: "/employee-checkin", icon: ClipboardList },
   { title: "Role List", url: "/roles", icon: Shield },
+  { title: "Designation Master", url: "/designation-master", icon: Briefcase },
   { title: "Role Permissions", url: "/role-permissions", icon: KeyRound },
 ];
 
