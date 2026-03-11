@@ -140,7 +140,7 @@ const BillingSummary = () => {
     {
       id: "7", client: "GlobalBank", projectId: "p5", projectName: "Banking Portal",
       employeeId: "e5", employeeName: "Emily Brown", designation: "QA Engineer",
-      billableHours: 35, nonBillableHours: 5,
+      billableHours: 35,
       agreementRate: 180, billableValue: 6300,
       actualCostRate: 35000 / STANDARD_HOURS, actualCost: 35 * (35000 / STANDARD_HOURS),
       expenseCost: 250, margin: 0, status: "pending",
