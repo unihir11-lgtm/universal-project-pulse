@@ -469,7 +469,7 @@ const BillingSummary = () => {
                     <TableHead className="w-8"></TableHead>
                     <TableHead className="font-semibold">Project / Employee</TableHead>
                     <TableHead className="font-semibold text-right">Billable Hrs</TableHead>
-                    <TableHead className="font-semibold text-right">Agreement</TableHead>
+                    
                     {canViewCostData && (
                       <>
                         <TableHead className="font-semibold text-right">Actual Cost</TableHead>
