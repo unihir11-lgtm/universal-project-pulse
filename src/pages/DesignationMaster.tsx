@@ -49,7 +49,7 @@ const DesignationMaster = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState({ designation: "", monthly_salary: "", currency: "USD" });
+  const [form, setForm] = useState({ designation: "", hourly_rate: "", currency: "USD" });
 
   const fetchDesignations = async () => {
     const { data, error } = await supabase
