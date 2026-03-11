@@ -389,12 +389,22 @@ const ResourceAllocation = () => {
   }, [filteredEmployees, allWorkingDays, employeeAllocations]);
 
   // Get cell color based on utilization
+  // Green = free (0h), Red = overloaded (>8h), Orange = medium (around 4h), Yellow = near full (>=6h)
   const getCellBg = (hours: number) => {
-    if (hours === 0) return "";
-    if (hours > DAILY_CAPACITY) return "bg-destructive/15";
-    if (hours >= DAILY_CAPACITY) return "bg-[hsl(var(--warning))]/15";
-    if (hours >= 6) return "bg-[hsl(var(--success))]/10";
-    return "bg-primary/5";
+    if (hours === 0) return "bg-green-100 dark:bg-green-900/30"; // fully free
+    if (hours > DAILY_CAPACITY) return "bg-red-200 dark:bg-red-900/40"; // overloaded >8h
+    if (hours >= DAILY_CAPACITY) return "bg-red-100 dark:bg-red-900/30"; // exactly 8h full
+    if (hours >= 6) return "bg-orange-100 dark:bg-orange-900/30"; // heavy load
+    if (hours >= 4) return "bg-amber-100 dark:bg-amber-900/30"; // medium load ~4h
+    return "bg-green-50 dark:bg-green-900/20"; // light load <4h, mostly free
+  };
+
+  const getCellTextColor = (hours: number) => {
+    if (hours === 0) return "text-green-700 dark:text-green-400";
+    if (hours > DAILY_CAPACITY) return "text-red-700 dark:text-red-400 font-bold";
+    if (hours >= DAILY_CAPACITY) return "text-red-600 dark:text-red-400 font-semibold";
+    if (hours >= 4) return "text-orange-700 dark:text-orange-400";
+    return "text-green-700 dark:text-green-400";
   };
 
   // Get unique projects for an employee on a specific day for the color bar
