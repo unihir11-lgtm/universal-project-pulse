@@ -469,7 +469,7 @@ const BillingSummary = () => {
                     <TableHead className="w-8"></TableHead>
                     <TableHead className="font-semibold">Project / Employee</TableHead>
                     <TableHead className="font-semibold text-right">Billable Hrs</TableHead>
-                    <TableHead className="font-semibold text-right">Agreement</TableHead>
+                    
                     {canViewCostData && (
                       <>
                         <TableHead className="font-semibold text-right">Actual Cost</TableHead>
@@ -513,7 +513,7 @@ const BillingSummary = () => {
                             </div>
                           </TableCell>
                           <TableCell className="text-right font-semibold py-4">{ct?.hours}h</TableCell>
-                          <TableCell className="text-right font-semibold text-info py-4">${ct?.billableValue.toLocaleString()}</TableCell>
+                          
                           {canViewCostData && (
                             <>
                               <TableCell className="text-right py-4">${Math.round(ct?.actualCost || 0).toLocaleString()}</TableCell>
@@ -538,12 +538,6 @@ const BillingSummary = () => {
                                 </div>
                               </TableCell>
                               <TableCell className="text-right font-medium">{entry.billableHours}h</TableCell>
-                              <TableCell className="text-right text-info">
-                                <div>
-                                  <p className="font-medium">${entry.billableValue.toLocaleString()}</p>
-                                  <p className="text-xs text-muted-foreground">@${entry.agreementRate}/hr</p>
-                                </div>
-                              </TableCell>
                               {canViewCostData && (
                                 <>
                                   <TableCell className="text-right">
