@@ -136,7 +136,8 @@ const DesignationMaster = () => {
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-foreground">Designation Master</h1>
             <p className="text-muted-foreground mt-1">
-              Manage designations and their monthly salary rates (Hourly = Salary ÷ {STANDARD_HOURS}h)
+              Manage designations and their hourly rates
+            </p>
             </p>
           </div>
           <Dialog open={dialogOpen} onOpenChange={(open) => {
