@@ -164,12 +164,12 @@ const DesignationMaster = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Monthly Salary *</Label>
+                  <Label>Hourly Rate *</Label>
                   <Input
                     type="number"
-                    value={form.monthly_salary}
-                    onChange={(e) => setForm({ ...form, monthly_salary: e.target.value })}
-                    placeholder="e.g. 50000"
+                    value={form.hourly_rate}
+                    onChange={(e) => setForm({ ...form, hourly_rate: e.target.value })}
+                    placeholder="e.g. 250"
                   />
                 </div>
                 <div className="space-y-2">
