@@ -92,7 +92,7 @@ const BillingSummary = () => {
     {
       id: "1", client: "Acme Corp", projectId: "p1", projectName: "Enterprise Platform",
       employeeId: "e1", employeeName: "Sarah Chen", designation: "Senior Developer",
-      billableHours: 42, nonBillableHours: 8,
+      billableHours: 42,
       agreementRate: 200, billableValue: 8400,
       actualCostRate: 50000 / STANDARD_HOURS, actualCost: 42 * (50000 / STANDARD_HOURS),
       expenseCost: 500, margin: 0, status: "ready",
