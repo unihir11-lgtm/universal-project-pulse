@@ -538,12 +538,6 @@ const BillingSummary = () => {
                                 </div>
                               </TableCell>
                               <TableCell className="text-right font-medium">{entry.billableHours}h</TableCell>
-                              <TableCell className="text-right text-info">
-                                <div>
-                                  <p className="font-medium">${entry.billableValue.toLocaleString()}</p>
-                                  <p className="text-xs text-muted-foreground">@${entry.agreementRate}/hr</p>
-                                </div>
-                              </TableCell>
                               {canViewCostData && (
                                 <>
                                   <TableCell className="text-right">
