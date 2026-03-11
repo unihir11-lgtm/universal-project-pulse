@@ -82,7 +82,8 @@ const BillingSummary = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterPeriod, setFilterPeriod] = useState("month");
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [filterClient, setFilterClient] = useState("all");
   const [filterProject, setFilterProject] = useState("all");
   const [expandedClients, setExpandedClients] = useState<string[]>([]);
