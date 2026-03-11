@@ -116,7 +116,7 @@ const BillingSummary = () => {
     {
       id: "4", client: "TechStart Inc", projectId: "p3", projectName: "Mobile App",
       employeeId: "e1", employeeName: "Sarah Chen", designation: "Senior Developer",
-      billableHours: 45, nonBillableHours: 5,
+      billableHours: 45,
       agreementRate: 200, billableValue: 9000,
       actualCostRate: 50000 / STANDARD_HOURS, actualCost: 45 * (50000 / STANDARD_HOURS),
       expenseCost: 800, margin: 0, status: "ready",
