@@ -142,7 +142,7 @@ const DesignationMaster = () => {
           </div>
           <Dialog open={dialogOpen} onOpenChange={(open) => {
             setDialogOpen(open);
-            if (!open) { setEditingId(null); setForm({ designation: "", monthly_salary: "", currency: "USD" }); }
+            if (!open) { setEditingId(null); setForm({ designation: "", hourly_rate: "", currency: "USD" }); }
           }}>
             <DialogTrigger asChild>
               <Button className="gap-2 bg-primary text-primary-foreground">
