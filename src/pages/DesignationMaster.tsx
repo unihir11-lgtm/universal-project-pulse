@@ -67,7 +67,7 @@ const DesignationMaster = () => {
   useEffect(() => { fetchDesignations(); }, []);
 
   const handleSubmit = async () => {
-    if (!form.designation.trim() || !form.monthly_salary) {
+    if (!form.designation.trim() || !form.hourly_rate) {
       toast.error("Please fill all required fields");
       return;
     }
