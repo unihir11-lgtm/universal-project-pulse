@@ -138,7 +138,6 @@ const DesignationMaster = () => {
             <p className="text-muted-foreground mt-1">
               Manage designations and their hourly rates
             </p>
-            </p>
           </div>
           <Dialog open={dialogOpen} onOpenChange={(open) => {
             setDialogOpen(open);
