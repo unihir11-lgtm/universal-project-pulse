@@ -53,7 +53,7 @@ interface BillingEntry {
   employeeName: string;
   designation: string;
   billableHours: number;
-  nonBillableHours: number;
+  
   agreementRate: number; // client agreed bill_rate
   billableValue: number; // billableHours * agreementRate
   actualCostRate: number; // designation salary / 198
