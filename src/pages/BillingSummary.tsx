@@ -28,8 +28,10 @@ import {
   Clock,
   DollarSign,
   Percent,
-  Filter,
-  Building2
+  Building2,
+  Receipt,
+  Calculator,
+  FileCheck
 } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useEffect, useMemo } from "react";
@@ -40,6 +42,8 @@ import { useAuth } from "@/contexts/AuthContext";
 type Project = Tables<"projects">;
 type Profile = Tables<"profiles">;
 
+const STANDARD_HOURS = 198;
+
 interface BillingEntry {
   id: string;
   client: string;
@@ -47,10 +51,14 @@ interface BillingEntry {
   projectName: string;
   employeeId: string;
   employeeName: string;
+  designation: string;
   billableHours: number;
   nonBillableHours: number;
-  billableValue: number;
-  cost: number;
+  agreementRate: number; // client agreed bill_rate
+  billableValue: number; // billableHours * agreementRate
+  actualCostRate: number; // designation salary / 198
+  actualCost: number; // billableHours * actualCostRate
+  expenseCost: number; // from project_expenses
   margin: number;
   status: "ready" | "pending" | "review";
 }
@@ -67,137 +75,86 @@ const BillingSummary = () => {
   const [filterProject, setFilterProject] = useState("all");
   const [expandedClients, setExpandedClients] = useState<string[]>([]);
 
-  // Fetch projects and profiles
   useEffect(() => {
     const fetchData = async () => {
       const [projectsRes, profilesRes] = await Promise.all([
         supabase.from("projects").select("*").order("name"),
         supabase.from("profiles").select("*").order("full_name"),
       ]);
-      
       if (projectsRes.data) setProjects(projectsRes.data);
       if (profilesRes.data) setProfiles(profilesRes.data);
     };
     fetchData();
   }, []);
 
-  // Mock billing data grouped by client
+  // Mock billing data with new costing fields
   const mockBillingData: BillingEntry[] = useMemo(() => [
     {
-      id: "1",
-      client: "Acme Corp",
-      projectId: "p1",
-      projectName: "Enterprise Platform",
-      employeeId: "e1",
-      employeeName: "Sarah Chen",
-      billableHours: 42,
-      nonBillableHours: 8,
-      billableValue: 8400,
-      cost: 3150,
-      margin: 62.5,
-      status: "ready",
+      id: "1", client: "Acme Corp", projectId: "p1", projectName: "Enterprise Platform",
+      employeeId: "e1", employeeName: "Sarah Chen", designation: "Senior Developer",
+      billableHours: 42, nonBillableHours: 8,
+      agreementRate: 200, billableValue: 8400,
+      actualCostRate: 50000 / STANDARD_HOURS, actualCost: 42 * (50000 / STANDARD_HOURS),
+      expenseCost: 500, margin: 0, status: "ready",
     },
     {
-      id: "2",
-      client: "Acme Corp",
-      projectId: "p1",
-      projectName: "Enterprise Platform",
-      employeeId: "e2",
-      employeeName: "Mike Johnson",
-      billableHours: 38,
-      nonBillableHours: 4,
-      billableValue: 6840,
-      cost: 2660,
-      margin: 61.1,
-      status: "ready",
+      id: "2", client: "Acme Corp", projectId: "p1", projectName: "Enterprise Platform",
+      employeeId: "e2", employeeName: "Mike Johnson", designation: "Developer",
+      billableHours: 38, nonBillableHours: 4,
+      agreementRate: 180, billableValue: 6840,
+      actualCostRate: 40000 / STANDARD_HOURS, actualCost: 38 * (40000 / STANDARD_HOURS),
+      expenseCost: 200, margin: 0, status: "ready",
     },
     {
-      id: "3",
-      client: "Acme Corp",
-      projectId: "p2",
-      projectName: "Data Analytics",
-      employeeId: "e3",
-      employeeName: "Lisa Wang",
-      billableHours: 32,
-      nonBillableHours: 6,
-      billableValue: 6400,
-      cost: 2400,
-      margin: 62.5,
-      status: "pending",
+      id: "3", client: "Acme Corp", projectId: "p2", projectName: "Data Analytics",
+      employeeId: "e3", employeeName: "Lisa Wang", designation: "Business Analyst",
+      billableHours: 32, nonBillableHours: 6,
+      agreementRate: 200, billableValue: 6400,
+      actualCostRate: 45000 / STANDARD_HOURS, actualCost: 32 * (45000 / STANDARD_HOURS),
+      expenseCost: 300, margin: 0, status: "pending",
     },
     {
-      id: "4",
-      client: "TechStart Inc",
-      projectId: "p3",
-      projectName: "Mobile App",
-      employeeId: "e1",
-      employeeName: "Sarah Chen",
-      billableHours: 45,
-      nonBillableHours: 5,
-      billableValue: 9000,
-      cost: 3375,
-      margin: 62.5,
-      status: "ready",
+      id: "4", client: "TechStart Inc", projectId: "p3", projectName: "Mobile App",
+      employeeId: "e1", employeeName: "Sarah Chen", designation: "Senior Developer",
+      billableHours: 45, nonBillableHours: 5,
+      agreementRate: 200, billableValue: 9000,
+      actualCostRate: 50000 / STANDARD_HOURS, actualCost: 45 * (50000 / STANDARD_HOURS),
+      expenseCost: 800, margin: 0, status: "ready",
     },
     {
-      id: "5",
-      client: "TechStart Inc",
-      projectId: "p4",
-      projectName: "API Development",
-      employeeId: "e4",
-      employeeName: "David Lee",
-      billableHours: 28,
-      nonBillableHours: 2,
-      billableValue: 5040,
-      cost: 1960,
-      margin: 61.1,
-      status: "review",
+      id: "5", client: "TechStart Inc", projectId: "p4", projectName: "API Development",
+      employeeId: "e4", employeeName: "David Lee", designation: "Team Lead",
+      billableHours: 28, nonBillableHours: 2,
+      agreementRate: 180, billableValue: 5040,
+      actualCostRate: 55000 / STANDARD_HOURS, actualCost: 28 * (55000 / STANDARD_HOURS),
+      expenseCost: 150, margin: 0, status: "review",
     },
     {
-      id: "6",
-      client: "GlobalBank",
-      projectId: "p5",
-      projectName: "Banking Portal",
-      employeeId: "e2",
-      employeeName: "Mike Johnson",
-      billableHours: 52,
-      nonBillableHours: 8,
-      billableValue: 9360,
-      cost: 3640,
-      margin: 61.1,
-      status: "ready",
+      id: "6", client: "GlobalBank", projectId: "p5", projectName: "Banking Portal",
+      employeeId: "e2", employeeName: "Mike Johnson", designation: "Developer",
+      billableHours: 52, nonBillableHours: 8,
+      agreementRate: 180, billableValue: 9360,
+      actualCostRate: 40000 / STANDARD_HOURS, actualCost: 52 * (40000 / STANDARD_HOURS),
+      expenseCost: 600, margin: 0, status: "ready",
     },
     {
-      id: "7",
-      client: "GlobalBank",
-      projectId: "p5",
-      projectName: "Banking Portal",
-      employeeId: "e5",
-      employeeName: "Emily Brown",
-      billableHours: 35,
-      nonBillableHours: 5,
-      billableValue: 6300,
-      cost: 2450,
-      margin: 61.1,
-      status: "pending",
+      id: "7", client: "GlobalBank", projectId: "p5", projectName: "Banking Portal",
+      employeeId: "e5", employeeName: "Emily Brown", designation: "QA Engineer",
+      billableHours: 35, nonBillableHours: 5,
+      agreementRate: 180, billableValue: 6300,
+      actualCostRate: 35000 / STANDARD_HOURS, actualCost: 35 * (35000 / STANDARD_HOURS),
+      expenseCost: 250, margin: 0, status: "pending",
     },
     {
-      id: "8",
-      client: "RetailMax",
-      projectId: "p6",
-      projectName: "E-Commerce Platform",
-      employeeId: "e3",
-      employeeName: "Lisa Wang",
-      billableHours: 18,
-      nonBillableHours: 2,
-      billableValue: 3200,
-      cost: 1035,
-      margin: 67.7,
-      status: "ready",
+      id: "8", client: "RetailMax", projectId: "p6", projectName: "E-Commerce Platform",
+      employeeId: "e3", employeeName: "Lisa Wang", designation: "Business Analyst",
+      billableHours: 18, nonBillableHours: 2,
+      agreementRate: 200, billableValue: 3600,
+      actualCostRate: 45000 / STANDARD_HOURS, actualCost: 18 * (45000 / STANDARD_HOURS),
+      expenseCost: 100, margin: 0, status: "ready",
     },
-  ], []);
+  ].map(e => ({ ...e, margin: e.billableValue > 0 ? ((e.billableValue - e.actualCost - e.expenseCost) / e.billableValue * 100) : 0 })), []);
 
-  // Filter data
   const filteredData = useMemo(() => {
     return mockBillingData.filter(entry => {
       const matchesSearch = searchQuery === "" || 
@@ -210,104 +167,76 @@ const BillingSummary = () => {
     });
   }, [mockBillingData, searchQuery, filterClient, filterProject]);
 
-  // Group by client
   const groupedByClient = useMemo(() => {
     const groups: Record<string, BillingEntry[]> = {};
     filteredData.forEach(entry => {
-      if (!groups[entry.client]) {
-        groups[entry.client] = [];
-      }
+      if (!groups[entry.client]) groups[entry.client] = [];
       groups[entry.client].push(entry);
     });
     return groups;
   }, [filteredData]);
 
-  // Calculate totals
   const totals = useMemo(() => {
     return filteredData.reduce((acc, entry) => ({
       billableHours: acc.billableHours + entry.billableHours,
       billableValue: acc.billableValue + entry.billableValue,
-      cost: acc.cost + entry.cost,
-    }), {
-      billableHours: 0,
-      billableValue: 0,
-      cost: 0,
-    });
+      actualCost: acc.actualCost + entry.actualCost,
+      expenseCost: acc.expenseCost + entry.expenseCost,
+    }), { billableHours: 0, billableValue: 0, actualCost: 0, expenseCost: 0 });
   }, [filteredData]);
 
   const avgMargin = totals.billableValue > 0 
-    ? ((totals.billableValue - totals.cost) / totals.billableValue * 100).toFixed(1)
+    ? ((totals.billableValue - totals.actualCost - totals.expenseCost) / totals.billableValue * 100).toFixed(1)
     : "0";
 
-  // Calculate client totals
   const clientTotals = useMemo(() => {
-    const totals: Record<string, { hours: number; value: number; cost: number }> = {};
+    const t: Record<string, { hours: number; billableValue: number; actualCost: number; expenseCost: number; agreementValue: number }> = {};
     Object.entries(groupedByClient).forEach(([client, entries]) => {
-      totals[client] = entries.reduce((acc, entry) => ({
-        hours: acc.hours + entry.billableHours,
-        value: acc.value + entry.billableValue,
-        cost: acc.cost + entry.cost,
-      }), { hours: 0, value: 0, cost: 0 });
+      t[client] = entries.reduce((acc, e) => ({
+        hours: acc.hours + e.billableHours,
+        billableValue: acc.billableValue + e.billableValue,
+        actualCost: acc.actualCost + e.actualCost,
+        expenseCost: acc.expenseCost + e.expenseCost,
+        agreementValue: acc.agreementValue + e.billableValue, // agreement = hours × agreed rate
+      }), { hours: 0, billableValue: 0, actualCost: 0, expenseCost: 0, agreementValue: 0 });
     });
-    return totals;
+    return t;
   }, [groupedByClient]);
 
-  // Get unique clients for filter
-  const uniqueClients = useMemo(() => {
-    return [...new Set(mockBillingData.map(e => e.client))];
-  }, [mockBillingData]);
-
-  // Get unique projects for filter
+  const uniqueClients = useMemo(() => [...new Set(mockBillingData.map(e => e.client))], [mockBillingData]);
   const uniqueProjects = useMemo(() => {
-    const projects = new Map<string, string>();
-    mockBillingData.forEach(e => projects.set(e.projectId, e.projectName));
-    return Array.from(projects.entries()).map(([id, name]) => ({ id, name }));
+    const p = new Map<string, string>();
+    mockBillingData.forEach(e => p.set(e.projectId, e.projectName));
+    return Array.from(p.entries()).map(([id, name]) => ({ id, name }));
   }, [mockBillingData]);
 
   const toggleClient = (client: string) => {
-    setExpandedClients(prev => 
-      prev.includes(client) 
-        ? prev.filter(c => c !== client)
-        : [...prev, client]
-    );
+    setExpandedClients(prev => prev.includes(client) ? prev.filter(c => c !== client) : [...prev, client]);
   };
 
   const handleReset = () => {
-    setSearchQuery("");
-    setFilterPeriod("month");
-    setFilterClient("all");
-    setFilterProject("all");
+    setSearchQuery(""); setFilterPeriod("month"); setFilterClient("all"); setFilterProject("all");
   };
 
   const handleExportCSV = () => {
     const headers = canViewCostData
-      ? ["Client", "Project", "Employee", "Billable Hrs", "Non-Billable", "Billable Value", "Cost", "Margin"]
-      : ["Client", "Project", "Employee", "Billable Hrs", "Non-Billable", "Billable Value"];
-    
+      ? ["Client", "Project", "Employee", "Designation", "Billable Hrs", "Agreement Rate", "Billable Value", "Actual Cost", "Expense Cost", "Margin"]
+      : ["Client", "Project", "Employee", "Billable Hrs", "Billable Value"];
     const rows = filteredData.map(entry => {
-      const baseRow = [
-        entry.client,
-        entry.projectName,
-        entry.employeeName,
-        `${entry.billableHours}h`,
-        `${entry.nonBillableHours}h`,
-        `$${entry.billableValue.toLocaleString()}`,
-      ];
+      const base = [entry.client, entry.projectName, entry.employeeName];
       if (canViewCostData) {
-        baseRow.push(`$${entry.cost.toLocaleString()}`, `${entry.margin}%`);
+        base.push(entry.designation, `${entry.billableHours}h`, `$${entry.agreementRate}`, `$${entry.billableValue.toLocaleString()}`, `$${entry.actualCost.toFixed(0)}`, `$${entry.expenseCost}`, `${entry.margin.toFixed(1)}%`);
+      } else {
+        base.push(`${entry.billableHours}h`, `$${entry.billableValue.toLocaleString()}`);
       }
-      return baseRow;
+      return base;
     });
-
-    const csvContent = [headers.join(","), ...rows.map(row => row.join(","))].join("\n");
+    const csvContent = [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
     const blob = new Blob([csvContent], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
+    const a = document.createElement("a"); a.href = url;
     a.download = `billing-summary-${new Date().toISOString().split("T")[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-    
+    a.click(); URL.revokeObjectURL(url);
     toast.success("Billing summary exported to CSV");
   };
 
@@ -331,7 +260,7 @@ const BillingSummary = () => {
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-foreground">Billing Summary</h1>
             <p className="text-muted-foreground mt-1">
-              Review billable hours and revenue across clients and projects
+              Review agreement, actual, expense, and billable costing across clients and projects
             </p>
           </div>
           <Button onClick={handleExportCSV} className="gap-2 bg-primary text-primary-foreground">
@@ -341,34 +270,65 @@ const BillingSummary = () => {
         </div>
 
         {/* Summary Cards */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
           <Card className="relative overflow-hidden">
             <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-info/20 to-transparent rounded-bl-full" />
             <CardContent className="pt-6">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Billable Hours</p>
-                  <p className="text-3xl font-bold mt-2 text-foreground">{totals.billableHours}h</p>
-                  <p className="text-sm text-muted-foreground mt-1">{uniqueClients.length} clients</p>
+                  <p className="text-sm font-medium text-muted-foreground">Agreement Costing</p>
+                  <p className="text-2xl font-bold mt-2 text-foreground">${totals.billableValue.toLocaleString()}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Client agreed rates × hours</p>
                 </div>
                 <div className="p-3 bg-info/10 rounded-xl">
-                  <Clock className="h-5 w-5 text-info" />
+                  <FileCheck className="h-5 w-5 text-info" />
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-warning/20 to-transparent rounded-bl-full" />
+            <CardContent className="pt-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Expense Costing</p>
+                  <p className="text-2xl font-bold mt-2 text-warning">${totals.expenseCost.toLocaleString()}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Project expenses</p>
+                </div>
+                <div className="p-3 bg-warning/10 rounded-xl">
+                  <Receipt className="h-5 w-5 text-warning" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {canViewCostData && (
+            <Card className="relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-destructive/20 to-transparent rounded-bl-full" />
+              <CardContent className="pt-6">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Actual Costing</p>
+                    <p className="text-2xl font-bold mt-2 text-foreground">${Math.round(totals.actualCost).toLocaleString()}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Salary ÷ {STANDARD_HOURS}h × hours</p>
+                  </div>
+                  <div className="p-3 bg-destructive/10 rounded-xl">
+                    <Calculator className="h-5 w-5 text-destructive" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          <Card className="relative overflow-hidden">
             <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-success/20 to-transparent rounded-bl-full" />
             <CardContent className="pt-6">
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Billable Value</p>
-                  <p className="text-3xl font-bold mt-2 text-success">${totals.billableValue.toLocaleString()}</p>
-                  <div className="flex items-center gap-1 mt-1 text-sm text-success">
-                    <TrendingUp className="h-3 w-3" />
-                    <span>+12.3% vs last period</span>
-                  </div>
+                  <p className="text-sm font-medium text-muted-foreground">Billable Costing</p>
+                  <p className="text-2xl font-bold mt-2 text-success">${totals.billableValue.toLocaleString()}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{totals.billableHours}h billable</p>
                 </div>
                 <div className="p-3 bg-success/10 rounded-xl">
                   <DollarSign className="h-5 w-5 text-success" />
@@ -378,51 +338,31 @@ const BillingSummary = () => {
           </Card>
 
           {canViewCostData && (
-            <>
-              <Card className="relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-warning/20 to-transparent rounded-bl-full" />
-                <CardContent className="pt-6">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Total Cost</p>
-                      <p className="text-3xl font-bold mt-2 text-foreground">${totals.cost.toLocaleString()}</p>
-                      <p className="text-sm text-muted-foreground mt-1">Direct labor costs</p>
-                    </div>
-                    <div className="p-3 bg-warning/10 rounded-xl">
-                      <DollarSign className="h-5 w-5 text-warning" />
-                    </div>
+            <Card className="relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-accent/20 to-transparent rounded-bl-full" />
+              <CardContent className="pt-6">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Avg. Margin</p>
+                    <p className="text-2xl font-bold mt-2 text-foreground">{avgMargin}%</p>
+                    <p className="text-xs text-success mt-1">After actual + expenses</p>
                   </div>
-                </CardContent>
-              </Card>
-
-              <Card className="relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-accent/20 to-transparent rounded-bl-full" />
-                <CardContent className="pt-6">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">Avg. Margin</p>
-                      <p className="text-3xl font-bold mt-2 text-foreground">{avgMargin}%</p>
-                      <p className="text-sm text-success mt-1">Above target (55%)</p>
-                    </div>
-                    <div className="p-3 bg-accent/10 rounded-xl">
-                      <Percent className="h-5 w-5 text-accent" />
-                    </div>
+                  <div className="p-3 bg-accent/10 rounded-xl">
+                    <Percent className="h-5 w-5 text-accent" />
                   </div>
-                </CardContent>
-              </Card>
-            </>
+                </div>
+              </CardContent>
+            </Card>
           )}
 
           {!canViewCostData && (
             <>
               <Card className="relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-success/20 to-transparent rounded-bl-full" />
                 <CardContent className="pt-6">
                   <div className="flex items-start justify-between">
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Ready to Bill</p>
-                      <p className="text-3xl font-bold mt-2 text-success">{readyCount}</p>
-                      <p className="text-sm text-muted-foreground mt-1">entries approved</p>
+                      <p className="text-2xl font-bold mt-2 text-success">{readyCount}</p>
                     </div>
                     <div className="p-3 bg-success/10 rounded-xl">
                       <TrendingUp className="h-5 w-5 text-success" />
@@ -430,15 +370,12 @@ const BillingSummary = () => {
                   </div>
                 </CardContent>
               </Card>
-
               <Card className="relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-warning/20 to-transparent rounded-bl-full" />
                 <CardContent className="pt-6">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Pending Review</p>
-                      <p className="text-3xl font-bold mt-2 text-warning">{pendingCount}</p>
-                      <p className="text-sm text-muted-foreground mt-1">entries awaiting</p>
+                      <p className="text-sm font-medium text-muted-foreground">Pending</p>
+                      <p className="text-2xl font-bold mt-2 text-warning">{pendingCount}</p>
                     </div>
                     <div className="p-3 bg-warning/10 rounded-xl">
                       <Clock className="h-5 w-5 text-warning" />
@@ -456,18 +393,11 @@ const BillingSummary = () => {
             <div className="flex flex-col md:flex-row md:items-center gap-4">
               <div className="relative flex-1 max-w-sm">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search employees, projects, clients..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
-                />
+                <Input placeholder="Search employees, projects, clients..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9" />
               </div>
               <div className="flex flex-wrap items-center gap-3">
                 <Select value={filterPeriod} onValueChange={setFilterPeriod}>
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue placeholder="Period" />
-                  </SelectTrigger>
+                  <SelectTrigger className="w-[140px]"><SelectValue placeholder="Period" /></SelectTrigger>
                   <SelectContent className="bg-background">
                     <SelectItem value="today">Today</SelectItem>
                     <SelectItem value="week">This Week</SelectItem>
@@ -478,25 +408,17 @@ const BillingSummary = () => {
                   </SelectContent>
                 </Select>
                 <Select value={filterClient} onValueChange={setFilterClient}>
-                  <SelectTrigger className="w-[150px]">
-                    <SelectValue placeholder="All Clients" />
-                  </SelectTrigger>
+                  <SelectTrigger className="w-[150px]"><SelectValue placeholder="All Clients" /></SelectTrigger>
                   <SelectContent className="bg-background">
                     <SelectItem value="all">All Clients</SelectItem>
-                    {uniqueClients.map(client => (
-                      <SelectItem key={client} value={client}>{client}</SelectItem>
-                    ))}
+                    {uniqueClients.map(client => <SelectItem key={client} value={client}>{client}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 <Select value={filterProject} onValueChange={setFilterProject}>
-                  <SelectTrigger className="w-[160px]">
-                    <SelectValue placeholder="All Projects" />
-                  </SelectTrigger>
+                  <SelectTrigger className="w-[160px]"><SelectValue placeholder="All Projects" /></SelectTrigger>
                   <SelectContent className="bg-background">
                     <SelectItem value="all">All Projects</SelectItem>
-                    {uniqueProjects.map(p => (
-                      <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                    ))}
+                    {uniqueProjects.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 <Button variant="ghost" size="icon" onClick={handleReset} className="shrink-0">
@@ -529,14 +451,17 @@ const BillingSummary = () => {
                   <TableRow className="hover:bg-transparent">
                     <TableHead className="w-8"></TableHead>
                     <TableHead className="font-semibold">Project / Employee</TableHead>
-                    <TableHead className="font-semibold text-right">Billable</TableHead>
-                    <TableHead className="font-semibold text-right">Non-Bill</TableHead>
-                    <TableHead className="font-semibold text-right">Value</TableHead>
+                    <TableHead className="font-semibold text-right">Billable Hrs</TableHead>
+                    <TableHead className="font-semibold text-right">Agreement</TableHead>
                     {canViewCostData && (
                       <>
-                        <TableHead className="font-semibold text-right">Cost</TableHead>
-                        <TableHead className="font-semibold text-right">Margin</TableHead>
+                        <TableHead className="font-semibold text-right">Actual Cost</TableHead>
+                        <TableHead className="font-semibold text-right">Expenses</TableHead>
                       </>
+                    )}
+                    <TableHead className="font-semibold text-right">Billable Value</TableHead>
+                    {canViewCostData && (
+                      <TableHead className="font-semibold text-right">Margin</TableHead>
                     )}
                     <TableHead className="font-semibold text-center">Status</TableHead>
                   </TableRow>
@@ -544,8 +469,8 @@ const BillingSummary = () => {
                 <TableBody>
                   {Object.entries(groupedByClient).map(([client, entries]) => {
                     const isExpanded = expandedClients.includes(client);
-                    const clientTotal = clientTotals[client];
-                    const clientMargin = clientTotal ? ((clientTotal.value - clientTotal.cost) / clientTotal.value * 100).toFixed(1) : "0";
+                    const ct = clientTotals[client];
+                    const clientMargin = ct ? ((ct.billableValue - ct.actualCost - ct.expenseCost) / ct.billableValue * 100).toFixed(1) : "0";
                     
                     return (
                       <>
@@ -556,11 +481,7 @@ const BillingSummary = () => {
                         >
                           <TableCell className="py-4">
                             <div className="p-1 rounded hover:bg-muted transition-colors">
-                              {isExpanded ? (
-                                <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                              ) : (
-                                <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                              )}
+                              {isExpanded ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
                             </div>
                           </TableCell>
                           <TableCell className="py-4">
@@ -574,14 +495,17 @@ const BillingSummary = () => {
                               </div>
                             </div>
                           </TableCell>
-                          <TableCell className="text-right font-semibold py-4">{clientTotal?.hours}h</TableCell>
-                          <TableCell className="text-right text-muted-foreground py-4">—</TableCell>
-                          <TableCell className="text-right font-semibold text-success py-4">${clientTotal?.value.toLocaleString()}</TableCell>
+                          <TableCell className="text-right font-semibold py-4">{ct?.hours}h</TableCell>
+                          <TableCell className="text-right font-semibold text-info py-4">${ct?.billableValue.toLocaleString()}</TableCell>
                           {canViewCostData && (
                             <>
-                              <TableCell className="text-right py-4">${clientTotal?.cost.toLocaleString()}</TableCell>
-                              <TableCell className="text-right font-semibold text-success py-4">{clientMargin}%</TableCell>
+                              <TableCell className="text-right py-4">${Math.round(ct?.actualCost || 0).toLocaleString()}</TableCell>
+                              <TableCell className="text-right text-warning py-4">${ct?.expenseCost.toLocaleString()}</TableCell>
                             </>
+                          )}
+                          <TableCell className="text-right font-semibold text-success py-4">${ct?.billableValue.toLocaleString()}</TableCell>
+                          {canViewCostData && (
+                            <TableCell className="text-right font-semibold text-success py-4">{clientMargin}%</TableCell>
                           )}
                           <TableCell className="py-4"></TableCell>
                         </TableRow>
@@ -593,22 +517,37 @@ const BillingSummary = () => {
                               <TableCell>
                                 <div className="pl-8">
                                   <p className="font-medium text-foreground">{entry.projectName}</p>
-                                  <p className="text-sm text-muted-foreground">{entry.employeeName}</p>
+                                  <p className="text-sm text-muted-foreground">{entry.employeeName} • {entry.designation}</p>
                                 </div>
                               </TableCell>
                               <TableCell className="text-right font-medium">{entry.billableHours}h</TableCell>
-                              <TableCell className="text-right text-muted-foreground">{entry.nonBillableHours}h</TableCell>
-                              <TableCell className="text-right font-medium text-success">${entry.billableValue.toLocaleString()}</TableCell>
+                              <TableCell className="text-right text-info">
+                                <div>
+                                  <p className="font-medium">${entry.billableValue.toLocaleString()}</p>
+                                  <p className="text-xs text-muted-foreground">@${entry.agreementRate}/hr</p>
+                                </div>
+                              </TableCell>
                               {canViewCostData && (
                                 <>
-                                  <TableCell className="text-right text-muted-foreground">${entry.cost.toLocaleString()}</TableCell>
-                                  <TableCell className="text-right font-medium">{entry.margin}%</TableCell>
+                                  <TableCell className="text-right">
+                                    <div>
+                                      <p className="font-medium">${Math.round(entry.actualCost).toLocaleString()}</p>
+                                      <p className="text-xs text-muted-foreground">@${entry.actualCostRate.toFixed(0)}/hr</p>
+                                    </div>
+                                  </TableCell>
+                                  <TableCell className="text-right text-warning">${entry.expenseCost.toLocaleString()}</TableCell>
                                 </>
                               )}
+                              <TableCell className="text-right font-medium text-success">${entry.billableValue.toLocaleString()}</TableCell>
+                              {canViewCostData && (
+                                <TableCell className="text-right font-medium">
+                                  <span className={entry.margin >= 50 ? "text-success" : entry.margin >= 30 ? "text-warning" : "text-destructive"}>
+                                    {entry.margin.toFixed(1)}%
+                                  </span>
+                                </TableCell>
+                              )}
                               <TableCell className="text-center">
-                                <Badge variant="outline" className={statusConfig.className}>
-                                  {statusConfig.label}
-                                </Badge>
+                                <Badge variant="outline" className={statusConfig.className}>{statusConfig.label}</Badge>
                               </TableCell>
                             </TableRow>
                           );
