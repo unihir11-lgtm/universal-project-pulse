@@ -110,7 +110,7 @@ const DesignationMaster = () => {
     setEditingId(d.id);
     setForm({
       designation: d.designation,
-      monthly_salary: d.monthly_salary.toString(),
+      hourly_rate: (d.monthly_salary / STANDARD_HOURS).toFixed(2),
       currency: d.currency,
     });
     setDialogOpen(true);
