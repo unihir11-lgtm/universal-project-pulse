@@ -562,7 +562,7 @@ const ResourceAllocation = () => {
                                     </div>
                                   )}
                                   <span className={`text-xs font-semibold ${getCellTextColor(total)}`}>
-                                    {total > 0 ? `${total}h` : "—"}
+                                    {total > 0 ? `${total}h` : "Free"}
                                   </span>
                                   {total > 0 && (
                                     <span className={`text-[9px] leading-none ${remaining < 0 ? "text-destructive font-semibold" : "text-muted-foreground"}`}>
