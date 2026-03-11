@@ -221,7 +221,7 @@ const BillingSummary = () => {
   };
 
   const handleReset = () => {
-    setSearchQuery(""); setFilterPeriod("month"); setFilterClient("all"); setFilterProject("all");
+    setSearchQuery(""); setStartDate(undefined); setEndDate(undefined); setFilterClient("all"); setFilterProject("all");
   };
 
   const handleExportCSV = () => {
