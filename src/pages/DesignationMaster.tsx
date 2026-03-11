@@ -184,17 +184,6 @@ const DesignationMaster = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                {form.monthly_salary && (
-                  <div className="p-3 bg-muted rounded-lg">
-                    <p className="text-sm text-muted-foreground">Computed Hourly Rate</p>
-                    <p className="text-lg font-bold text-foreground">
-                      {form.currency} {(parseFloat(form.monthly_salary) / STANDARD_HOURS).toFixed(2)}/hr
-                    </p>
-                    <p className="text-xs text-muted-foreground">Monthly Salary ÷ {STANDARD_HOURS} standard hours</p>
-                  </div>
-                )}
-              </div>
-              <DialogFooter>
                 <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
                 <Button onClick={handleSubmit}>{editingId ? "Update" : "Create"}</Button>
               </DialogFooter>
