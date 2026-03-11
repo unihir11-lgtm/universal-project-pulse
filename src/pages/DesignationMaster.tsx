@@ -184,6 +184,8 @@ const DesignationMaster = () => {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+              <DialogFooter>
                 <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
                 <Button onClick={handleSubmit}>{editingId ? "Update" : "Create"}</Button>
               </DialogFooter>
