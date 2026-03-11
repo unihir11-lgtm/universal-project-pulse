@@ -148,7 +148,7 @@ const BillingSummary = () => {
     {
       id: "8", client: "RetailMax", projectId: "p6", projectName: "E-Commerce Platform",
       employeeId: "e3", employeeName: "Lisa Wang", designation: "Business Analyst",
-      billableHours: 18, nonBillableHours: 2,
+      billableHours: 18,
       agreementRate: 200, billableValue: 3600,
       actualCostRate: 45000 / STANDARD_HOURS, actualCost: 18 * (45000 / STANDARD_HOURS),
       expenseCost: 100, margin: 0, status: "ready",
