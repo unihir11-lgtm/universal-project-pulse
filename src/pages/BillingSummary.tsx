@@ -513,7 +513,7 @@ const BillingSummary = () => {
                             </div>
                           </TableCell>
                           <TableCell className="text-right font-semibold py-4">{ct?.hours}h</TableCell>
-                          <TableCell className="text-right font-semibold text-info py-4">${ct?.billableValue.toLocaleString()}</TableCell>
+                          
                           {canViewCostData && (
                             <>
                               <TableCell className="text-right py-4">${Math.round(ct?.actualCost || 0).toLocaleString()}</TableCell>
