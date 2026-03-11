@@ -72,9 +72,10 @@ const DesignationMaster = () => {
       return;
     }
 
+    const hourlyRate = parseFloat(form.hourly_rate);
     const payload = {
       designation: form.designation.trim(),
-      monthly_salary: parseFloat(form.monthly_salary),
+      monthly_salary: hourlyRate * STANDARD_HOURS,
       currency: form.currency,
     };
 
