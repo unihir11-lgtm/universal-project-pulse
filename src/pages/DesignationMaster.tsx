@@ -49,7 +49,7 @@ const DesignationMaster = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [form, setForm] = useState({ designation: "", monthly_salary: "", currency: "USD" });
+  const [form, setForm] = useState({ designation: "", hourly_rate: "", currency: "USD" });
 
   const fetchDesignations = async () => {
     const { data, error } = await supabase
@@ -67,14 +67,15 @@ const DesignationMaster = () => {
   useEffect(() => { fetchDesignations(); }, []);
 
   const handleSubmit = async () => {
-    if (!form.designation.trim() || !form.monthly_salary) {
+    if (!form.designation.trim() || !form.hourly_rate) {
       toast.error("Please fill all required fields");
       return;
     }
 
+    const hourlyRate = parseFloat(form.hourly_rate);
     const payload = {
       designation: form.designation.trim(),
-      monthly_salary: parseFloat(form.monthly_salary),
+      monthly_salary: hourlyRate * STANDARD_HOURS,
       currency: form.currency,
     };
 
@@ -101,7 +102,7 @@ const DesignationMaster = () => {
 
     setDialogOpen(false);
     setEditingId(null);
-    setForm({ designation: "", monthly_salary: "", currency: "USD" });
+    setForm({ designation: "", hourly_rate: "", currency: "USD" });
     fetchDesignations();
   };
 
@@ -109,7 +110,7 @@ const DesignationMaster = () => {
     setEditingId(d.id);
     setForm({
       designation: d.designation,
-      monthly_salary: d.monthly_salary.toString(),
+      hourly_rate: (d.monthly_salary / STANDARD_HOURS).toFixed(2),
       currency: d.currency,
     });
     setDialogOpen(true);
@@ -135,12 +136,12 @@ const DesignationMaster = () => {
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-foreground">Designation Master</h1>
             <p className="text-muted-foreground mt-1">
-              Manage designations and their monthly salary rates (Hourly = Salary ÷ {STANDARD_HOURS}h)
+              Manage designations and their hourly rates
             </p>
           </div>
           <Dialog open={dialogOpen} onOpenChange={(open) => {
             setDialogOpen(open);
-            if (!open) { setEditingId(null); setForm({ designation: "", monthly_salary: "", currency: "USD" }); }
+            if (!open) { setEditingId(null); setForm({ designation: "", hourly_rate: "", currency: "USD" }); }
           }}>
             <DialogTrigger asChild>
               <Button className="gap-2 bg-primary text-primary-foreground">
@@ -162,12 +163,12 @@ const DesignationMaster = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Monthly Salary *</Label>
+                  <Label>Hourly Rate *</Label>
                   <Input
                     type="number"
-                    value={form.monthly_salary}
-                    onChange={(e) => setForm({ ...form, monthly_salary: e.target.value })}
-                    placeholder="e.g. 50000"
+                    value={form.hourly_rate}
+                    onChange={(e) => setForm({ ...form, hourly_rate: e.target.value })}
+                    placeholder="e.g. 250"
                   />
                 </div>
                 <div className="space-y-2">
@@ -182,15 +183,6 @@ const DesignationMaster = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                {form.monthly_salary && (
-                  <div className="p-3 bg-muted rounded-lg">
-                    <p className="text-sm text-muted-foreground">Computed Hourly Rate</p>
-                    <p className="text-lg font-bold text-foreground">
-                      {form.currency} {(parseFloat(form.monthly_salary) / STANDARD_HOURS).toFixed(2)}/hr
-                    </p>
-                    <p className="text-xs text-muted-foreground">Monthly Salary ÷ {STANDARD_HOURS} standard hours</p>
-                  </div>
-                )}
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
@@ -219,8 +211,7 @@ const DesignationMaster = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Designation</TableHead>
-                  <TableHead className="text-right">Monthly Salary</TableHead>
-                  <TableHead className="text-right">Hourly Rate (÷{STANDARD_HOURS})</TableHead>
+                  <TableHead className="text-right">Hourly Rate</TableHead>
                   <TableHead className="text-center">Currency</TableHead>
                   <TableHead className="text-center">Status</TableHead>
                   <TableHead className="text-center">Actions</TableHead>
@@ -229,11 +220,11 @@ const DesignationMaster = () => {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">Loading...</TableCell>
+                    <TableCell colSpan={5} className="text-center text-muted-foreground py-8">Loading...</TableCell>
                   </TableRow>
                 ) : designations.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                    <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
                       No designations found. Add your first designation above.
                     </TableCell>
                   </TableRow>
@@ -241,7 +232,6 @@ const DesignationMaster = () => {
                   designations.map((d) => (
                     <TableRow key={d.id}>
                       <TableCell className="font-medium">{d.designation}</TableCell>
-                      <TableCell className="text-right">{d.monthly_salary.toLocaleString()}</TableCell>
                       <TableCell className="text-right font-semibold text-primary">
                         {(d.monthly_salary / STANDARD_HOURS).toFixed(2)}
                       </TableCell>
